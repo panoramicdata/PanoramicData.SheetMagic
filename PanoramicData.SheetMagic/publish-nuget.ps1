@@ -12,7 +12,7 @@ $apiKey = Get-Content $apiKeyFilename;
 # Build and test
 dotnet build -c Release
 dotnet build ..\PanoramicData.SheetMagic.Test -c Release
-dotnet test ..\LogicMonitor.SheetMagic.Test -c Release
+dotnet test ..\PanoramicData.SheetMagic.Test -c Release
 if ($lastexitcode -ne 0) {
 	Write-Error "One or more tests failed. Aborting..."
 	exit 1;

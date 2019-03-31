@@ -1,2 +1,2 @@
 # PanoramicData.SheetMagic
-Save/Load C# generics to/from Excel (XLSX) spreadsheets, easily
+Easily save/load from/to Excel (XLSX) documents using generics in C#

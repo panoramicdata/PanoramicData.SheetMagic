@@ -1,19 +1,18 @@
 ﻿using PanoramicData.SheetMagic.Test.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class AddSheet
+	public class AddSheet : Test
 	{
 		[Theory]
 		[InlineData("12345678901234567890123456789012")]
 		[InlineData("abcdefghijklmnopqrstuvwxyz123456")]
 		public void AddSheet_SheetNameTooLong_Fails(string badSheetName)
 		{
-			var fileInfo = new FileInfo(Path.GetTempFileName());
+			var fileInfo = GetXlsxTempFileInfo();
 
 			try
 			{
@@ -31,7 +30,7 @@ namespace PanoramicData.SheetMagic.Test
 		[Fact]
 		public void AddSheet_SheetNameAlreadyExists_Fails()
 		{
-			var fileInfo = new FileInfo(Path.GetTempFileName());
+			var fileInfo = GetXlsxTempFileInfo();
 
 			try
 			{

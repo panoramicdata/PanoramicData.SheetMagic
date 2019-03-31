@@ -1,22 +1,27 @@
 ﻿using PanoramicData.SheetMagic.Test.Models;
 using System.Collections.Generic;
-using System.IO;
 using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class AddSheetOptionsTests
+
+	public class AddSheetOptionsTests : Test
 	{
 		[Fact]
 		public void IncludeProperties_ListSpecified_CorrectProperties()
 		{
-			var fileInfo = new FileInfo(Path.GetTempFileName());
+			var fileInfo = GetXlsxTempFileInfo();
 
 			try
 			{
 				var funkyAnimals = LoadSheet.GetFunkyAnimals();
 				var options = new AddSheetOptions
 				{
+					TableOptions = new TableOptions
+					{
+						Name = "FunkyAnimals",
+						DisplayName = "Funky Animals",
+					},
 					IncludeProperties = new HashSet<string>
 					{
 						nameof(SimpleAnimal.Id),
@@ -25,7 +30,7 @@ namespace PanoramicData.SheetMagic.Test
 				};
 				using (var s = new MagicSpreadsheet(fileInfo))
 				{
-					s.AddSheet(funkyAnimals, "Sheet1", options);
+					s.AddSheet(funkyAnimals, "FunkyAnimals", options);
 					s.Save();
 				}
 				// Reload the values back in and verify only the included properties exist
@@ -56,13 +61,18 @@ namespace PanoramicData.SheetMagic.Test
 		[Fact]
 		public void ExcludeProperties_ListSpecified_CorrectProperties()
 		{
-			var fileInfo = new FileInfo(Path.GetTempFileName());
+			var fileInfo = GetXlsxTempFileInfo();
 
 			try
 			{
 				var funkyAnimals = LoadSheet.GetFunkyAnimals();
 				var options = new AddSheetOptions
 				{
+					TableOptions = new TableOptions
+					{
+						Name = "FunkyAnimals",
+						DisplayName = "Funky Animals",
+					},
 					ExcludeProperties = new HashSet<string>
 					{
 						nameof(FunkyAnimal.Leg_Count),
@@ -72,7 +82,7 @@ namespace PanoramicData.SheetMagic.Test
 				};
 				using (var s = new MagicSpreadsheet(fileInfo))
 				{
-					s.AddSheet(funkyAnimals, "Sheet1", options);
+					s.AddSheet(funkyAnimals, "FunkyAnimals", options);
 					s.Save();
 				}
 				// Reload the values back in and verify only the included properties exist

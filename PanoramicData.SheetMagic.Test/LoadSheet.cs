@@ -8,7 +8,7 @@ using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class LoadSheet
+	public class LoadSheet : Test
 	{
 		[Fact]
 		public void LoadSheet_WithBlankRow_Succeeds()
@@ -83,7 +83,7 @@ namespace PanoramicData.SheetMagic.Test
 		[Fact]
 		public void WriteAndLoadBack()
 		{
-			var tempFileInfo = new FileInfo(Path.GetTempFileName());
+			var tempFileInfo = GetXlsxTempFileInfo();
 			try
 			{
 				// Generate some data
@@ -122,7 +122,7 @@ namespace PanoramicData.SheetMagic.Test
 		[Fact]
 		public void WriteAndLoadBackAsExtended()
 		{
-			var tempFileInfo = new FileInfo(Path.GetTempFileName());
+			var tempFileInfo = GetXlsxTempFileInfo();
 			try
 			{
 				// Generate some data
@@ -195,7 +195,7 @@ namespace PanoramicData.SheetMagic.Test
 		[Fact]
 		public void LoadBadSheets()
 		{
-			var tempFileInfo = new FileInfo(Path.GetTempFileName());
+			var tempFileInfo = GetXlsxTempFileInfo();
 			try
 			{
 				// Writes a sheet that has nothing to do with the attempt to read it

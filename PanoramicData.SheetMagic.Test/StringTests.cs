@@ -2,7 +2,7 @@
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class StringTests
+	public class StringTests : Test
 	{
 		[Theory]
 		[InlineData("wmi.pass", "wmipass")]

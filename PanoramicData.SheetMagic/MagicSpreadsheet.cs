@@ -156,7 +156,8 @@ namespace PanoramicData.SheetMagic
 			var keyList = keyHashset.OrderBy(k => k).ToList();
 
 			// Add the columns
-			for (var n = 0; n < propertyList.Count + keyList.Count; n++)
+			uint totalColumnCount = (uint)(propertyList.Count + keyList.Count);
+			for (var n = 0; n < totalColumnCount; n++)
 			{
 				columnConfigurations.AppendChild(new Column
 				{
@@ -219,6 +220,48 @@ namespace PanoramicData.SheetMagic
 					}
 				}
 			}
+
+			// Adding table style?
+			if (addSheetOptions?.TableOptions == null)
+			{
+				return;
+			}
+			// Yes - apply style
+
+			TableColumns tableColumns = new TableColumns() { Count = totalColumnCount };
+			var columnIndex = 0;
+			foreach (var columnConfiguration in columnConfigurations)
+			{
+				tableColumns.Append(new TableColumn
+				{
+					Name = propertyList[columnIndex].Name,
+					Id = (uint)++columnIndex,
+				});
+			}
+
+			// Determine the range
+			var reference = $"A1:{ColumnLetter(columnConfigurations.Count())}{items.Count + 1}";
+			var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>("rId1");
+			tableDefinitionPart.Table = new Table
+			(
+				new AutoFilter() { Reference = reference },
+				tableColumns
+				)
+			{
+				Id = 1U,
+				Name = addSheetOptions.TableOptions.Name,
+				DisplayName = addSheetOptions.TableOptions.DisplayName,
+				Reference = reference,
+				TotalsRowShown = addSheetOptions.TableOptions.TotalsRowShown,
+				TableStyleInfo = new TableStyleInfo()
+				{
+					Name = addSheetOptions.TableOptions.XlsxTableStyle.ToString(),
+					ShowFirstColumn = addSheetOptions.TableOptions.ShowFirstColumn,
+					ShowLastColumn = addSheetOptions.TableOptions.ShowLastColumn,
+					ShowRowStripes = addSheetOptions.TableOptions.ShowRowStripes,
+					ShowColumnStripes = addSheetOptions.TableOptions.ShowColumnStripes
+				}
+			};
 		}
 
 		public void Save()

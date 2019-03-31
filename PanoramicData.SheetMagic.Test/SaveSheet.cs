@@ -1,16 +1,15 @@
 ﻿using PanoramicData.SheetMagic.Test.Models;
 using System.Collections.Generic;
-using System.IO;
 using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class SaveSheet
+	public class SaveSheet : Test
 	{
 		[Fact]
 		public void SaveSheet_WithNoData_Succeeds()
 		{
-			var fileInfo = new FileInfo(Path.GetTempFileName());
+			var fileInfo = GetXlsxTempFileInfo();
 
 			try
 			{
@@ -35,7 +34,7 @@ namespace PanoramicData.SheetMagic.Test
 					{ "a", "b" }
 				}
 			};
-			var fileInfo = new FileInfo(Path.GetTempFileName());
+			var fileInfo = GetXlsxTempFileInfo();
 
 			try
 			{
@@ -83,7 +82,7 @@ namespace PanoramicData.SheetMagic.Test
 					{ customPropertyName, customPropertyValue }
 				}
 			};
-			var fileInfo = new FileInfo(Path.GetTempFileName());
+			var fileInfo = GetXlsxTempFileInfo();
 
 			try
 			{

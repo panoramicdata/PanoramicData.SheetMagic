@@ -19,8 +19,8 @@ var things = new List<Thing>
 	},
 };
 var fileInfo = new FileInfo($"Output {DateTime.UtcNow:yyyyMMddTHHmmss}Z.xlsx");
-using (var workbook = new MagicSpreadsheet(things))
+using (var workbook = new MagicSpreadsheet(fileInfo))
 {
-	workbook.AddSheet(results);
+	workbook.AddSheet(things);
 	workbook.Save();
 }

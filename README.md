@@ -5,7 +5,7 @@ Example:
 
 ```c#
 // Write a list of items to an XLSX file
-var results = new List<Thing>
+var things = new List<Thing>
 {
 	new Thing
 	{
@@ -19,7 +19,7 @@ var results = new List<Thing>
 	},
 };
 var fileInfo = new FileInfo($"Output {DateTime.UtcNow:yyyyMMddTHHmmss}Z.xlsx");
-using (var workbook = new MagicSpreadsheet(info))
+using (var workbook = new MagicSpreadsheet(things))
 {
 	workbook.AddSheet(results);
 	workbook.Save();

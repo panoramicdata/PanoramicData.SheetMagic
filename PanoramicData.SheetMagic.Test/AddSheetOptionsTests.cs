@@ -4,7 +4,6 @@ using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-
 	public class AddSheetOptionsTests : Test
 	{
 		[Fact]

@@ -12,14 +12,14 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Description>A library for easily saving/loading generic lists to/from XLSX workbooks.</Description>
 		<PackageIconUrl>http://www.panoramicdata.com/wp-content/uploads/2017/10/SheetMagic.png</PackageIconUrl>
-		<Version>2.1.0</Version>
+		<Version>2.1.1</Version>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>Moved to Github</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed broken boolean cell type loading</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DocumentFormat.OpenXml" Version="2.8.1" />
+		<PackageReference Include="DocumentFormat.OpenXml" Version="2.9.1" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
 	</ItemGroup>
 	<ItemGroup>

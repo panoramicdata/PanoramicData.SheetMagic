@@ -26,6 +26,18 @@ namespace PanoramicData.SheetMagic.Test
 		}
 
 		[Fact]
+		public void LoadSheet_WithBinaryValues_Succeeds()
+		{
+			// Load the parent/child relationships
+			using (var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("LMREP-7413"), new Options { StopProcessingOnFirstEmptyRow = true }))
+			{
+				magicSpreadsheet.Load();
+				var values = magicSpreadsheet.GetExtendedList<object>();
+				Assert.True((bool)values[0].Properties["IncludeSection2"]);
+			}
+		}
+
+		[Fact]
 		public void LoadParentChild()
 		{
 			// Load the parent/child relationships

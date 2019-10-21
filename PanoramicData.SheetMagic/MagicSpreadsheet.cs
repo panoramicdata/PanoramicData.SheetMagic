@@ -614,10 +614,12 @@ namespace PanoramicData.SheetMagic
 					return stringTable.SharedStringTable
 						.ElementAt(int.Parse(cellValueText)).InnerText;
 				case CellValues.Boolean:
-					return cellValueText == "1"
-						|| cellValueText == "0"
-							? false
-							: (bool?)null;
+					switch (cellValueText)
+					{
+						case "1": return true;
+						case "0": return false;
+						default: return (bool?)null;
+					}
 				case CellValues.Number:
 					return double.Parse(cellValueText);
 				case CellValues.Date:

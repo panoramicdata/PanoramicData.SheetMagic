@@ -29,23 +29,19 @@ namespace PanoramicData.SheetMagic.Test
 		public void LoadSheet_WithBinaryValues_Succeeds()
 		{
 			// Load the parent/child relationships
-			using (var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("LMREP-7413"), new Options { StopProcessingOnFirstEmptyRow = true }))
-			{
-				magicSpreadsheet.Load();
-				var values = magicSpreadsheet.GetExtendedList<object>();
-				Assert.True((bool)values[0].Properties["IncludeSection2"]);
-			}
+			using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("LMREP-7413"), new Options { StopProcessingOnFirstEmptyRow = true });
+			magicSpreadsheet.Load();
+			var values = magicSpreadsheet.GetExtendedList<object>();
+			Assert.True((bool)values[0].Properties["IncludeSection2"]);
 		}
 
 		[Fact]
 		public void LoadParentChild()
 		{
 			// Load the parent/child relationships
-			using (var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild")))
-			{
-				magicSpreadsheet.Load();
-				magicSpreadsheet.GetList<ParentChildRelationship>();
-			}
+			using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"));
+			magicSpreadsheet.Load();
+			magicSpreadsheet.GetList<ParentChildRelationship>();
 
 			// Loaded
 		}
@@ -70,12 +66,9 @@ namespace PanoramicData.SheetMagic.Test
 		public void LoadParentChild_MissingColumns_ThrowsException()
 		{
 			// Load the parent/child relationships
-			using (var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild")))
-			{
-				magicSpreadsheet.Load();
-				Assert.ThrowsAny<Exception>(() => magicSpreadsheet.GetList<ExtendedParentChildRelationship>());
-			}
-
+			using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"));
+			magicSpreadsheet.Load();
+			Assert.ThrowsAny<Exception>(() => magicSpreadsheet.GetList<ExtendedParentChildRelationship>());
 			// Loaded
 		}
 
@@ -83,12 +76,9 @@ namespace PanoramicData.SheetMagic.Test
 		public void LoadParentChild_MissingColumnsOptionSet_Succeeds()
 		{
 			// Load the parent/child relationships
-			using (var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"), new Options { IgnoreUnmappedProperties = true }))
-			{
-				magicSpreadsheet.Load();
-				magicSpreadsheet.GetList<ExtendedParentChildRelationship>();
-			}
-
+			using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"), new Options { IgnoreUnmappedProperties = true });
+			magicSpreadsheet.Load();
+			magicSpreadsheet.GetList<ExtendedParentChildRelationship>();
 			// Loaded
 		}
 
@@ -183,23 +173,19 @@ namespace PanoramicData.SheetMagic.Test
 		}
 
 		internal static List<FunkyAnimal> GetFunkyAnimals()
-		{
-			return new List<FunkyAnimal>
+			=> new List<FunkyAnimal>
 			{
 				new FunkyAnimal {Id = 1, Name = "Pig", Leg_Count = 4, WeightKg = 100.5, Description = "Bald sheep"},
 				new FunkyAnimal {Id = 2, Name = "Chicken", Leg_Count = 2, WeightKg = 0.5},
 				new FunkyAnimal {Id = 3, Name = "Goat", Leg_Count = 4, WeightKg = 30}
 			};
-		}
 
 		internal static List<Car> GetCars()
-		{
-			return new List<Car>
+			=> new List<Car>
 			{
 				new Car {Id = 1, Name = "Ford Prefect", WheelCount = 4, WeightKg = 75},
 				new Car {Id = 2, Name = "Ford! Focus!", WheelCount = 4, WeightKg = 2000}
 			};
-		}
 
 		/// <summary>
 		/// Tries to load bad sheets
@@ -219,15 +205,13 @@ namespace PanoramicData.SheetMagic.Test
 					funkyAnimalMagicSpreadsheet.Save();
 				}
 
-				using (var loadMagicSpreadsheet = new MagicSpreadsheet(tempFileInfo))
-				{
-					loadMagicSpreadsheet.Load();
+				using var loadMagicSpreadsheet = new MagicSpreadsheet(tempFileInfo);
+				loadMagicSpreadsheet.Load();
 
-					Assert.Throws<InvalidOperationException>(() => loadMagicSpreadsheet.GetList<Car>("Animals"));
+				Assert.Throws<InvalidOperationException>(() => loadMagicSpreadsheet.GetList<Car>("Animals"));
 
-					// Try to load FunkyAnimals into a list of Animals (should succeed)
-					loadMagicSpreadsheet.GetList<Animal>("Animals");
-				}
+				// Try to load FunkyAnimals into a list of Animals (should succeed)
+				loadMagicSpreadsheet.GetList<Animal>("Animals");
 			}
 			finally
 			{
@@ -238,45 +222,41 @@ namespace PanoramicData.SheetMagic.Test
 		[Fact]
 		public void Load_Uae_Broken()
 		{
-			using (var sheet = new MagicSpreadsheet(GetSheetFileInfo("UAE_Broken"), new Options
+			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("UAE_Broken"), new Options
 			{
 				EmptyRowInterpretedAsNull = true,
 				StopProcessingOnFirstEmptyRow = false
-			}))
-			{
-				sheet.Load();
-				var deviceSpecifications = sheet.GetExtendedList<object>("Successes");
-			}
+			});
+			sheet.Load();
+			var deviceSpecifications = sheet.GetExtendedList<object>("Successes");
 		}
 
 		[Fact]
 		public void LoadSpreadsheet()
 		{
-			using (var sheet = new MagicSpreadsheet(GetSheetFileInfo("Bulk Import Template")))
-			{
-				sheet.Load();
-				var deviceSpecifications = sheet.GetExtendedList<DeviceSpecification>();
-				// do some sheet
-				Assert.NotEmpty(deviceSpecifications);
-				Assert.Single(deviceSpecifications);
+			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("Bulk Import Template"));
+			sheet.Load();
+			var deviceSpecifications = sheet.GetExtendedList<DeviceSpecification>();
+			// do some sheet
+			Assert.NotEmpty(deviceSpecifications);
+			Assert.Single(deviceSpecifications);
 
-				var device = deviceSpecifications[0];
+			var device = deviceSpecifications[0];
 
-				Assert.Equal("localhost", device.Item.HostName);
-				Assert.Equal("DeviceDisplayName", device.Item.DeviceDisplayName);
-				Assert.Equal("The device description", device.Item.DeviceDescription);
-				Assert.Equal("Group/SubGroup1;Group/SubGroup2", device.Item.DeviceGroups);
-				Assert.Equal("CollectorDescription", device.Item.PreferredCollector);
-				Assert.True(device.Item.EnableAlerts);
-				Assert.False(device.Item.EnableNetflow);
-				Assert.Equal("", device.Item.NetflowCollector);
-				Assert.Equal("http://www.logicmonitor.com/", device.Item.Link);
+			Assert.Equal("localhost", device.Item.HostName);
+			Assert.Equal("DeviceDisplayName", device.Item.DeviceDisplayName);
+			Assert.Equal("The device description", device.Item.DeviceDescription);
+			Assert.Equal("Group/SubGroup1;Group/SubGroup2", device.Item.DeviceGroups);
+			Assert.Equal("CollectorDescription", device.Item.PreferredCollector);
+			Assert.True(device.Item.EnableAlerts);
+			Assert.False(device.Item.EnableNetflow);
+			Assert.Equal("", device.Item.NetflowCollector);
+			Assert.Equal("http://www.logicmonitor.com/", device.Item.Link);
 
-				// make sure there are 2 custom properties and are the values we're expecting
-				Assert.Equal(2, device.Properties.Count);
-				Assert.Equal("ValueA", device.Properties["Column A"]);
-				Assert.Equal("ValueB", device.Properties["column.b"]);
-			}
+			// make sure there are 2 custom properties and are the values we're expecting
+			Assert.Equal(2, device.Properties.Count);
+			Assert.Equal("ValueA", device.Properties["Column A"]);
+			Assert.Equal("ValueB", device.Properties["column.b"]);
 		}
 
 		private static FileInfo GetSheetFileInfo(string worksheetName)

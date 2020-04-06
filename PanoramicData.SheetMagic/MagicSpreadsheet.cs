@@ -21,24 +21,25 @@ namespace PanoramicData.SheetMagic
 		private readonly FileInfo _fileInfo;
 		private readonly Options _options;
 
-		public MagicSpreadsheet(FileInfo fileInfo, Options options = null)
+		public MagicSpreadsheet(FileInfo fileInfo, Options? options = default)
 		{
 			_fileInfo = fileInfo;
 			_options = options ?? new Options();
 		}
 
-		private SpreadsheetDocument _document;
+		private SpreadsheetDocument? _document;
 		private uint _worksheetCount;
 
 		public List<string> SheetNames =>
-			_document
+			_document?
 			.WorkbookPart
 			.Workbook
 			.Sheets
 			.ChildElements
 			.Cast<Sheet>()
 			.Select(s => s.Name.Value)
-			.ToList();
+			.ToList()
+			?? throw new InvalidOperationException("No document loaded.");
 
 		public void Load() => _document = SpreadsheetDocument.Open(_fileInfo.FullName, false);
 
@@ -60,16 +61,17 @@ namespace PanoramicData.SheetMagic
 				thirdLetter).Trim();
 		}
 
-		private static Cell CreateTextCell(string header, uint index, string text) =>
+		private static Cell CreateTextCell(string header, uint index, string? text) =>
 			new Cell(new InlineString(new Text { Text = text }))
 			{
 				DataType = CellValues.InlineString,
 				CellReference = header + index
 			};
 
-		public void AddSheet<T>(List<T> items, string sheetName = null, AddSheetOptions addSheetOptions = null)
+		public void AddSheet<T>(List<T> items, string? sheetName = null, AddSheetOptions? addSheetOptions = null)
 		{
-			addSheetOptions?.Validate();
+			var theAddSheetOptions = addSheetOptions ?? _options.DefaultAddSheetOptions;
+			theAddSheetOptions.Validate();
 
 			var type = typeof(T);
 			var typeName = type.Name;
@@ -85,10 +87,10 @@ namespace PanoramicData.SheetMagic
 			const int SheetNameCharacterLimit = 31;
 			if (string.IsNullOrWhiteSpace(sheetName))
 			{
-				// Get the length and leave space for an "s" on the end
-				var length = Math.Min(typeName.Length, SheetNameCharacterLimit - 1);
 				try
 				{
+					// Get the length and leave space for an "s" on the end
+					var length = Math.Min(typeName.Length, SheetNameCharacterLimit - 1);
 					sheetName = $"{typeName.Substring(0, length)}s";
 				}
 				catch (Exception)
@@ -98,7 +100,7 @@ namespace PanoramicData.SheetMagic
 			}
 
 			// Fail if the sheetName is longer than the 31 character limit in Excel
-			if (sheetName.Length > SheetNameCharacterLimit)
+			if (sheetName!.Length > SheetNameCharacterLimit)
 			{
 				throw new ArgumentException($"Sheet name cannot be more than {SheetNameCharacterLimit} characters", nameof(sheetName));
 			}
@@ -109,16 +111,7 @@ namespace PanoramicData.SheetMagic
 				throw new ArgumentException($"Sheet name {sheetName} already exists. Sheet names must be unique per Workbook", nameof(sheetName));
 			}
 
-			var sheetData = new SheetData();
-			var worksheetPart = _document.WorkbookPart.AddNewPart<WorksheetPart>();
-			worksheetPart.Worksheet = new Worksheet(sheetData);
-			var sheet = new Sheet
-			{
-				Id = _document.WorkbookPart.GetIdOfPart(worksheetPart),
-				SheetId = ++_worksheetCount,
-				Name = sheetName
-			};
-			(_document.WorkbookPart.Workbook.Sheets ?? (_document.WorkbookPart.Workbook.Sheets = new Sheets())).AppendChild(sheet);
+			WorksheetPart worksheetPart = CreateWorksheetPart(sheetName);
 
 			// Determine property list
 			var propertyList = new List<PropertyInfo>();
@@ -144,19 +137,19 @@ namespace PanoramicData.SheetMagic
 			}
 
 			// Filter the propertyList according to the AddSheetOptions
-			if (addSheetOptions?.IncludeProperties?.Any() ?? false)
+			if (theAddSheetOptions?.IncludeProperties?.Any() ?? false)
 			{
-				propertyList = propertyList.Where(p => addSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
+				propertyList = propertyList.Where(p => theAddSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 			}
-			else if (addSheetOptions?.ExcludeProperties?.Any() ?? false)
+			else if (theAddSheetOptions?.ExcludeProperties?.Any() ?? false)
 			{
-				propertyList = propertyList.Where(p => !addSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
+				propertyList = propertyList.Where(p => !theAddSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 			}
 
 			var keyList = keyHashset.OrderBy(k => k).ToList();
 
 			// Add the columns
-			uint totalColumnCount = (uint)(propertyList.Count + keyList.Count);
+			var totalColumnCount = (uint)(propertyList.Count + keyList.Count);
 			for (var n = 0; n < totalColumnCount; n++)
 			{
 				columnConfigurations.AppendChild(new Column
@@ -168,7 +161,7 @@ namespace PanoramicData.SheetMagic
 			// Add header
 			uint rowIndex = 0;
 			var row = new Row { RowIndex = ++rowIndex };
-			sheetData.AppendChild(row);
+			new SheetData().AppendChild(row);
 			var cellIndex = 0;
 
 			foreach (var header in propertyList.Select(p => p.Name))
@@ -187,7 +180,7 @@ namespace PanoramicData.SheetMagic
 			{
 				cellIndex = 0;
 				row = new Row { RowIndex = ++rowIndex };
-				sheetData.AppendChild(row);
+				new SheetData().AppendChild(row);
 
 				// Add cells for the properties
 				foreach (var property in propertyList)
@@ -222,13 +215,13 @@ namespace PanoramicData.SheetMagic
 			}
 
 			// Adding table style?
-			if (addSheetOptions?.TableOptions == null)
+			if (theAddSheetOptions?.TableOptions == null)
 			{
 				return;
 			}
 			// Yes - apply style
 
-			TableColumns tableColumns = new TableColumns() { Count = totalColumnCount };
+			var tableColumns = new TableColumns() { Count = totalColumnCount };
 			var columnIndex = 0;
 			foreach (var columnConfiguration in columnConfigurations)
 			{
@@ -249,25 +242,41 @@ namespace PanoramicData.SheetMagic
 				)
 			{
 				Id = 1U,
-				Name = addSheetOptions.TableOptions.Name,
-				DisplayName = addSheetOptions.TableOptions.DisplayName,
+				Name = theAddSheetOptions.TableOptions.Name,
+				DisplayName = theAddSheetOptions.TableOptions.DisplayName,
 				Reference = reference,
-				TotalsRowShown = addSheetOptions.TableOptions.TotalsRowShown,
+				TotalsRowShown = theAddSheetOptions.TableOptions.TotalsRowShown,
 				TableStyleInfo = new TableStyleInfo()
 				{
-					Name = addSheetOptions.TableOptions.XlsxTableStyle.ToString(),
-					ShowFirstColumn = addSheetOptions.TableOptions.ShowFirstColumn,
-					ShowLastColumn = addSheetOptions.TableOptions.ShowLastColumn,
-					ShowRowStripes = addSheetOptions.TableOptions.ShowRowStripes,
-					ShowColumnStripes = addSheetOptions.TableOptions.ShowColumnStripes
+					Name = theAddSheetOptions.TableOptions.XlsxTableStyle.ToString(),
+					ShowFirstColumn = theAddSheetOptions.TableOptions.ShowFirstColumn,
+					ShowLastColumn = theAddSheetOptions.TableOptions.ShowLastColumn,
+					ShowRowStripes = theAddSheetOptions.TableOptions.ShowRowStripes,
+					ShowColumnStripes = theAddSheetOptions.TableOptions.ShowColumnStripes
 				}
 			};
+		}
+
+		private WorksheetPart CreateWorksheetPart(string? sheetName)
+		{
+			var worksheetPart = _document.WorkbookPart.AddNewPart<WorksheetPart>();
+			var worksheet = new Worksheet((SheetData)new SheetData());
+			var sheet = new Sheet
+			{
+				Id = _document.WorkbookPart.GetIdOfPart(worksheetPart),
+				SheetId = ++_worksheetCount,
+				Name = sheetName
+			};
+			(_document.WorkbookPart.Workbook.Sheets ?? (_document.WorkbookPart.Workbook.Sheets = new Sheets())).AppendChild(sheet);
+
+			worksheetPart.Worksheet = worksheet;
+			return worksheetPart;
 		}
 
 		public void Save()
 		{
 			// Ensure that at least one sheet has been added
-			if (_document?.WorkbookPart?.Workbook?.Sheets == null || !_document.WorkbookPart.Workbook.Sheets.Any())
+			if (_document.WorkbookPart?.Workbook?.Sheets == null || !_document.WorkbookPart.Workbook.Sheets.Any())
 			{
 				AddSheet(new List<object>(), "Sheet1");
 			}
@@ -289,7 +298,7 @@ namespace PanoramicData.SheetMagic
 			ReleaseUnmanagedResources();
 		}
 
-		public List<T> GetList<T>(string sheetName = null) where T : new()
+		public List<T> GetList<T>(string? sheetName = null) where T : new()
 			=> GetExtendedList<T>(sheetName).Select(e => e.Item).ToList();
 
 		/// <summary>
@@ -297,9 +306,13 @@ namespace PanoramicData.SheetMagic
 		/// </summary>
 		/// <typeparam name="T">The type of object to load</typeparam>
 		/// <param name="sheetName">The sheet name (if null, uses the first sheet in the workbook)</param>
-		/// <returns></returns>
-		public List<Extended<T>> GetExtendedList<T>(string sheetName = null) where T : new()
+		public List<Extended<T>> GetExtendedList<T>(string? sheetName = null) where T : new()
 		{
+			if (_document == null)
+			{
+				throw new InvalidOperationException("Document not loaded.");
+			}
+
 			Sheet sheet;
 			var sheets = _document.WorkbookPart.Workbook.Sheets.Cast<Sheet>().ToList();
 			if (sheets.Count == 1)
@@ -601,7 +614,7 @@ namespace PanoramicData.SheetMagic
 			}
 		}
 
-		private object GetCellValueDirect(Cell cell, SharedStringTablePart stringTable)
+		private object? GetCellValueDirect(Cell cell, SharedStringTablePart stringTable)
 		{
 			var cellValueText = cell.CellValue?.Text;
 			if (cell.DataType == null)
@@ -614,12 +627,12 @@ namespace PanoramicData.SheetMagic
 					return stringTable.SharedStringTable
 						.ElementAt(int.Parse(cellValueText)).InnerText;
 				case CellValues.Boolean:
-					switch (cellValueText)
+					return cellValueText switch
 					{
-						case "1": return true;
-						case "0": return false;
-						default: return (bool?)null;
-					}
+						"1" => true,
+						"0" => false,
+						_ => null,
+					};
 				case CellValues.Number:
 					return double.Parse(cellValueText);
 				case CellValues.Date:
@@ -633,7 +646,7 @@ namespace PanoramicData.SheetMagic
 			}
 		}
 
-		private object GetCellValue<T>(Cell cell, SharedStringTablePart stringTable)
+		private object? GetCellValue<T>(Cell cell, SharedStringTablePart stringTable)
 		{
 			var cellValueText = cell.CellValue?.Text;
 			if (cell.DataType == null)
@@ -701,20 +714,6 @@ namespace PanoramicData.SheetMagic
 			}
 		}
 
-		//private static string ColumnIndexToColumnLetter(int colIndex)
-		//{
-		//	var div = colIndex + 1;
-		//	var colLetter = string.Empty;
-
-		//	while (div > 0)
-		//	{
-		//		var mod = (div - 1) % 26;
-		//		colLetter = (char)(65 + mod) + colLetter;
-		//		div = (div - mod) / 26;
-		//	}
-		//	return colLetter;
-		//}
-
 		private (int columnIndex, int rowIndex) GetReference(string cellReference)
 		{
 			var match = CellReferenceRegex.Match(cellReference);
@@ -747,15 +746,15 @@ namespace PanoramicData.SheetMagic
 
 		private void SetItemProperty<T, T1>(T item, T1 cellValue, string propertyName)
 		{
-			var cellValues = new List<object> { cellValue };
+			var cellValues = new List<object?> { cellValue };
 			typeof(T).InvokeMember(propertyName,
 				BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
 				Type.DefaultBinder, item, cellValues.ToArray());
 		}
 
-		private void SetItemProperty<T>(T item, object cellValue, string propertyName)
+		private void SetItemProperty<T>(T item, object? cellValue, string propertyName)
 		{
-			var cellValues = new List<object> { cellValue };
+			var cellValues = new List<object?> { cellValue };
 			typeof(T).InvokeMember(propertyName,
 				BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
 				Type.DefaultBinder, item, cellValues.ToArray());

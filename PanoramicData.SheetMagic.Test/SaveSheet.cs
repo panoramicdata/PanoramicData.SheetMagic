@@ -13,10 +13,8 @@ namespace PanoramicData.SheetMagic.Test
 
 			try
 			{
-				using (var s = new MagicSpreadsheet(fileInfo))
-				{
-					s.Save();
-				}
+				using var s = new MagicSpreadsheet(fileInfo);
+				s.Save();
 			}
 			finally
 			{
@@ -45,16 +43,14 @@ namespace PanoramicData.SheetMagic.Test
 					s1.Save();
 				}
 
-				using (var s2 = new MagicSpreadsheet(fileInfo))
-				{
-					s2.Load();
-					var b = s2.GetExtendedList<object>();
-					Assert.NotNull(b);
-					Assert.NotEmpty(b);
-					var firstItem = b[0];
-					Assert.True(firstItem.Properties.ContainsKey("a"));
-					Assert.Equal("b", firstItem.Properties["a"]);
-				}
+				using var s2 = new MagicSpreadsheet(fileInfo);
+				s2.Load();
+				var b = s2.GetExtendedList<object>();
+				Assert.NotNull(b);
+				Assert.NotEmpty(b);
+				var firstItem = b[0];
+				Assert.True(firstItem.Properties.ContainsKey("a"));
+				Assert.Equal("b", firstItem.Properties["a"]);
 			}
 			finally
 			{
@@ -93,18 +89,16 @@ namespace PanoramicData.SheetMagic.Test
 					s1.Save();
 				}
 
-				using (var s2 = new MagicSpreadsheet(fileInfo))
-				{
-					s2.Load();
-					var cars = s2.GetExtendedList<Car>();
-					Assert.NotNull(cars);
-					Assert.NotEmpty(cars);
-					var firstCar = cars[0];
-					Assert.NotNull(firstCar.Item);
-					Assert.Equal(carWeightKg, firstCar.Item.WeightKg);
-					Assert.True(firstCar.Properties.ContainsKey(customPropertyName));
-					Assert.Equal(customPropertyValue, firstCar.Properties[customPropertyName]);
-				}
+				using var s2 = new MagicSpreadsheet(fileInfo);
+				s2.Load();
+				var cars = s2.GetExtendedList<Car>();
+				Assert.NotNull(cars);
+				Assert.NotEmpty(cars);
+				var firstCar = cars[0];
+				Assert.NotNull(firstCar.Item);
+				Assert.Equal(carWeightKg, firstCar.Item.WeightKg);
+				Assert.True(firstCar.Properties.ContainsKey(customPropertyName));
+				Assert.Equal(customPropertyValue, firstCar.Properties[customPropertyName]);
 			}
 			finally
 			{

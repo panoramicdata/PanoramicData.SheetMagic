@@ -16,10 +16,8 @@ namespace PanoramicData.SheetMagic.Test
 
 			try
 			{
-				using (var s = new MagicSpreadsheet(fileInfo))
-				{
-					Assert.Throws<ArgumentException>(() => s.AddSheet(new List<SimpleAnimal>(), badSheetName));
-				}
+				using var s = new MagicSpreadsheet(fileInfo);
+				Assert.Throws<ArgumentException>(() => s.AddSheet(new List<SimpleAnimal>(), badSheetName));
 			}
 			finally
 			{
@@ -34,11 +32,9 @@ namespace PanoramicData.SheetMagic.Test
 
 			try
 			{
-				using (var s = new MagicSpreadsheet(fileInfo))
-				{
-					s.AddSheet(new List<SimpleAnimal>(), "Sheet1");
-					Assert.Throws<ArgumentException>(() => s.AddSheet(new List<SimpleAnimal>(), "Sheet1"));
-				}
+				using var s = new MagicSpreadsheet(fileInfo);
+				s.AddSheet(new List<SimpleAnimal>(), "Sheet1");
+				Assert.Throws<ArgumentException>(() => s.AddSheet(new List<SimpleAnimal>(), "Sheet1"));
 			}
 			finally
 			{

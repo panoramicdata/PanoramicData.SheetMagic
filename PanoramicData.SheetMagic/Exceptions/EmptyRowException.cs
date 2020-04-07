@@ -7,8 +7,8 @@ namespace PanoramicData.SheetMagic.Exceptions
 		public int RowIndex { get; set; }
 
 		public EmptyRowException(int rowIndex)
-			: base($"Row with index {rowIndex} is empty.  If this is permissible, set EmptyRowInterpretedAsNull or LoadNullExtendedProperties in the options.")
-			=> RowIndex = rowIndex;
+		  : base($"Row with index {rowIndex} is empty.  If this is permissible, set EmptyRowInterpretedAsNull or LoadNullExtendedProperties in the options.")
+		  => RowIndex = rowIndex;
 
 		public EmptyRowException()
 		{

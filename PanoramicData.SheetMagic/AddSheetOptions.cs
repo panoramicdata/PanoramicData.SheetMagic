@@ -5,9 +5,9 @@ namespace PanoramicData.SheetMagic
 {
 	public class AddSheetOptions
 	{
-		public HashSet<string> IncludeProperties { get; set; }
-		public HashSet<string> ExcludeProperties { get; set; }
-		public TableOptions TableOptions { get; set; }
+		public HashSet<string>? IncludeProperties { get; set; }
+		public HashSet<string>? ExcludeProperties { get; set; }
+		public TableOptions? TableOptions { get; set; }
 
 		internal void Validate()
 		{

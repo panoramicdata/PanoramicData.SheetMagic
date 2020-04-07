@@ -4,9 +4,13 @@ namespace PanoramicData.SheetMagic.Test.Models
 	{
 		// ReSharper disable once InconsistentNaming
 		public int Leg_Count { get; set; }
+
 		public int Id { get; set; }
-		public string Name { get; set; }
+
+		public string? Name { get; set; }
+
 		public double WeightKg { get; set; }
-		public string Description { get; set; }
+
+		public string? Description { get; set; }
 	}
 }

@@ -1,3 +1,4 @@
+using FluentAssertions;
 using PanoramicData.SheetMagic.Test.Models;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace PanoramicData.SheetMagic.Test
 		public void LoadSheet_WithBlankRow_Succeeds()
 		{
 			// Load the parent/child relationships
-			List<ParentChildRelationship> parentChildRelationships;
+			List<ParentChildRelationship?> parentChildRelationships;
 			using (var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChildWithBlankRows"), new Options { StopProcessingOnFirstEmptyRow = true }))
 			{
 				magicSpreadsheet.Load();
@@ -22,7 +23,7 @@ namespace PanoramicData.SheetMagic.Test
 			}
 
 			// Loaded
-			Assert.Equal(3, parentChildRelationships.Count);
+			parentChildRelationships.Count.Should().Be(3);
 		}
 
 		[Fact]
@@ -32,7 +33,7 @@ namespace PanoramicData.SheetMagic.Test
 			using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("LMREP-7413"), new Options { StopProcessingOnFirstEmptyRow = true });
 			magicSpreadsheet.Load();
 			var values = magicSpreadsheet.GetExtendedList<object>();
-			Assert.True((bool)values[0].Properties["IncludeSection2"]);
+			((bool?)values[0].Properties["IncludeSection2"]).Should().BeTrue();
 		}
 
 		[Fact]
@@ -50,7 +51,7 @@ namespace PanoramicData.SheetMagic.Test
 		public void LoadAbc()
 		{
 			// Load the parent/child relationships
-			List<AbcThing> things;
+			List<AbcThing?> things;
 			using (var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("EnumTest")))
 			{
 				magicSpreadsheet.Load();
@@ -58,8 +59,8 @@ namespace PanoramicData.SheetMagic.Test
 			}
 
 			// Loaded
-			Assert.True(things.Count == 6);
-			Assert.Equal(AbcEnum.B, things[1].AbcEnum);
+			things.Count.Should().Be(6);
+			things[1]?.AbcEnum.Should().Be(AbcEnum.B);
 		}
 
 		[Fact]
@@ -104,14 +105,14 @@ namespace PanoramicData.SheetMagic.Test
 				{
 					magicSpreadsheet.Load();
 					var sheetNames = magicSpreadsheet.SheetNames;
-					Assert.Contains("FunkyAnimals", sheetNames);
-					Assert.Contains("Cars", sheetNames);
+					sheetNames.Should().Contain("FunkyAnimals");
+					sheetNames.Should().Contain("Cars");
 
 					var reloadedCars = magicSpreadsheet.GetList<Car>();
-					Assert.Equal(cars.Count, reloadedCars.Count);
+					reloadedCars.Count.Should().Be(cars.Count);
 
 					var reloadedAnimals = magicSpreadsheet.GetList<FunkyAnimal>("FunkyAnimals");
-					Assert.Equal(funkyAnimals.Count, reloadedAnimals.Count);
+					reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
 				}
 			}
 			finally
@@ -147,14 +148,14 @@ namespace PanoramicData.SheetMagic.Test
 				{
 					magicSpreadsheet.Load();
 					var sheetNames = magicSpreadsheet.SheetNames;
-					Assert.Contains("FunkyAnimals", sheetNames);
-					Assert.Contains("Cars", sheetNames);
+					sheetNames.Should().Contain("FunkyAnimals");
+					sheetNames.Should().Contain("Cars");
 
 					var reloadedCars = magicSpreadsheet.GetList<Car>();
-					Assert.Equal(cars.Count, reloadedCars.Count);
+					reloadedCars.Count.Should().Be(cars.Count);
 
 					var reloadedAnimals = magicSpreadsheet.GetExtendedList<SimpleAnimal>("FunkyAnimals");
-					Assert.Equal(funkyAnimals.Count, reloadedAnimals.Count);
+					reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
 					// Make sure the extra fields are there in the additional items
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item.Id));
@@ -242,21 +243,21 @@ namespace PanoramicData.SheetMagic.Test
 			Assert.Single(deviceSpecifications);
 
 			var device = deviceSpecifications[0];
-
-			Assert.Equal("localhost", device.Item.HostName);
-			Assert.Equal("DeviceDisplayName", device.Item.DeviceDisplayName);
-			Assert.Equal("The device description", device.Item.DeviceDescription);
-			Assert.Equal("Group/SubGroup1;Group/SubGroup2", device.Item.DeviceGroups);
-			Assert.Equal("CollectorDescription", device.Item.PreferredCollector);
-			Assert.True(device.Item.EnableAlerts);
-			Assert.False(device.Item.EnableNetflow);
-			Assert.Equal("", device.Item.NetflowCollector);
-			Assert.Equal("http://www.logicmonitor.com/", device.Item.Link);
+			device.Item.Should().NotBeNull();
+			device.Item.HostName.Should().Be("localhost");
+			device.Item.DeviceDisplayName.Should().Be("DeviceDisplayName");
+			device.Item.DeviceDescription.Should().Be("The device description");
+			device.Item.DeviceGroups.Should().Be("Group/SubGroup1;Group/SubGroup2");
+			device.Item.PreferredCollector.Should().Be("CollectorDescription");
+			device.Item.EnableAlerts.Should().Be(true);
+			device.Item.EnableNetflow.Should().Be(false);
+			device.Item.NetflowCollector.Should().Be(string.Empty);
+			device.Item.Link.Should().Be("http://www.logicmonitor.com/");
 
 			// make sure there are 2 custom properties and are the values we're expecting
-			Assert.Equal(2, device.Properties.Count);
-			Assert.Equal("ValueA", device.Properties["Column A"]);
-			Assert.Equal("ValueB", device.Properties["column.b"]);
+			device.Properties.Count.Should().Be(2);
+			device.Properties["Column A"].Should().Be("ValueA");
+			device.Properties["column.b"].Should().Be("ValueB");
 		}
 
 		private static FileInfo GetSheetFileInfo(string worksheetName)

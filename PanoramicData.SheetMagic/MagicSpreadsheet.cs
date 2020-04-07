@@ -28,7 +28,6 @@ namespace PanoramicData.SheetMagic
 		}
 
 		private SpreadsheetDocument? _document;
-		private uint _worksheetCount;
 
 		public List<string> SheetNames =>
 			_document?
@@ -74,7 +73,8 @@ namespace PanoramicData.SheetMagic
 			theAddSheetOptions.Validate();
 
 			var type = typeof(T);
-			var typeName = type.Name;
+			var isExtended = type.IsGenericType && type.GetGenericTypeDefinition().UnderlyingSystemType.FullName == "PanoramicData.SheetMagic.Extended`1";
+			var typeName = isExtended ? type.GenericTypeArguments[0].Name : type.Name;
 
 			// Create a document for writing if not already loaded or created
 			if (_document == null)
@@ -111,21 +111,26 @@ namespace PanoramicData.SheetMagic
 				throw new ArgumentException($"Sheet name {sheetName} already exists. Sheet names must be unique per Workbook", nameof(sheetName));
 			}
 
-			WorksheetPart worksheetPart = CreateWorksheetPart(sheetName);
+			WorksheetPart worksheetPart = CreateWorksheetPart(_document, sheetName);
+			var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
 
 			// Determine property list
 			var propertyList = new List<PropertyInfo>();
 			var keyHashset = new HashSet<string>();
 			var columnConfigurations = new Columns();
-			var isExtended = type.IsGenericType && type.GetGenericTypeDefinition().UnderlyingSystemType.FullName == "PanoramicData.SheetMagic.Extended`1";
+			Type basicType;
 			if (isExtended)
 			{
-				propertyList.AddRange(type.GetGenericArguments()[0].GetProperties());
+				basicType = type.GenericTypeArguments[0];
+				PropertyInfo propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
 				foreach (var item in items)
 				{
-					var extended = items[0];
-					var kvps = (Dictionary<string, object>)extended.GetType().GetProperties().Single(p => p.Name == "Properties").GetValue(extended);
-					foreach (var key in kvps.Keys)
+					if (item is null)
+					{
+						continue;
+					}
+					var dictionary = (Dictionary<string, object>)propertyInfo.GetValue(item);
+					foreach (var key in dictionary.Keys)
 					{
 						keyHashset.Add(key);
 					}
@@ -133,8 +138,9 @@ namespace PanoramicData.SheetMagic
 			}
 			else
 			{
-				propertyList.AddRange(type.GetProperties());
+				basicType = type;
 			}
+			propertyList.AddRange(basicType.GetProperties());
 
 			// Filter the propertyList according to the AddSheetOptions
 			if (theAddSheetOptions?.IncludeProperties?.Any() ?? false)
@@ -161,7 +167,7 @@ namespace PanoramicData.SheetMagic
 			// Add header
 			uint rowIndex = 0;
 			var row = new Row { RowIndex = ++rowIndex };
-			new SheetData().AppendChild(row);
+			sheetData.AppendChild(row);
 			var cellIndex = 0;
 
 			foreach (var header in propertyList.Select(p => p.Name))
@@ -180,7 +186,7 @@ namespace PanoramicData.SheetMagic
 			{
 				cellIndex = 0;
 				row = new Row { RowIndex = ++rowIndex };
-				new SheetData().AppendChild(row);
+				sheetData.AppendChild(row);
 
 				// Add cells for the properties
 				foreach (var property in propertyList)
@@ -188,7 +194,8 @@ namespace PanoramicData.SheetMagic
 					Cell cell;
 					if (isExtended)
 					{
-						var baseItem = item.GetType().GetProperties().Single(p => p.Name == "Item").GetValue(item);
+						PropertyInfo propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item));
+						var baseItem = propertyInfo.GetValue(item);
 						cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, property.GetValue(baseItem)?.ToString() ?? string.Empty);
 					}
 					else
@@ -201,7 +208,9 @@ namespace PanoramicData.SheetMagic
 				// If not extended, this list will be empty
 				if (isExtended)
 				{
-					var dictionary = (Dictionary<string, object>)item.GetType().GetProperties().Single(p => p.Name == "Properties").GetValue(item);
+					PropertyInfo propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
+					var dictionary = (Dictionary<string, object>)propertyInfo.GetValue(item);
+
 					foreach (var key in keyList)
 					{
 						if (!dictionary.TryGetValue(key, out var @object))
@@ -257,17 +266,17 @@ namespace PanoramicData.SheetMagic
 			};
 		}
 
-		private WorksheetPart CreateWorksheetPart(string? sheetName)
+		private static WorksheetPart CreateWorksheetPart(SpreadsheetDocument document, string? sheetName)
 		{
-			var worksheetPart = _document.WorkbookPart.AddNewPart<WorksheetPart>();
-			var worksheet = new Worksheet((SheetData)new SheetData());
+			var worksheetPart = document.WorkbookPart.AddNewPart<WorksheetPart>();
+			var worksheet = new Worksheet(new SheetData());
 			var sheet = new Sheet
 			{
-				Id = _document.WorkbookPart.GetIdOfPart(worksheetPart),
-				SheetId = ++_worksheetCount,
+				Id = document.WorkbookPart.GetIdOfPart(worksheetPart),
+				SheetId = (uint)document.WorkbookPart.WorksheetParts.Count() + 1,
 				Name = sheetName
 			};
-			(_document.WorkbookPart.Workbook.Sheets ?? (_document.WorkbookPart.Workbook.Sheets = new Sheets())).AppendChild(sheet);
+			(document.WorkbookPart.Workbook.Sheets ?? (document.WorkbookPart.Workbook.Sheets = new Sheets())).AppendChild(sheet);
 
 			worksheetPart.Worksheet = worksheet;
 			return worksheetPart;
@@ -276,11 +285,14 @@ namespace PanoramicData.SheetMagic
 		public void Save()
 		{
 			// Ensure that at least one sheet has been added
-			if (_document.WorkbookPart?.Workbook?.Sheets == null || !_document.WorkbookPart.Workbook.Sheets.Any())
+			if (_document?.WorkbookPart?.Workbook?.Sheets == null || !_document.WorkbookPart.Workbook.Sheets.Any())
 			{
 				AddSheet(new List<object>(), "Sheet1");
 			}
-
+			if (_document?.WorkbookPart?.Workbook is null)
+			{
+				throw new Exception("Document incorrectly created.");
+			}
 			_document.WorkbookPart.Workbook.Save();
 			_document.Close();
 		}
@@ -298,7 +310,7 @@ namespace PanoramicData.SheetMagic
 			ReleaseUnmanagedResources();
 		}
 
-		public List<T> GetList<T>(string? sheetName = null) where T : new()
+		public List<T?> GetList<T>(string? sheetName = null) where T : class, new()
 			=> GetExtendedList<T>(sheetName).Select(e => e.Item).ToList();
 
 		/// <summary>
@@ -306,7 +318,7 @@ namespace PanoramicData.SheetMagic
 		/// </summary>
 		/// <typeparam name="T">The type of object to load</typeparam>
 		/// <param name="sheetName">The sheet name (if null, uses the first sheet in the workbook)</param>
-		public List<Extended<T>> GetExtendedList<T>(string? sheetName = null) where T : new()
+		public List<Extended<T>> GetExtendedList<T>(string? sheetName = null) where T : class, new()
 		{
 			if (_document == null)
 			{
@@ -361,7 +373,7 @@ namespace PanoramicData.SheetMagic
 
 			// Get the rows and columns by
 			List<Row> rows;
-			List<string> columns;
+			List<string>? columns;
 
 			var tableColumnOffset = 0;
 
@@ -470,18 +482,15 @@ namespace PanoramicData.SheetMagic
 					if (_options.EmptyRowInterpretedAsNull)
 					{
 						// Yes. Add an empty Extended<T> and move on to the next row.
-						list.Add(new Extended<T>());
+						list.Add(new Extended<T>(default));
 						continue;
 					}
 					// Unhandled empty row
 					throw new EmptyRowException(rowIndex);
 				}
 
-				var extendedItem = new Extended<T>
-				{
-					Properties = new Dictionary<string, object>(),
-					Item = new T()
-				};
+				var item = new T();
+				var eiProperties = new Dictionary<string, object?>();
 				for (columnIndex = 0; columnIndex < columns.Count; columnIndex++)
 				{
 					var propertyName = tMappings.ContainsKey(columnIndex)
@@ -491,15 +500,19 @@ namespace PanoramicData.SheetMagic
 					var property = properties.SingleOrDefault(p => p.Name == propertyName);
 					var index = columnIndex;
 					var cell = cells.SingleOrDefault(c => GetReference(c.CellReference.Value).columnIndex == index + tableColumnOffset);
-					if (cell == null && !_options.LoadNullExtendedProperties)
+					if (cell == null)
 					{
-						// No such cell.  Skip.
-						continue;
+						if (!_options.LoadNullExtendedProperties)
+						{
+							// No such cell.  Skip.
+							continue;
+						}
+						throw new InvalidOperationException($"Null cell found for column '{propertyName}'");
 					}
 
 					if (property == null)
 					{
-						extendedItem.Properties[columns[columnIndex]] = GetCellValueDirect(cell, stringTable);
+						eiProperties[columns[columnIndex]] = GetCellValueDirect(cell, stringTable);
 						continue;
 					}
 					// We have a property
@@ -513,7 +526,7 @@ namespace PanoramicData.SheetMagic
 							var cellValueDoubleObject = GetCellValue<double>(cell, stringTable);
 							if (cellValueDoubleObject != null)
 							{
-								SetItemProperty(extendedItem.Item, ((double?)cellValueDoubleObject).Value, propertyName);
+								SetItemProperty(item, ((double?)cellValueDoubleObject).Value, propertyName);
 							}
 
 							break;
@@ -521,43 +534,43 @@ namespace PanoramicData.SheetMagic
 							var cellValueIntObject = GetCellValue<int>(cell, stringTable);
 							if (cellValueIntObject != null)
 							{
-								SetItemProperty(extendedItem.Item, ((int?)cellValueIntObject).Value, propertyName);
+								SetItemProperty(item, ((int?)cellValueIntObject).Value, propertyName);
 							}
 							break;
 						case "Int64":
 							var cellValueLongObject = GetCellValue<long>(cell, stringTable);
 							if (cellValueLongObject != null)
 							{
-								SetItemProperty(extendedItem.Item, ((long?)cellValueLongObject).Value, propertyName);
+								SetItemProperty(item, ((long?)cellValueLongObject).Value, propertyName);
 							}
 							break;
 						case "String":
-							SetItemProperty(extendedItem.Item, (string)GetCellValue<string>(cell, stringTable), propertyName);
+							SetItemProperty(item, (string?)GetCellValue<string>(cell, stringTable), propertyName);
 							break;
 						case "Nullable`1<Boolean>":
-							SetItemProperty(extendedItem.Item, (bool?)GetCellValue<bool?>(cell, stringTable), propertyName);
+							SetItemProperty(item, (bool?)GetCellValue<bool?>(cell, stringTable), propertyName);
 							break;
 						case "Nullable`1<Double>":
-							SetItemProperty(extendedItem.Item, (double?)GetCellValue<double?>(cell, stringTable), propertyName);
+							SetItemProperty(item, (double?)GetCellValue<double?>(cell, stringTable), propertyName);
 							break;
 						case "Nullable`1<Single>":
-							SetItemProperty(extendedItem.Item, (float?)GetCellValue<float?>(cell, stringTable), propertyName);
+							SetItemProperty(item, (float?)GetCellValue<float?>(cell, stringTable), propertyName);
 							break;
 						case "Nullable`1<Int64>":
-							SetItemProperty(extendedItem.Item, (long?)GetCellValue<long?>(cell, stringTable), propertyName);
+							SetItemProperty(item, (long?)GetCellValue<long?>(cell, stringTable), propertyName);
 							break;
 						case "Nullable`1<Int32>":
-							SetItemProperty(extendedItem.Item, (int?)GetCellValue<int?>(cell, stringTable), propertyName);
+							SetItemProperty(item, (int?)GetCellValue<int?>(cell, stringTable), propertyName);
 							break;
 						case "Nullable`1<Int16>":
-							SetItemProperty(extendedItem.Item, (short?)GetCellValue<short?>(cell, stringTable), propertyName);
+							SetItemProperty(item, (short?)GetCellValue<short?>(cell, stringTable), propertyName);
 							break;
 						default:
 							// Is it an enum?
-							var stringValue = (string)GetCellValue<string>(cell, stringTable);
+							var stringValue = (string?)GetCellValue<string>(cell, stringTable);
 							if (property.PropertyType.IsEnum)
 							{
-								SetItemProperty(extendedItem.Item, Enum.Parse(property.PropertyType, stringValue, true), propertyName);
+								SetItemProperty(item, Enum.Parse(property.PropertyType, stringValue, true), propertyName);
 							}
 							else
 							{
@@ -566,8 +579,7 @@ namespace PanoramicData.SheetMagic
 							break;
 					}
 				}
-
-				list.Add(extendedItem);
+				list.Add(new Extended<T>(item, eiProperties));
 			}
 			return list;
 		}
@@ -604,14 +616,11 @@ namespace PanoramicData.SheetMagic
 		private string GetCellValueString(Cell cell, SharedStringTablePart stringTable)
 		{
 			var cellValueText = cell.CellValue?.Text;
-			switch ((CellValues)cell.DataType)
+			return ((CellValues)cell.DataType) switch
 			{
-				case CellValues.SharedString:
-					return stringTable.SharedStringTable
-						.ElementAt(int.Parse(cellValueText)).InnerText;
-				default:
-					return cellValueText ?? cell.InnerText;
-			}
+				CellValues.SharedString => stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText,
+				_ => cellValueText ?? cell.InnerText,
+			};
 		}
 
 		private object? GetCellValueDirect(Cell cell, SharedStringTablePart stringTable)
@@ -688,12 +697,12 @@ namespace PanoramicData.SheetMagic
 					var sharedStringElement = stringTable.SharedStringTable.ElementAt(stringTableIndex);
 					return sharedStringElement.InnerText;
 				case CellValues.Boolean:
-					switch (cellValueText)
+					return cellValueText switch
 					{
-						case "1": return true;
-						case "0": return false;
-						default: return null;
-					}
+						"1" => true,
+						"0" => false,
+						_ => null,
+					};
 				case CellValues.Number:
 					return double.Parse(cellValueText);
 				case CellValues.Date:

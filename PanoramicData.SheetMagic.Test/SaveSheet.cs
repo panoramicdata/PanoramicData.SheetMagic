@@ -1,4 +1,5 @@
-﻿using PanoramicData.SheetMagic.Test.Models;
+﻿using FluentAssertions;
+using PanoramicData.SheetMagic.Test.Models;
 using System.Collections.Generic;
 using Xunit;
 
@@ -25,13 +26,13 @@ namespace PanoramicData.SheetMagic.Test
 		[Fact]
 		public void SavingWithExtendedObject_Succeeds()
 		{
-			var a = new Extended<object>
-			{
-				Properties = new Dictionary<string, object>()
+			var a = new Extended<object>(
+				new object(),
+				new Dictionary<string, object?>()
 				{
 					{ "a", "b" }
 				}
-			};
+			);
 			var fileInfo = GetXlsxTempFileInfo();
 
 			try
@@ -46,11 +47,10 @@ namespace PanoramicData.SheetMagic.Test
 				using var s2 = new MagicSpreadsheet(fileInfo);
 				s2.Load();
 				var b = s2.GetExtendedList<object>();
-				Assert.NotNull(b);
-				Assert.NotEmpty(b);
+				b.Should().NotBeNullOrEmpty();
 				var firstItem = b[0];
-				Assert.True(firstItem.Properties.ContainsKey("a"));
-				Assert.Equal("b", firstItem.Properties["a"]);
+				firstItem.Properties.Keys.Should().Contain("a");
+				firstItem.Properties["a"].Should().Be("b");
 			}
 			finally
 			{
@@ -64,20 +64,17 @@ namespace PanoramicData.SheetMagic.Test
 			const int carWeightKg = 2200;
 			const string customPropertyName = "CustomPropertyName";
 			const string customPropertyValue = "CustomPropertyValue";
-			var car = new Extended<Car>
+			var car = new Extended<Car>(new Car
 			{
-				Item = new Car
-				{
-					Id = 1,
-					Name = "Yumyum",
-					WheelCount = 4,
-					WeightKg = carWeightKg
-				},
-				Properties = new Dictionary<string, object>()
+				Id = 1,
+				Name = "Yumyum",
+				WheelCount = 4,
+				WeightKg = carWeightKg
+			},
+				new Dictionary<string, object?>
 				{
 					{ customPropertyName, customPropertyValue }
-				}
-			};
+				});
 			var fileInfo = GetXlsxTempFileInfo();
 
 			try
@@ -92,13 +89,12 @@ namespace PanoramicData.SheetMagic.Test
 				using var s2 = new MagicSpreadsheet(fileInfo);
 				s2.Load();
 				var cars = s2.GetExtendedList<Car>();
-				Assert.NotNull(cars);
-				Assert.NotEmpty(cars);
+				cars.Should().NotBeNullOrEmpty();
 				var firstCar = cars[0];
-				Assert.NotNull(firstCar.Item);
-				Assert.Equal(carWeightKg, firstCar.Item.WeightKg);
-				Assert.True(firstCar.Properties.ContainsKey(customPropertyName));
-				Assert.Equal(customPropertyValue, firstCar.Properties[customPropertyName]);
+				firstCar.Item.Should().NotBeNull();
+				carWeightKg.Should().Be(firstCar.Item.WeightKg);
+				firstCar.Properties.Keys.Should().Contain(customPropertyName);
+				firstCar.Properties[customPropertyName].Should().Be(customPropertyValue);
 			}
 			finally
 			{

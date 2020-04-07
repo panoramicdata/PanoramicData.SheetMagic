@@ -152,7 +152,16 @@ namespace PanoramicData.SheetMagic
                 propertyList = propertyList.Where(p => !theAddSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
             }
 
-            var keyList = keyHashset.OrderBy(k => k).ToList();
+            List<string> keyList;
+            // By default, apply a sort
+            if (theAddSheetOptions?.SortExtendedProperties == true)
+            {
+                keyList = keyHashset.OrderBy(k => k).ToList();
+            }
+            else
+            {
+                keyList = keyHashset.ToList();
+            }
 
             // Add the columns
             var totalColumnCount = (uint)(propertyList.Count + keyList.Count);

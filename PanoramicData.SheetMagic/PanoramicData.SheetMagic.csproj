@@ -13,10 +13,10 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Description>A library for easily saving/loading generic lists to/from XLSX workbooks.</Description>
 		<PackageIcon>Icon.png</PackageIcon>
-		<Version>3.0.2</Version>
+		<Version>3.0.3</Version>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>Many improvements to internal checking and overall safety.  Breaking change to Extended&lt;T&gt; - you must now construct the full item in the constructor.</PackageReleaseNotes>
+		<PackageReleaseNotes>Added SortExtendedProperties to AddSheetOptions, defaults to true.</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>

@@ -92,7 +92,7 @@ namespace PanoramicData.SheetMagic.Test
 				cars.Should().NotBeNullOrEmpty();
 				var firstCar = cars[0];
 				firstCar.Item.Should().NotBeNull();
-				carWeightKg.Should().Be(firstCar.Item.WeightKg);
+				carWeightKg.Should().Be(firstCar.Item!.WeightKg);
 				firstCar.Properties.Keys.Should().Contain(customPropertyName);
 				firstCar.Properties[customPropertyName].Should().Be(customPropertyValue);
 			}

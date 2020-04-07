@@ -49,8 +49,8 @@ namespace PanoramicData.SheetMagic.Test
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
 
 					// Make sure that there are no "default" values we know are NOT in the test data
-					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item.Id));
-					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(string.Empty, extendedAnimal.Item.Name));
+					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
+					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(string.Empty, extendedAnimal.Item!.Name));
 				}
 			}
 			finally
@@ -101,8 +101,8 @@ namespace PanoramicData.SheetMagic.Test
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
 
 					// Make sure that there are no "default" values we know are NOT in the test data
-					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item.Id));
-					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(string.Empty, extendedAnimal.Item.Name));
+					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
+					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(string.Empty, extendedAnimal.Item!.Name));
 				}
 			}
 			finally
@@ -125,7 +125,7 @@ namespace PanoramicData.SheetMagic.Test
 					SortExtendedProperties = true
 				};
 
-				Dictionary<string, object?> animals = new Dictionary<string, object?> {
+				var animals = new Dictionary<string, object?> {
 						  { "Type", "Hamster" },
 						  { "Name", "Scruffy" }
 					 };
@@ -164,7 +164,7 @@ namespace PanoramicData.SheetMagic.Test
 					SortExtendedProperties = false
 				};
 
-				Dictionary<string, object?> animals = new Dictionary<string, object?> {
+				var animals = new Dictionary<string, object?> {
 						  { "Type", "Hamster" },
 						  { "Name", "Scruffy" }
 					 };
@@ -188,7 +188,5 @@ namespace PanoramicData.SheetMagic.Test
 				fileInfo.Delete();
 			}
 		}
-
-
 	}
 }

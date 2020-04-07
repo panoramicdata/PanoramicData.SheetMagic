@@ -158,8 +158,8 @@ namespace PanoramicData.SheetMagic.Test
 					reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
 					// Make sure the extra fields are there in the additional items
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
-					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item.Id));
-					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item.Name));
+					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
+					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item!.Name));
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Properties));
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEmpty(extendedAnimal.Properties));
 					Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Properties.Select(p => p.Value)));
@@ -244,7 +244,7 @@ namespace PanoramicData.SheetMagic.Test
 
 			var device = deviceSpecifications[0];
 			device.Item.Should().NotBeNull();
-			device.Item.HostName.Should().Be("localhost");
+			device.Item!.HostName.Should().Be("localhost");
 			device.Item.DeviceDisplayName.Should().Be("DeviceDisplayName");
 			device.Item.DeviceDescription.Should().Be("The device description");
 			device.Item.DeviceGroups.Should().Be("Group/SubGroup1;Group/SubGroup2");
@@ -263,7 +263,7 @@ namespace PanoramicData.SheetMagic.Test
 		private static FileInfo GetSheetFileInfo(string worksheetName)
 		{
 			var location = typeof(LoadSheet).GetTypeInfo().Assembly.Location;
-			var dirPath = Path.Combine(Path.GetDirectoryName(location), "../../../Sheets");
+			var dirPath = Path.Combine(Path.GetDirectoryName(location)!, "../../../Sheets");
 			return new FileInfo(Path.Combine(dirPath, $"{worksheetName}.xlsx"));
 		}
 	}

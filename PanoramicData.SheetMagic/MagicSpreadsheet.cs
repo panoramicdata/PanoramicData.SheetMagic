@@ -111,7 +111,7 @@ namespace PanoramicData.SheetMagic
 				throw new ArgumentException($"Sheet name {sheetName} already exists. Sheet names must be unique per Workbook", nameof(sheetName));
 			}
 
-			WorksheetPart worksheetPart = CreateWorksheetPart(_document, sheetName);
+			var worksheetPart = CreateWorksheetPart(_document, sheetName);
 			var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
 
 			// Determine property list
@@ -122,7 +122,7 @@ namespace PanoramicData.SheetMagic
 			if (isExtended)
 			{
 				basicType = type.GenericTypeArguments[0];
-				PropertyInfo propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
+				var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
 				foreach (var item in items)
 				{
 					if (item is null)
@@ -143,25 +143,19 @@ namespace PanoramicData.SheetMagic
 			propertyList.AddRange(basicType.GetProperties());
 
 			// Filter the propertyList according to the AddSheetOptions
-			if (theAddSheetOptions?.IncludeProperties?.Any() ?? false)
+			if (theAddSheetOptions.IncludeProperties?.Any() ?? false)
 			{
 				propertyList = propertyList.Where(p => theAddSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 			}
-			else if (theAddSheetOptions?.ExcludeProperties?.Any() ?? false)
+			else if (theAddSheetOptions.ExcludeProperties?.Any() ?? false)
 			{
 				propertyList = propertyList.Where(p => !theAddSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 			}
 
-			List<string> keyList;
 			// By default, apply a sort
-			if (theAddSheetOptions?.SortExtendedProperties == true)
-			{
-				keyList = keyHashset.OrderBy(k => k).ToList();
-			}
-			else
-			{
-				keyList = keyHashset.ToList();
-			}
+			var keyList = theAddSheetOptions.SortExtendedProperties
+				? keyHashset.OrderBy(k => k).ToList()
+				: keyHashset.ToList();
 
 			// Add the columns
 			var totalColumnCount = (uint)(propertyList.Count + keyList.Count);
@@ -203,7 +197,7 @@ namespace PanoramicData.SheetMagic
 					Cell cell;
 					if (isExtended)
 					{
-						PropertyInfo propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item));
+						var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item));
 						var baseItem = propertyInfo.GetValue(item);
 						cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, property.GetValue(baseItem)?.ToString() ?? string.Empty);
 					}
@@ -217,7 +211,7 @@ namespace PanoramicData.SheetMagic
 				// If not extended, this list will be empty
 				if (isExtended)
 				{
-					PropertyInfo propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
+					var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
 					var dictionary = (Dictionary<string, object>)propertyInfo.GetValue(item);
 
 					foreach (var key in keyList)

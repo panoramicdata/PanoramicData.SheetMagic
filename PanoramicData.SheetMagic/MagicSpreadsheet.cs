@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Table = DocumentFormat.OpenXml.Spreadsheet.Table;
 
 namespace PanoramicData.SheetMagic
 {
@@ -247,19 +248,12 @@ namespace PanoramicData.SheetMagic
 
 			// Determine the range
 			var reference = $"A1:{ColumnLetter(columnConfigurations.Count())}{items.Count + 1}";
-			var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>("rId1");
+			var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
 			tableDefinitionPart.Table = new Table
 			(
-				 new AutoFilter() { Reference = reference },
-				 tableColumns
-				 )
-			{
-				Id = 1U,
-				Name = theAddSheetOptions.TableOptions.Name,
-				DisplayName = theAddSheetOptions.TableOptions.DisplayName,
-				Reference = reference,
-				TotalsRowShown = theAddSheetOptions.TableOptions.TotalsRowShown,
-				TableStyleInfo = new TableStyleInfo()
+				new AutoFilter { Reference = reference },
+				tableColumns,
+				new TableStyleInfo
 				{
 					Name = theAddSheetOptions.TableOptions.XlsxTableStyle.ToString(),
 					ShowFirstColumn = theAddSheetOptions.TableOptions.ShowFirstColumn,
@@ -267,6 +261,13 @@ namespace PanoramicData.SheetMagic
 					ShowRowStripes = theAddSheetOptions.TableOptions.ShowRowStripes,
 					ShowColumnStripes = theAddSheetOptions.TableOptions.ShowColumnStripes
 				}
+			)
+			{
+				Id = (uint)_document.WorkbookPart.Workbook.Sheets.Count(),
+				Name = theAddSheetOptions.TableOptions.Name,
+				DisplayName = theAddSheetOptions.TableOptions.DisplayName,
+				Reference = reference,
+				TotalsRowShown = theAddSheetOptions.TableOptions.TotalsRowShown,
 			};
 		}
 

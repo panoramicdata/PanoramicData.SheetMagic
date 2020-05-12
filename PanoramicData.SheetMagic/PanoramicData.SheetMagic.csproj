@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
 		<Authors>Panoramic Data Limited</Authors>
 		<Copyright>Copyright (c) Panoramic Data Limited 2020</Copyright>
 		<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
@@ -13,17 +12,17 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Description>A library for easily saving/loading generic lists to/from XLSX workbooks.</Description>
 		<PackageIcon>Icon.png</PackageIcon>
-		<Version>3.0.3</Version>
+		<Version>3.0.4</Version>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>Added SortExtendedProperties to AddSheetOptions, defaults to true.</PackageReleaseNotes>
+		<PackageReleaseNotes>Removed dependency on Microsoft.CSharp</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="DocumentFormat.OpenXml" Version="2.10.1" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<!--<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />-->
 	</ItemGroup>
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

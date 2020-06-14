@@ -22,6 +22,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="DocumentFormat.OpenXml" Version="2.11.0" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.1.91">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<!--<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />-->
 	</ItemGroup>
 	<ItemGroup>

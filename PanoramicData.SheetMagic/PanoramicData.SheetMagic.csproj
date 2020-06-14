@@ -15,7 +15,7 @@
 		<Version>3.0.4</Version>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>Removed dependency on Microsoft.CSharp</PackageReleaseNotes>
+		<PackageReleaseNotes>Updated nuget packages</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>

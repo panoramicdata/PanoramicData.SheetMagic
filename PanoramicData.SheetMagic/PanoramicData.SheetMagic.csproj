@@ -15,14 +15,14 @@
 		<Version>3.0.5</Version>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>Updated nuget packages</PackageReleaseNotes>
+		<PackageReleaseNotes>Updated nuget packages and fixed broken table styles</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DocumentFormat.OpenXml" Version="2.11.0" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.1.91">
+		<PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.2.31">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

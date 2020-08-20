@@ -58,8 +58,48 @@ namespace PanoramicData.SheetMagic.Test
 
 				s.AddSheet(new List<Extended<object>>
 					 {
-						  new Extended<object>(new object(), new Dictionary<string, object?> { { "Id", 10 }, { "My Name", "Ryan" } })
+						  new Extended<object>(new object(), new Dictionary<string, object?> {
+							  { "Id", 10 },
+							  { "My Name", "Ryan" }
+						  })
 					 }, "Subscriptions", sheetOptions);
+				s.Save();
+			}
+			finally
+			{
+				fileInfo.Delete();
+			}
+		}
+
+		[Fact]
+		public void AddSheet_SheetWithStyle_Succeeds()
+		{
+			var fileInfo = GetXlsxTempFileInfo();
+
+			try
+			{
+				using var s = new MagicSpreadsheet(fileInfo);
+
+				var sheetOptions = new AddSheetOptions
+				{
+					TableOptions = new TableOptions
+					{
+						XlsxTableStyle = XlsxTableStyle.TableStyleDark1,
+						ShowTotalsRow = true
+					}
+				};
+
+				s.AddSheet(new List<FunkyAnimal>
+					 {
+						new FunkyAnimal{ Id = 0, Name = "Old Woman", WeightKg = 60, Leg_Count = 2},
+						new FunkyAnimal{ Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4},
+						new FunkyAnimal{ Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
+						new FunkyAnimal{ Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
+						new FunkyAnimal{ Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
+						new FunkyAnimal{ Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
+						new FunkyAnimal{ Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
+						new FunkyAnimal{ Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
+					 }, "Animals", sheetOptions);
 				s.Save();
 			}
 			finally

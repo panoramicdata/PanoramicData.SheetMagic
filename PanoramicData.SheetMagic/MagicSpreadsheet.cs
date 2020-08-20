@@ -246,29 +246,36 @@ namespace PanoramicData.SheetMagic
 				});
 			}
 
-			// Determine the range
-			var reference = $"A1:{ColumnLetter(columnConfigurations.Count())}{items.Count + 1}";
+			// Create the table
+			var reference = $"A1:{ColumnLetter(columnConfigurations.Count() - 1)}{items.Count + 1}";
 			var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
 			tableDefinitionPart.Table = new Table
-			(
-				new AutoFilter { Reference = reference },
-				tableColumns,
-				new TableStyleInfo
+			{
+				Id = (uint)_document.WorkbookPart.Workbook.Sheets.Count(),
+				Name = theAddSheetOptions.TableOptions.Name,
+				DisplayName = theAddSheetOptions.TableOptions.DisplayName,
+				Reference = reference,
+				TotalsRowShown = theAddSheetOptions.TableOptions.ShowTotalsRow,
+				AutoFilter = new AutoFilter { Reference = reference },
+				TableColumns = tableColumns,
+				TableStyleInfo = new TableStyleInfo
 				{
 					Name = theAddSheetOptions.TableOptions.XlsxTableStyle.ToString(),
 					ShowFirstColumn = theAddSheetOptions.TableOptions.ShowFirstColumn,
 					ShowLastColumn = theAddSheetOptions.TableOptions.ShowLastColumn,
 					ShowRowStripes = theAddSheetOptions.TableOptions.ShowRowStripes,
 					ShowColumnStripes = theAddSheetOptions.TableOptions.ShowColumnStripes
-				}
-			)
-			{
-				Id = (uint)_document.WorkbookPart.Workbook.Sheets.Count(),
-				Name = theAddSheetOptions.TableOptions.Name,
-				DisplayName = theAddSheetOptions.TableOptions.DisplayName,
-				Reference = reference,
-				TotalsRowShown = theAddSheetOptions.TableOptions.TotalsRowShown,
+				},
 			};
+			tableDefinitionPart.Table.Save();
+
+			// Add the TableParts to the worksheet;
+			var tableParts = new TableParts
+			{
+				Count = 1U
+			};
+			tableParts.Append(new TablePart { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
+			worksheetPart.Worksheet.Append(tableParts);
 		}
 
 		private static WorksheetPart CreateWorksheetPart(SpreadsheetDocument document, string? sheetName)

@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using PanoramicData.SheetMagic.Exceptions;
+using PanoramicData.SheetMagic.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -174,7 +175,7 @@ namespace PanoramicData.SheetMagic
 			sheetData.AppendChild(row);
 			var cellIndex = 0;
 
-			foreach (var header in propertyList.Select(p => p.Name))
+			foreach (var header in propertyList.Select(p => p.GetPropertyDescription() ?? p.Name))
 			{
 				row.AppendChild(CreateTextCell(ColumnLetter(cellIndex++),
 					 rowIndex, header ?? string.Empty));
@@ -236,7 +237,10 @@ namespace PanoramicData.SheetMagic
 
 			var tableColumns = new TableColumns() { Count = totalColumnCount };
 			var columnIndex = 0;
-			var combinedList = propertyList.Select(p => p.Name).Concat(keyList).ToList();
+			var combinedList = propertyList
+				.Select(p => p.GetPropertyDescription() ?? p.Name)
+				.Concat(keyList)
+				.ToList();
 			foreach (var columnConfiguration in columnConfigurations)
 			{
 				tableColumns.Append(new TableColumn

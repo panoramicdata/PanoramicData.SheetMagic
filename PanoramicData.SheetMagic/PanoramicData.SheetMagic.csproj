@@ -14,9 +14,10 @@
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>Updated nuget packages and fixed broken table styles</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+
+		<PackageReleaseNotes>Will now use Description attribute on a Property if available</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

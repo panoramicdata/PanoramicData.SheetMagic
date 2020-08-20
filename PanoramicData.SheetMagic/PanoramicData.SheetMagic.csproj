@@ -12,7 +12,7 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Description>A library for easily saving/loading generic lists to/from XLSX workbooks.</Description>
 		<PackageIcon>Icon.png</PackageIcon>
-		<Version>3.0.5</Version>
+		<Version>3.0.6</Version>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
 		<PackageReleaseNotes>Updated nuget packages and fixed broken table styles</PackageReleaseNotes>

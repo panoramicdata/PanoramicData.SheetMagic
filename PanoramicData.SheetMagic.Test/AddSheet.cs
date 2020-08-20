@@ -84,8 +84,7 @@ namespace PanoramicData.SheetMagic.Test
 				{
 					TableOptions = new TableOptions
 					{
-						XlsxTableStyle = XlsxTableStyle.TableStyleDark1,
-						ShowTotalsRow = true
+						XlsxTableStyle = XlsxTableStyle.TableStyleDark1
 					}
 				};
 

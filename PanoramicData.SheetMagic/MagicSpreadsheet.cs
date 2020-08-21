@@ -131,7 +131,20 @@ namespace PanoramicData.SheetMagic
 						continue;
 					}
 					var dictionary = (Dictionary<string, object>)propertyInfo.GetValue(item);
-					foreach (var key in dictionary.Keys)
+
+					var keys = dictionary.Keys.ToList();
+
+					// Include/exclude as appropriate
+					if (theAddSheetOptions.IncludeProperties?.Any() ?? false)
+					{
+						keys = keys.Where(key => theAddSheetOptions.IncludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
+					}
+					else if (theAddSheetOptions.ExcludeProperties?.Any() ?? false)
+					{
+						keys = keys.Where(key => !theAddSheetOptions.ExcludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
+					}
+
+					foreach (var key in keys)
 					{
 						keyHashset.Add(key);
 					}

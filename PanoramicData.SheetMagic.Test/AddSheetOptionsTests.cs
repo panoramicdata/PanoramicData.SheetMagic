@@ -23,10 +23,10 @@ namespace PanoramicData.SheetMagic.Test
 						DisplayName = "Funky Animals",
 					},
 					IncludeProperties = new HashSet<string>
-								  {
-										  nameof(SimpleAnimal.Id),
-										  nameof(SimpleAnimal.Name),
-								  }
+					{
+						nameof(SimpleAnimal.Id),
+						nameof(SimpleAnimal.Name),
+					}
 				};
 				using (var s = new MagicSpreadsheet(fileInfo))
 				{
@@ -75,11 +75,11 @@ namespace PanoramicData.SheetMagic.Test
 						DisplayName = "Funky Animals",
 					},
 					ExcludeProperties = new HashSet<string>
-								  {
-										  nameof(FunkyAnimal.Leg_Count),
-										  nameof(FunkyAnimal.WeightKg),
-										  nameof(FunkyAnimal.Description)
-								  }
+					{
+						nameof(FunkyAnimal.Leg_Count),
+						nameof(FunkyAnimal.WeightKg),
+						nameof(FunkyAnimal.Description)
+					}
 				};
 				using (var s = new MagicSpreadsheet(fileInfo))
 				{

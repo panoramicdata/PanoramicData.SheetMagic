@@ -1,4 +1,6 @@
-﻿namespace PanoramicData.SheetMagic
+﻿using PanoramicData.SheetMagic.Exceptions;
+
+namespace PanoramicData.SheetMagic
 {
 	public class TableOptions
 	{
@@ -10,5 +12,13 @@
 		public bool ShowLastColumn { get; set; }
 		public bool ShowRowStripes { get; set; } = true;
 		public bool ShowColumnStripes { get; set; }
+
+		internal void Validate()
+		{
+			if (DisplayName.Contains(" "))
+			{
+				throw new ValidationException($"TableOptions display name cannot contain spaces.  Found '{DisplayName}'.");
+			}
+		}
 	}
 }

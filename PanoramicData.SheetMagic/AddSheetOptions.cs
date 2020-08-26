@@ -21,6 +21,8 @@ namespace PanoramicData.SheetMagic
 			{
 				throw new ValidationException($"Cannot set both {nameof(IncludeProperties)} and {nameof(ExcludeProperties)}");
 			}
+
+			TableOptions.Validate();
 		}
 	}
 }

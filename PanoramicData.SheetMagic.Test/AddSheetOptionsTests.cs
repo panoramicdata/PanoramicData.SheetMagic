@@ -21,7 +21,7 @@ namespace PanoramicData.SheetMagic.Test
 					TableOptions = new TableOptions
 					{
 						Name = "FunkyAnimals",
-						DisplayName = "Funky Animals",
+						DisplayName = "FunkyAnimals",
 					},
 					IncludeProperties = new HashSet<string>
 					{
@@ -73,7 +73,7 @@ namespace PanoramicData.SheetMagic.Test
 					TableOptions = new TableOptions
 					{
 						Name = "FunkyAnimals",
-						DisplayName = "Funky Animals",
+						DisplayName = "FunkyAnimals",
 					},
 					ExcludeProperties = new HashSet<string>
 					{

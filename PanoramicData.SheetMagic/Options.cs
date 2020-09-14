@@ -1,6 +1,10 @@
-﻿namespace PanoramicData.SheetMagic
+﻿using DocumentFormat.OpenXml.Drawing;
+using PanoramicData.SheetMagic.Interfaces;
+using System.Collections.Generic;
+
+namespace PanoramicData.SheetMagic
 {
-	public class Options
+	public class Options : IValidate
 	{
 		private readonly static AddSheetOptions AppDefaultAddSheetOptions = new AddSheetOptions();
 
@@ -29,5 +33,18 @@
 		/// Defaults to a reasonable set of options.
 		/// </summary>
 		public AddSheetOptions DefaultAddSheetOptions { get; set; } = AppDefaultAddSheetOptions;
+
+		/// <summary>
+		/// Custom table styles
+		/// </summary>
+		public List<CustomTableStyle> TableStyles { get; set; } = new List<CustomTableStyle>();
+
+		public void Validate()
+		{
+			foreach(var tableStyle in TableStyles)
+			{
+				tableStyle.Validate();
+			}
+		}
 	}
 }

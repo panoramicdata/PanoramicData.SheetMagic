@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using PanoramicData.SheetMagic.Test.Models;
 using System.Collections.Generic;
+using System.Drawing;
 using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
@@ -182,6 +183,84 @@ namespace PanoramicData.SheetMagic.Test
 				// TODO
 				var reloadedAnimals = s.GetExtendedList<object>("Animals");
 				//Assert.Equal(reloadedAnimals.[0].Key, "Type");
+			}
+			finally
+			{
+				fileInfo.Delete();
+			}
+		}
+
+		[Fact]
+		public void AddSheetOptions_CustomTableStyle_Succeeds()
+		{
+			var fileInfo = GetXlsxTempFileInfo();
+
+			try
+			{
+				using var s = new MagicSpreadsheet(fileInfo, new Options
+				{
+					TableStyles = new List<CustomTableStyle>
+					{
+						new CustomTableStyle
+						{
+							Name = "My Table Style",
+							HeaderRowStyle = new TableRowStyle
+							{
+								BackgroundColor = Color.FromArgb(112, 48, 160),
+								FontColor = Color.White,
+								FontWeight = FontWeight.Bold
+							},
+							OddRowStyle = new TableRowStyle
+							{
+								BackgroundColor = Color.FromArgb(225, 204, 240),
+							},
+							EvenRowStyle = new TableRowStyle
+							{
+								BackgroundColor = Color.LightYellow,
+							},
+							WholeTableStyle = new TableRowStyle
+							{
+								InnerBorderColor = Color.Red,
+								OuterBorderColor = Color.Blue
+							},
+						}
+					}
+				});
+
+				var sheetOptions = new AddSheetOptions
+				{
+					SortExtendedProperties = false,
+					TableOptions = new TableOptions
+					{
+						CustomTableStyle = "My Table Style"
+					}
+				};
+
+				var scruffy = new Dictionary<string, object?> {
+						  { "Type", "Hamster" },
+						  { "Name", "Scruffy" }
+					 };
+				var wuffy = new Dictionary<string, object?> {
+						  { "Type", "Dog" },
+						  { "Name", "Wuffy" }
+					 };
+				var puffy = new Dictionary<string, object?> {
+						  { "Type", "Fish" },
+						  { "Name", "Puffy" }
+					 };
+				var gruffy = new Dictionary<string, object?> {
+						  { "Type", "Goat" },
+						  { "Name", "Gruffy" }
+					 };
+
+				s.AddSheet(new List<Extended<object>>
+					 {
+						  new Extended<object>(new object(), scruffy),
+						  new Extended<object>(new object(), wuffy),
+						  new Extended<object>(new object(), puffy),
+						  new Extended<object>(new object(), gruffy)
+					 }, "Animals", sheetOptions);
+				s.Save();
 			}
 			finally
 			{

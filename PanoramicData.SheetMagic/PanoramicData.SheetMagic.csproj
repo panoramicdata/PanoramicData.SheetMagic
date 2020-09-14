@@ -14,7 +14,7 @@
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>IncludeProperties and ExcludeProperties now also work for ExtendedObjects.</PackageReleaseNotes>
+		<PackageReleaseNotes>Added custom table styles.</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>

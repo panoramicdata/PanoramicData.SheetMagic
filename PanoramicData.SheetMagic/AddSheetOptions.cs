@@ -1,4 +1,5 @@
 ﻿using PanoramicData.SheetMagic.Exceptions;
+using PanoramicData.SheetMagic.Interfaces;
 using System.Collections.Generic;
 
 namespace PanoramicData.SheetMagic
@@ -15,14 +16,14 @@ namespace PanoramicData.SheetMagic
 
 		public TableOptions? TableOptions { get; set; }
 
-		internal void Validate()
+		public void Validate(List<CustomTableStyle> tableStyles)
 		{
 			if (IncludeProperties != null && ExcludeProperties != null)
 			{
 				throw new ValidationException($"Cannot set both {nameof(IncludeProperties)} and {nameof(ExcludeProperties)}");
 			}
 
-			TableOptions.Validate();
+			TableOptions?.Validate(tableStyles);
 		}
 	}
 }

@@ -4,7 +4,6 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Authors>Panoramic Data Limited</Authors>
 		<Copyright>Copyright (c) Panoramic Data Limited 2020</Copyright>
-		<license type="expression">MIT</license>
 		<PackageProjectUrl>http://www.panoramicdata.com/sheetmagic/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.SheetMagic</RepositoryUrl>
 		<RepositoryType>GIT</RepositoryType>
@@ -16,6 +15,7 @@
 		<PackageReleaseNotes>Added custom table styles.</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>

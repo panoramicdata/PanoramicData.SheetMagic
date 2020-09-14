@@ -9,7 +9,6 @@
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.SheetMagic</RepositoryUrl>
 		<RepositoryType>GIT</RepositoryType>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Description>A library for easily saving/loading generic lists to/from XLSX workbooks.</Description>
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageId>PanoramicData.SheetMagic</PackageId>

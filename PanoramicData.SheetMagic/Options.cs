@@ -1,13 +1,10 @@
-﻿using DocumentFormat.OpenXml.Drawing;
-using PanoramicData.SheetMagic.Interfaces;
+﻿using PanoramicData.SheetMagic.Interfaces;
 using System.Collections.Generic;
 
 namespace PanoramicData.SheetMagic
 {
 	public class Options : IValidate
 	{
-		private readonly static AddSheetOptions AppDefaultAddSheetOptions = new AddSheetOptions();
-
 		/// <summary>
 		/// Whether to stop processing on the first empty row in the table
 		/// </summary>
@@ -32,16 +29,21 @@ namespace PanoramicData.SheetMagic
 		/// When using AddSheet, if no addSheetOptions are specified, the default AddSheetOptions to use.
 		/// Defaults to a reasonable set of options.
 		/// </summary>
-		public AddSheetOptions DefaultAddSheetOptions { get; set; } = AppDefaultAddSheetOptions;
+		public AddSheetOptions DefaultAddSheetOptions { get; set; } = new AddSheetOptions();
 
 		/// <summary>
 		/// Custom table styles
 		/// </summary>
 		public List<CustomTableStyle> TableStyles { get; set; } = new List<CustomTableStyle>();
 
+		/// <summary>
+		/// EnumerableCellOptions
+		/// </summary>
+		public EnumerableCellOptions EnumerableCellOptions { get; set; } = new EnumerableCellOptions();
+
 		public void Validate()
 		{
-			foreach(var tableStyle in TableStyles)
+			foreach (var tableStyle in TableStyles)
 			{
 				tableStyle.Validate();
 			}

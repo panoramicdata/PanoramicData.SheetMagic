@@ -5,7 +5,7 @@ using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class AddSheet : Test
+	public class AddSheetTests : Test
 	{
 		[Theory]
 		[InlineData("12345678901234567890123456789012")]

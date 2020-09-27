@@ -5,7 +5,7 @@ using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class SaveSheet : Test
+	public class SaveSheetTests : Test
 	{
 		[Fact]
 		public void SaveSheet_WithNoData_Succeeds()
@@ -95,6 +95,62 @@ namespace PanoramicData.SheetMagic.Test
 				carWeightKg.Should().Be(firstCar.Item!.WeightKg);
 				firstCar.Properties.Keys.Should().Contain(customPropertyName);
 				firstCar.Properties[customPropertyName].Should().Be(customPropertyValue);
+			}
+			finally
+			{
+				fileInfo.Delete();
+			}
+		}
+
+		[Fact]
+		public void TypesWithLists_Succeeds()
+		{
+			var fileInfo = GetXlsxTempFileInfo();
+
+			var dealerships = new List<CarDealership>
+			{
+				new CarDealership
+				{
+					Name = "Slough",
+					Cars = new List<Car?>(),
+				},
+				new CarDealership
+				{
+					Name = "Maidenhead",
+					Cars = new List<Car?>
+					{
+						new Car
+						{
+							Name = "Ford Prefect",
+							WeightKg = 1200
+						},
+						null,
+					},
+				},
+				new CarDealership
+				{
+					Name = "Reading",
+					Cars = new List<Car?>
+					{
+						new Car
+						{
+							Name = "Ford Prefect",
+							WeightKg = 1200
+						},
+						new Car
+						{
+							Name = "Ford Focus",
+							WeightKg = 1500
+						},
+					},
+				},
+			};
+
+			try
+			{
+				using var s = new MagicSpreadsheet(fileInfo);
+				s.AddSheet(dealerships);
+				s.Save();
 			}
 			finally
 			{

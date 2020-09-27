@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using PanoramicData.SheetMagic.Exceptions;
 using PanoramicData.SheetMagic.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -209,6 +210,7 @@ namespace PanoramicData.SheetMagic
 			}
 
 			// Add sheet data
+			var enumerableCellOptions = addSheetOptions?.EnumerableCellOptions ?? _options.EnumerableCellOptions;
 			foreach (var item in items)
 			{
 				cellIndex = 0;
@@ -227,7 +229,32 @@ namespace PanoramicData.SheetMagic
 					}
 					else
 					{
-						cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, property.GetValue(item)?.ToString() ?? string.Empty);
+						object value;
+						var v = property.GetValue(item);
+						if (
+							enumerableCellOptions.Expand
+							&& !(v is string)
+							&& v is IEnumerable iEnumerable
+							)
+						{
+							var stringBuilder = new StringBuilder();
+							var isFirst = true;
+							foreach (var il in iEnumerable)
+							{
+								if (!isFirst)
+								{
+									stringBuilder.Append(enumerableCellOptions.CellDelimiter);
+								}
+								stringBuilder.Append(il?.ToString() ?? "NULL");
+								isFirst = false;
+							}
+							value = stringBuilder.ToString();
+						}
+						else
+						{
+							value = property.GetValue(item)?.ToString() ?? string.Empty;
+						}
+						cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, value?.ToString() ?? string.Empty);
 					}
 					row.AppendChild(cell);
 				}

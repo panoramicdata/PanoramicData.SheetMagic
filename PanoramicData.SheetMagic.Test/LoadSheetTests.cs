@@ -9,7 +9,7 @@ using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
 {
-	public class LoadSheet : Test
+	public class LoadSheetTests : Test
 	{
 		[Fact]
 		public void LoadSheet_WithBlankRow_Succeeds()
@@ -262,7 +262,7 @@ namespace PanoramicData.SheetMagic.Test
 
 		private static FileInfo GetSheetFileInfo(string worksheetName)
 		{
-			var location = typeof(LoadSheet).GetTypeInfo().Assembly.Location;
+			var location = typeof(LoadSheetTests).GetTypeInfo().Assembly.Location;
 			var dirPath = Path.Combine(Path.GetDirectoryName(location)!, "../../../Sheets");
 			return new FileInfo(Path.Combine(dirPath, $"{worksheetName}.xlsx"));
 		}

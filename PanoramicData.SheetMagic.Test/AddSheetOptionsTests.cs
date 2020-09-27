@@ -15,7 +15,7 @@ namespace PanoramicData.SheetMagic.Test
 
 			try
 			{
-				var funkyAnimals = LoadSheet.GetFunkyAnimals();
+				var funkyAnimals = LoadSheetTests.GetFunkyAnimals();
 				var options = new AddSheetOptions
 				{
 					TableOptions = new TableOptions
@@ -67,7 +67,7 @@ namespace PanoramicData.SheetMagic.Test
 
 			try
 			{
-				var funkyAnimals = LoadSheet.GetFunkyAnimals();
+				var funkyAnimals = LoadSheetTests.GetFunkyAnimals();
 				var options = new AddSheetOptions
 				{
 					TableOptions = new TableOptions

@@ -30,4 +30,7 @@ workbook.Save();
 // Read a list of items from an XLSX file
 using var workbook = new MagicSpreadsheet(fileInfo);
 workbook.Load();
-var things = sheet.GetList<Thing>();
+// Use default worksheet
+var cars = workbook.GetList<Car>();
+// Use a different worksheet
+var animals = workbook.GetList<Animal>("Animals");

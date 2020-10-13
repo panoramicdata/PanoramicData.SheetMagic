@@ -12,10 +12,11 @@
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
 		<Title>SheetMagic</Title>
-		<PackageReleaseNotes>Added custom table styles.</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReleaseNotes>Added support for additional numeric types
+Fixed conversion from integer to nullable double.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

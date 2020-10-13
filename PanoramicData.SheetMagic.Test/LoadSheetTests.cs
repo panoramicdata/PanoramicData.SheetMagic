@@ -233,6 +233,19 @@ namespace PanoramicData.SheetMagic.Test
 		}
 
 		[Fact]
+		public void Load_StarkIndustries_ShouldLoad()
+		{
+			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("Stark Industries"),
+				new Options
+				{
+					StopProcessingOnFirstEmptyRow = true
+				}
+			);
+			sheet.Load();
+			var items = sheet.GetExtendedList<ImportedSite>("Sites");
+		}
+
+		[Fact]
 		public void LoadSpreadsheet()
 		{
 			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("Bulk Import Template"));

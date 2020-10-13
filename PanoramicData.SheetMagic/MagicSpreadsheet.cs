@@ -591,22 +591,56 @@ namespace PanoramicData.SheetMagic
 							var cellValueDoubleObject = GetCellValue<double>(cell, stringTable);
 							if (cellValueDoubleObject != null)
 							{
-								SetItemProperty(item, ((double?)cellValueDoubleObject).Value, propertyName);
+								SetItemProperty(item, Convert.ToDouble(cellValueDoubleObject), propertyName);
 							}
-
+							break;
+						case "Single":
+							var cellValueFloatObject = GetCellValue<float>(cell, stringTable);
+							if (cellValueFloatObject != null)
+							{
+								SetItemProperty(item, Convert.ToSingle(cellValueFloatObject), propertyName);
+							}
+							break;
+						case "Int16":
+							var cellValueShortObject = GetCellValue<short>(cell, stringTable);
+							if (cellValueShortObject != null)
+							{
+								SetItemProperty(item, Convert.ToInt16(cellValueShortObject), propertyName);
+							}
+							break;
+						case "UInt16":
+							var cellValueUShortObject = GetCellValue<ushort>(cell, stringTable);
+							if (cellValueUShortObject != null)
+							{
+								SetItemProperty(item, Convert.ToInt16(cellValueUShortObject), propertyName);
+							}
 							break;
 						case "Int32":
 							var cellValueIntObject = GetCellValue<int>(cell, stringTable);
 							if (cellValueIntObject != null)
 							{
-								SetItemProperty(item, ((int?)cellValueIntObject).Value, propertyName);
+								SetItemProperty(item, Convert.ToInt32(cellValueIntObject), propertyName);
+							}
+							break;
+						case "UInt32":
+							var cellValueUIntObject = GetCellValue<uint>(cell, stringTable);
+							if (cellValueUIntObject != null)
+							{
+								SetItemProperty(item, Convert.ToUInt32(cellValueUIntObject), propertyName);
 							}
 							break;
 						case "Int64":
 							var cellValueLongObject = GetCellValue<long>(cell, stringTable);
 							if (cellValueLongObject != null)
 							{
-								SetItemProperty(item, ((long?)cellValueLongObject).Value, propertyName);
+								SetItemProperty(item, Convert.ToInt64(cellValueLongObject), propertyName);
+							}
+							break;
+						case "UInt64":
+							var cellValueULongObject = GetCellValue<ulong>(cell, stringTable);
+							if (cellValueULongObject != null)
+							{
+								SetItemProperty(item, Convert.ToUInt64(cellValueULongObject), propertyName);
 							}
 							break;
 						case "String":
@@ -755,8 +789,10 @@ namespace PanoramicData.SheetMagic
 						return cellValueText;
 				}
 			}
-			switch ((CellValues)cell.DataType)
+			switch (cell.DataType is null ? null : (CellValues?)cell.DataType)
 			{
+				case null:
+					return null;
 				case CellValues.SharedString:
 					var stringTableIndex = int.Parse(cellValueText);
 					var sharedStringElement = stringTable.SharedStringTable.ElementAt(stringTableIndex);

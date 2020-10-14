@@ -242,7 +242,12 @@ namespace PanoramicData.SheetMagic.Test
 				}
 			);
 			sheet.Load();
-			var items = sheet.GetExtendedList<ImportedSite>("Sites");
+
+			var sites = sheet.GetExtendedList<ImportedSite>("Sites");
+			sites.Should().NotBeEmpty();
+
+			var devices = sheet.GetExtendedList<ImportedDevice>("Devices");
+			devices.Should().NotBeEmpty();
 		}
 
 		[Fact]

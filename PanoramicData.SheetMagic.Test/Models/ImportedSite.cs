@@ -4,8 +4,8 @@ namespace PanoramicData.SheetMagic.Test.Models
 {
 	public class ImportedSite
 	{
-		[Description("DNA-C Name")]
-		public string DnacName { get; set; } = string.Empty;
+		[Description("Estate Name")]
+		public string EstateName { get; set; } = string.Empty;
 
 		//public string AreaName { get; set; } = string.Empty;
 

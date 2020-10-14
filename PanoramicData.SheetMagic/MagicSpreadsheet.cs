@@ -495,7 +495,9 @@ namespace PanoramicData.SheetMagic
 
 			foreach (var column in columns)
 			{
-				var matchingProperties = properties.Where(p => StringsMatch(p.Name, column)).ToList();
+				var matchingProperties = properties
+					.Where(p => StringsMatch(p.GetPropertyDescription() ?? p.Name, column))
+					.ToList();
 				switch (matchingProperties.Count)
 				{
 					case 0:
@@ -561,121 +563,128 @@ namespace PanoramicData.SheetMagic
 					var propertyName = tMappings.ContainsKey(columnIndex)
 						 ? tMappings[columnIndex]
 						 : extensionMappings[columnIndex];
-
-					var property = properties.SingleOrDefault(p => p.Name == propertyName);
-					var index = columnIndex;
-					var cell = cells.SingleOrDefault(c => GetReference(c.CellReference.Value).columnIndex == index + tableColumnOffset);
-					if (cell == null)
+					try
 					{
-						if (!_options.LoadNullExtendedProperties)
+
+						var property = properties.SingleOrDefault(p => p.Name == propertyName);
+						var index = columnIndex;
+						var cell = cells.SingleOrDefault(c => GetReference(c.CellReference.Value).columnIndex == index + tableColumnOffset);
+						if (cell == null)
 						{
-							// No such cell.  Skip.
+							if (!_options.LoadNullExtendedProperties)
+							{
+								// No such cell.  Skip.
+								continue;
+							}
+							throw new InvalidOperationException($"Null cell found for column '{propertyName}'");
+						}
+
+						if (property == null)
+						{
+							eiProperties[columns[columnIndex]] = GetCellValueDirect(cell, stringTable);
 							continue;
 						}
-						throw new InvalidOperationException($"Null cell found for column '{propertyName}'");
-					}
+						// We have a property
 
-					if (property == null)
-					{
-						eiProperties[columns[columnIndex]] = GetCellValueDirect(cell, stringTable);
-						continue;
+						var propertyTypeName = property.PropertyType.IsGenericType
+							 ? $"{property.PropertyType.GetGenericTypeDefinition().Name}<{string.Join(", ", property.PropertyType.GenericTypeArguments.Select(t => t.Name))}>"
+							 : property.PropertyType.Name;
+						switch (propertyTypeName)
+						{
+							case "Double":
+								var cellValueDoubleObject = GetCellValue<double>(cell, stringTable);
+								if (cellValueDoubleObject != null)
+								{
+									SetItemProperty(item, Convert.ToDouble(cellValueDoubleObject), propertyName);
+								}
+								break;
+							case "Single":
+								var cellValueFloatObject = GetCellValue<float>(cell, stringTable);
+								if (cellValueFloatObject != null)
+								{
+									SetItemProperty(item, Convert.ToSingle(cellValueFloatObject), propertyName);
+								}
+								break;
+							case "Int16":
+								var cellValueShortObject = GetCellValue<short>(cell, stringTable);
+								if (cellValueShortObject != null)
+								{
+									SetItemProperty(item, Convert.ToInt16(cellValueShortObject), propertyName);
+								}
+								break;
+							case "UInt16":
+								var cellValueUShortObject = GetCellValue<ushort>(cell, stringTable);
+								if (cellValueUShortObject != null)
+								{
+									SetItemProperty(item, Convert.ToInt16(cellValueUShortObject), propertyName);
+								}
+								break;
+							case "Int32":
+								var cellValueIntObject = GetCellValue<int>(cell, stringTable);
+								if (cellValueIntObject != null)
+								{
+									SetItemProperty(item, Convert.ToInt32(cellValueIntObject), propertyName);
+								}
+								break;
+							case "UInt32":
+								var cellValueUIntObject = GetCellValue<uint>(cell, stringTable);
+								if (cellValueUIntObject != null)
+								{
+									SetItemProperty(item, Convert.ToUInt32(cellValueUIntObject), propertyName);
+								}
+								break;
+							case "Int64":
+								var cellValueLongObject = GetCellValue<long>(cell, stringTable);
+								if (cellValueLongObject != null)
+								{
+									SetItemProperty(item, Convert.ToInt64(cellValueLongObject), propertyName);
+								}
+								break;
+							case "UInt64":
+								var cellValueULongObject = GetCellValue<ulong>(cell, stringTable);
+								if (cellValueULongObject != null)
+								{
+									SetItemProperty(item, Convert.ToUInt64(cellValueULongObject), propertyName);
+								}
+								break;
+							case "String":
+								SetItemProperty(item, (string?)GetCellValue<string>(cell, stringTable), propertyName);
+								break;
+							case "Nullable`1<Boolean>":
+								SetItemProperty(item, (bool?)GetCellValue<bool?>(cell, stringTable), propertyName);
+								break;
+							case "Nullable`1<Double>":
+								SetItemProperty(item, (double?)GetCellValue<double?>(cell, stringTable), propertyName);
+								break;
+							case "Nullable`1<Single>":
+								SetItemProperty(item, (float?)GetCellValue<float?>(cell, stringTable), propertyName);
+								break;
+							case "Nullable`1<Int64>":
+								SetItemProperty(item, (long?)GetCellValue<long?>(cell, stringTable), propertyName);
+								break;
+							case "Nullable`1<Int32>":
+								SetItemProperty(item, (int?)GetCellValue<int?>(cell, stringTable), propertyName);
+								break;
+							case "Nullable`1<Int16>":
+								SetItemProperty(item, (short?)GetCellValue<short?>(cell, stringTable), propertyName);
+								break;
+							default:
+								// Is it an enum?
+								var stringValue = (string?)GetCellValue<string>(cell, stringTable);
+								if (property.PropertyType.IsEnum)
+								{
+									SetItemProperty(item, Enum.Parse(property.PropertyType, stringValue, true), propertyName);
+								}
+								else
+								{
+									throw new NotSupportedException($"Column index {columnIndex} matching {propertyName} has unsupported field type {propertyTypeName}.");
+								}
+								break;
+						}
 					}
-					// We have a property
-
-					var propertyTypeName = property.PropertyType.IsGenericType
-						 ? $"{property.PropertyType.GetGenericTypeDefinition().Name}<{string.Join(", ", property.PropertyType.GenericTypeArguments.Select(t => t.Name))}>"
-						 : property.PropertyType.Name;
-					switch (propertyTypeName)
+					catch (Exception exception)
 					{
-						case "Double":
-							var cellValueDoubleObject = GetCellValue<double>(cell, stringTable);
-							if (cellValueDoubleObject != null)
-							{
-								SetItemProperty(item, Convert.ToDouble(cellValueDoubleObject), propertyName);
-							}
-							break;
-						case "Single":
-							var cellValueFloatObject = GetCellValue<float>(cell, stringTable);
-							if (cellValueFloatObject != null)
-							{
-								SetItemProperty(item, Convert.ToSingle(cellValueFloatObject), propertyName);
-							}
-							break;
-						case "Int16":
-							var cellValueShortObject = GetCellValue<short>(cell, stringTable);
-							if (cellValueShortObject != null)
-							{
-								SetItemProperty(item, Convert.ToInt16(cellValueShortObject), propertyName);
-							}
-							break;
-						case "UInt16":
-							var cellValueUShortObject = GetCellValue<ushort>(cell, stringTable);
-							if (cellValueUShortObject != null)
-							{
-								SetItemProperty(item, Convert.ToInt16(cellValueUShortObject), propertyName);
-							}
-							break;
-						case "Int32":
-							var cellValueIntObject = GetCellValue<int>(cell, stringTable);
-							if (cellValueIntObject != null)
-							{
-								SetItemProperty(item, Convert.ToInt32(cellValueIntObject), propertyName);
-							}
-							break;
-						case "UInt32":
-							var cellValueUIntObject = GetCellValue<uint>(cell, stringTable);
-							if (cellValueUIntObject != null)
-							{
-								SetItemProperty(item, Convert.ToUInt32(cellValueUIntObject), propertyName);
-							}
-							break;
-						case "Int64":
-							var cellValueLongObject = GetCellValue<long>(cell, stringTable);
-							if (cellValueLongObject != null)
-							{
-								SetItemProperty(item, Convert.ToInt64(cellValueLongObject), propertyName);
-							}
-							break;
-						case "UInt64":
-							var cellValueULongObject = GetCellValue<ulong>(cell, stringTable);
-							if (cellValueULongObject != null)
-							{
-								SetItemProperty(item, Convert.ToUInt64(cellValueULongObject), propertyName);
-							}
-							break;
-						case "String":
-							SetItemProperty(item, (string?)GetCellValue<string>(cell, stringTable), propertyName);
-							break;
-						case "Nullable`1<Boolean>":
-							SetItemProperty(item, (bool?)GetCellValue<bool?>(cell, stringTable), propertyName);
-							break;
-						case "Nullable`1<Double>":
-							SetItemProperty(item, (double?)GetCellValue<double?>(cell, stringTable), propertyName);
-							break;
-						case "Nullable`1<Single>":
-							SetItemProperty(item, (float?)GetCellValue<float?>(cell, stringTable), propertyName);
-							break;
-						case "Nullable`1<Int64>":
-							SetItemProperty(item, (long?)GetCellValue<long?>(cell, stringTable), propertyName);
-							break;
-						case "Nullable`1<Int32>":
-							SetItemProperty(item, (int?)GetCellValue<int?>(cell, stringTable), propertyName);
-							break;
-						case "Nullable`1<Int16>":
-							SetItemProperty(item, (short?)GetCellValue<short?>(cell, stringTable), propertyName);
-							break;
-						default:
-							// Is it an enum?
-							var stringValue = (string?)GetCellValue<string>(cell, stringTable);
-							if (property.PropertyType.IsEnum)
-							{
-								SetItemProperty(item, Enum.Parse(property.PropertyType, stringValue, true), propertyName);
-							}
-							else
-							{
-								throw new NotSupportedException($"Column index {columnIndex} matching {propertyName} has unsupported field type {propertyTypeName}.");
-							}
-							break;
+						throw new ValidationException($"Issue with property '{propertyName}' on row {rowIndex}: {exception.Message}", exception);
 					}
 				}
 				list.Add(new Extended<T>(item, eiProperties));
@@ -701,7 +710,7 @@ namespace PanoramicData.SheetMagic
 			var tweakString = stringBuilder.ToString();
 
 			// Chop numbers from the beginning
-			while (Numbers.Contains(tweakString[0]))
+			while (tweakString.Length > 0 && Numbers.Contains(tweakString[0]))
 			{
 				tweakString = tweakString.Substring(1);
 			}

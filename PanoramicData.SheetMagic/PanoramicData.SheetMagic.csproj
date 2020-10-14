@@ -15,8 +15,7 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Added support for additional numeric types
-Fixed conversion from integer to nullable double.</PackageReleaseNotes>
+		<PackageReleaseNotes>Improved error messages.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

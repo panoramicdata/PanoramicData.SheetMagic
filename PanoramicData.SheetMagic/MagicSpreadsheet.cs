@@ -650,125 +650,125 @@ namespace PanoramicData.SheetMagic
 								SetItemProperty(item, (string?)GetCellValue<string>(cell, stringTable), propertyName);
 								break;
 							case "Nullable`1<Boolean>":
+							{
+								switch (GetCellValue<object?>(cell, stringTable))
 								{
-									switch (GetCellValue<object?>(cell, stringTable))
-									{
-										case string stringValue2:
-											if (string.IsNullOrWhiteSpace(stringValue2))
-											{
-												SetItemProperty(item, (bool?)null, propertyName);
-											}
-											else
-											{
-												SetItemProperty(item, (bool?)bool.Parse(stringValue2), propertyName);
-											}
-											break;
-										case bool typedValue2:
-											SetItemProperty(item, (bool?)typedValue2, propertyName);
-											break;
-									}
-									break;
+									case string stringValue2:
+										if (string.IsNullOrWhiteSpace(stringValue2))
+										{
+											SetItemProperty(item, (bool?)null, propertyName);
+										}
+										else
+										{
+											SetItemProperty(item, (bool?)bool.Parse(stringValue2), propertyName);
+										}
+										break;
+									case bool typedValue2:
+										SetItemProperty(item, (bool?)typedValue2, propertyName);
+										break;
 								}
+								break;
+							}
 							case "Nullable`1<Double>":
+							{
+								switch (GetCellValue<object?>(cell, stringTable))
 								{
-									switch (GetCellValue<object?>(cell, stringTable))
-									{
-										case string stringValue2:
-											if (string.IsNullOrWhiteSpace(stringValue2))
-											{
-												SetItemProperty(item, (double?)null, propertyName);
-											}
-											else
-											{
-												SetItemProperty(item, (double?)double.Parse(stringValue2), propertyName);
-											}
-											break;
-										case double typedValue2:
-											SetItemProperty(item, (double?)typedValue2, propertyName);
-											break;
-									}
-									break;
+									case string stringValue2:
+										if (string.IsNullOrWhiteSpace(stringValue2))
+										{
+											SetItemProperty(item, (double?)null, propertyName);
+										}
+										else
+										{
+											SetItemProperty(item, (double?)double.Parse(stringValue2), propertyName);
+										}
+										break;
+									case double typedValue2:
+										SetItemProperty(item, (double?)typedValue2, propertyName);
+										break;
 								}
+								break;
+							}
 							case "Nullable`1<Single>":
+							{
+								switch (GetCellValue<object?>(cell, stringTable))
 								{
-									switch (GetCellValue<object?>(cell, stringTable))
-									{
-										case string stringValue2:
-											if (string.IsNullOrWhiteSpace(stringValue2))
-											{
-												SetItemProperty(item, (float?)null, propertyName);
-											}
-											else
-											{
-												SetItemProperty(item, (float?)float.Parse(stringValue2), propertyName);
-											}
-											break;
-										case float typedValue2:
-											SetItemProperty(item, (float?)typedValue2, propertyName);
-											break;
-									}
-									break;
+									case string stringValue2:
+										if (string.IsNullOrWhiteSpace(stringValue2))
+										{
+											SetItemProperty(item, (float?)null, propertyName);
+										}
+										else
+										{
+											SetItemProperty(item, (float?)float.Parse(stringValue2), propertyName);
+										}
+										break;
+									case float typedValue2:
+										SetItemProperty(item, (float?)typedValue2, propertyName);
+										break;
 								}
+								break;
+							}
 							case "Nullable`1<Int64>":
+							{
+								switch (GetCellValue<object?>(cell, stringTable))
 								{
-									switch (GetCellValue<object?>(cell, stringTable))
-									{
-										case string stringValue2:
-											if (string.IsNullOrWhiteSpace(stringValue2))
-											{
-												SetItemProperty(item, (long?)null, propertyName);
-											}
-											else
-											{
-												SetItemProperty(item, (long?)long.Parse(stringValue2), propertyName);
-											}
-											break;
-										case long typedValue2:
-											SetItemProperty(item, (long?)typedValue2, propertyName);
-											break;
-									}
-									break;
+									case string stringValue2:
+										if (string.IsNullOrWhiteSpace(stringValue2))
+										{
+											SetItemProperty(item, (long?)null, propertyName);
+										}
+										else
+										{
+											SetItemProperty(item, (long?)long.Parse(stringValue2), propertyName);
+										}
+										break;
+									case long typedValue2:
+										SetItemProperty(item, (long?)typedValue2, propertyName);
+										break;
 								}
+								break;
+							}
 							case "Nullable`1<Int32>":
+							{
+								switch (GetCellValue<object?>(cell, stringTable))
 								{
-									switch (GetCellValue<object?>(cell, stringTable))
-									{
-										case string stringValue2:
-											if (string.IsNullOrWhiteSpace(stringValue2))
-											{
-												SetItemProperty(item, (int?)null, propertyName);
-											}
-											else
-											{
-												SetItemProperty(item, (int?)int.Parse(stringValue2), propertyName);
-											}
-											break;
-										case int typedValue2:
-											SetItemProperty(item, (int?)typedValue2, propertyName);
-											break;
-									}
-									break;
+									case string stringValue2:
+										if (string.IsNullOrWhiteSpace(stringValue2))
+										{
+											SetItemProperty(item, (int?)null, propertyName);
+										}
+										else
+										{
+											SetItemProperty(item, (int?)int.Parse(stringValue2), propertyName);
+										}
+										break;
+									case int typedValue2:
+										SetItemProperty(item, (int?)typedValue2, propertyName);
+										break;
 								}
+								break;
+							}
 							case "Nullable`1<Int16>":
+							{
+								switch (GetCellValue<object?>(cell, stringTable))
 								{
-									switch (GetCellValue<object?>(cell, stringTable))
-									{
-										case string stringValue2:
-											if (string.IsNullOrWhiteSpace(stringValue2))
-											{
-												SetItemProperty(item, (short?)null, propertyName);
-											}
-											else
-											{
-												SetItemProperty(item, (short?)short.Parse(stringValue2), propertyName);
-											}
-											break;
-										case short typedValue2:
-											SetItemProperty(item, (short?)typedValue2, propertyName);
-											break;
-									}
-									break;
+									case string stringValue2:
+										if (string.IsNullOrWhiteSpace(stringValue2))
+										{
+											SetItemProperty(item, (short?)null, propertyName);
+										}
+										else
+										{
+											SetItemProperty(item, (short?)short.Parse(stringValue2), propertyName);
+										}
+										break;
+									case short typedValue2:
+										SetItemProperty(item, (short?)typedValue2, propertyName);
+										break;
 								}
+								break;
+							}
 							default:
 								// Is it an enum?
 								var stringValue = (string?)GetCellValue<string>(cell, stringTable);
@@ -1149,13 +1149,9 @@ namespace PanoramicData.SheetMagic
 		}
 
 		private Color GetColor(System.Drawing.Color color)
-		{
-			if (Equals(color, System.Drawing.Color.White))
-			{
-				return new Color { Theme = 0U };
-			}
-			return new Color { Rgb = GetHexBinaryValue(color) };
-		}
+			=> Equals(color, System.Drawing.Color.White)
+				? new Color { Theme = 0U }
+				: new Color { Rgb = GetHexBinaryValue(color) };
 
 		private static HexBinaryValue GetHexBinaryValue(System.Drawing.Color color)
 			=> new HexBinaryValue { Value = $"FF{color.R:X2}{color.G:X2}{color.B:X2}" };

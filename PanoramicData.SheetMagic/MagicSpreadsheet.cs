@@ -82,13 +82,13 @@ namespace PanoramicData.SheetMagic
 			{
 				// Get the default but we need to make sure that it's a copy of the TableOptions as we might change Table DisplayName
 				theAddSheetOptions = _options.DefaultAddSheetOptions.Clone();
+			}
 
-				if (theAddSheetOptions.TableOptions != null)
+			if (theAddSheetOptions.TableOptions != null)
+			{
+				if (_uniqueTableDisplayNames.Contains(theAddSheetOptions.TableOptions.DisplayName))
 				{
-					if (_uniqueTableDisplayNames.Contains(theAddSheetOptions.TableOptions.DisplayName))
-					{
-						theAddSheetOptions.TableOptions.DisplayName = $"{theAddSheetOptions.TableOptions.DisplayName}_{_uniqueTableDisplayNames.Count}";
-					}
+					theAddSheetOptions.TableOptions.DisplayName = $"{theAddSheetOptions.TableOptions.DisplayName}_{_uniqueTableDisplayNames.Count}";
 				}
 			}
 

@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using PanoramicData.SheetMagic.Test.Models;
-using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -160,7 +159,7 @@ namespace PanoramicData.SheetMagic.Test
 		}
 
 		[Fact]
-		public void TablesWithSameDisplayNameShouldFail()
+		public void TablesWithSameDisplayNameShouldNotFail()
 		{
 			var a = new Extended<object>(
 				new object(),
@@ -175,10 +174,7 @@ namespace PanoramicData.SheetMagic.Test
 				// Save
 				using var s1 = new MagicSpreadsheet(fileInfo);
 				s1.AddSheet(new List<Extended<object>> { a }, "Sheet A", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } });
-				var exception = Assert.Throws<ArgumentException>(() =>
-					s1.AddSheet(new List<Extended<object>> { a }, "Sheet B", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } })
-				);
-				exception.Message.Should().Be("Table DisplayName must be unique. There is already a Table with the DisplayName Table1");
+				s1.AddSheet(new List<Extended<object>> { a }, "Sheet B", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } });
 			}
 			finally
 			{

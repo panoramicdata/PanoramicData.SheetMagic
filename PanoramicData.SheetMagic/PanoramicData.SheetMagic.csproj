@@ -15,12 +15,12 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Ensure empty field types are exported correctly.</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed issue where multiple sheets gives corrupt message on load in Excel.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.2.31">
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

@@ -23,6 +23,7 @@ namespace PanoramicData.SheetMagic
 
 		private readonly FileInfo _fileInfo;
 		private readonly Options _options;
+		private readonly HashSet<string> _uniqueTableDisplayNames = new HashSet<string>();
 
 		public MagicSpreadsheet(FileInfo fileInfo, Options? options = default)
 		{
@@ -72,8 +73,34 @@ namespace PanoramicData.SheetMagic
 
 		public void AddSheet<T>(List<T> items, string? sheetName = null, AddSheetOptions? addSheetOptions = null)
 		{
-			var theAddSheetOptions = addSheetOptions ?? _options.DefaultAddSheetOptions;
+			AddSheetOptions theAddSheetOptions;
+			if (addSheetOptions != null)
+			{
+				theAddSheetOptions = addSheetOptions;
+			}
+			else
+			{
+				// Get the default but we need to make sure that it's a copy of the TableOptions as we might change Table DisplayName
+				theAddSheetOptions = _options.DefaultAddSheetOptions.Clone();
+
+				if (theAddSheetOptions.TableOptions != null)
+				{
+					if (_uniqueTableDisplayNames.Contains(theAddSheetOptions.TableOptions.DisplayName))
+					{
+						theAddSheetOptions.TableOptions.DisplayName = $"{theAddSheetOptions.TableOptions.DisplayName}_{_uniqueTableDisplayNames.Count}";
+					}
+				}
+			}
+
 			theAddSheetOptions.Validate(_options.TableStyles);
+
+			if (theAddSheetOptions.TableOptions?.DisplayName != null)
+			{
+				if (!_uniqueTableDisplayNames.Add(theAddSheetOptions.TableOptions.DisplayName))
+				{
+					throw new ArgumentException($"Table DisplayName must be unique. There is already a Table with the DisplayName {theAddSheetOptions.TableOptions.DisplayName}");
+				}
+			}
 
 			var type = typeof(T);
 			var isExtended = type.IsGenericType && type.GetGenericTypeDefinition().UnderlyingSystemType.FullName == "PanoramicData.SheetMagic.Extended`1";

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using PanoramicData.SheetMagic.Test.Models;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -151,6 +152,59 @@ namespace PanoramicData.SheetMagic.Test
 				using var s = new MagicSpreadsheet(fileInfo);
 				s.AddSheet(dealerships);
 				s.Save();
+			}
+			finally
+			{
+				fileInfo.Delete();
+			}
+		}
+
+		[Fact]
+		public void TablesWithSameDisplayNameShouldFail()
+		{
+			var a = new Extended<object>(
+				new object(),
+				new Dictionary<string, object?>()
+				{
+					{ "a", "b" }
+				}
+			);
+			var fileInfo = GetXlsxTempFileInfo();
+			try
+			{
+				// Save
+				using var s1 = new MagicSpreadsheet(fileInfo);
+				s1.AddSheet(new List<Extended<object>> { a }, "Sheet A", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } });
+				var exception = Assert.Throws<ArgumentException>(() =>
+					s1.AddSheet(new List<Extended<object>> { a }, "Sheet B", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } })
+				);
+				exception.Message.Should().Be("Table DisplayName must be unique. There is already a Table with the DisplayName Table1");
+			}
+			finally
+			{
+				fileInfo.Delete();
+			}
+		}
+
+		[Fact]
+		public void TablesWithAutoDisplayNameShouldSucceed()
+		{
+			var a = new Extended<object>(
+				new object(),
+				new Dictionary<string, object?>()
+				{
+					{ "a", "b" }
+				}
+			);
+			var fileInfo = GetXlsxTempFileInfo();
+
+			try
+			{
+				// Save
+				using var s1 = new MagicSpreadsheet(fileInfo);
+				s1.AddSheet(new List<Extended<object>> { a }, "Sheet A");
+				s1.AddSheet(new List<Extended<object>> { a }, "Sheet B");
+				s1.Save();
 			}
 			finally
 			{

@@ -565,7 +565,6 @@ namespace PanoramicData.SheetMagic
 						 : extensionMappings[columnIndex];
 					try
 					{
-
 						var property = properties.SingleOrDefault(p => p.Name == propertyName);
 						var index = columnIndex;
 						var cell = cells.SingleOrDefault(c => GetReference(c.CellReference.Value).columnIndex == index + tableColumnOffset);

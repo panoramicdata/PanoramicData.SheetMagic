@@ -244,6 +244,7 @@ namespace PanoramicData.SheetMagic.Test
 			sheet.Load();
 
 			var sites = sheet.GetExtendedList<ImportedSite>("Sites");
+			sites[1].Item.FloorHeightFeet.Should().NotBe(0);
 			sites.Should().NotBeEmpty();
 
 			var devices = sheet.GetExtendedList<ImportedDevice>("Devices");

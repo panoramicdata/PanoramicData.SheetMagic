@@ -270,6 +270,46 @@ namespace PanoramicData.SheetMagic.Test
 		}
 
 		[Fact]
+		public void Load_SitesAndNoDevices_ShouldLoadOnlySites()
+		{
+			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("SitesAndDevices"),
+				new Options
+				{
+					StopProcessingOnFirstEmptyRow = true
+					// EmptyRowInterpretedAsNull = false,
+					// StopProcessingOnFirstEmptyRow = false
+				}
+			);
+			sheet.Load();
+
+			var sites = sheet.GetExtendedList<ImportedSite>("Sites");
+			sites.Should().NotBeEmpty();
+
+			var devices = sheet.GetExtendedList<ImportedDevice>("XXX");
+			devices.Should().BeEmpty();
+		}
+
+		[Fact]
+		public void Load_SitesAndNoDevices_ShouldLoadOnlyDevices()
+		{
+			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("SitesAndDevices"),
+				new Options
+				{
+					// StopProcessingOnFirstEmptyRow = true
+					EmptyRowInterpretedAsNull = false,
+					StopProcessingOnFirstEmptyRow = false
+				}
+			);
+			sheet.Load();
+
+			var sites = sheet.GetExtendedList<ImportedSite>("XXX");
+			sites.Should().BeEmpty();
+
+			var devices = sheet.GetExtendedList<ImportedDevice>("Devices");
+			devices.Should().NotBeEmpty();
+		}
+
+		[Fact]
 		public void LoadSpreadsheet()
 		{
 			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("Bulk Import Template"));

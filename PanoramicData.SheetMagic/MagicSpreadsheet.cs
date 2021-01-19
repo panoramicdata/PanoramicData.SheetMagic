@@ -877,11 +877,165 @@ namespace PanoramicData.SheetMagic
 			};
 		}
 
+		/// <summary>
+		/// Is the format string a date string?
+		/// TODO: make this way better
+		/// </summary>
+		/// <param name="formatString"></param>
+		/// <returns></returns>
+		private bool IsFormatStringADate(string formatString)
+			=> formatString.Contains("d") ||
+				formatString.Contains("dd") ||
+				formatString.Contains("ddd") ||
+				formatString.Contains("dddd") ||
+				formatString.Contains("m") ||	// Months (lower case in Excel, also can be used for minutes!) :-(
+				formatString.Contains("mm") ||
+				formatString.Contains("mmm") ||
+				formatString.Contains("mmmm") ||
+				formatString.Contains("mmmmm") ||
+				formatString.Contains("yy") ||
+				formatString.Contains("yyyy") ||
+				formatString.Contains("d");
+
+		private string? GetCellFormatFromStyle(Cell cell)
+		{
+			// NOTES:
+			// First of all - when you choose a cell number format in Excel, you can choose from any of the 164 custom styles(not ALL are shown in the UI but they do exist).
+			// You CANNOT retrieve ANY of the built -in number formats from an XML document.
+			// You CANNOT guarantee that even if you could, that they are the same between different versions of Office, and between different locales.
+			// So, for this to work, you HAVE TO choose a custom style in Excel and set it to what you want.
+			// BUT, if you just choose any of the 'custom' formats, they are also actually built in -so if you see one in the list 'dd/mm/yyyy' and you select and OK it, it does NOT add a Custom Number Format to the XML document.
+			// What you HAVE to do is enter a custom format and ensure that it is NOT in any of the lists. The easiest way to do this is to in this case type 'dd/mm/yyyy ' with a space, with no quotes, and then OK it.
+			// This DOES then add it to the XML document and my code can read it, by finding the custom number format, it's style etc, etc.
+			// HOWEVER, the internal representation of dates and times is days(and fractions of days) since Jan 1, 1900.
+			// So the ONLY way I can tell if it's intended to be a date is by checking the format string (which I got from the XML style) and if it's anything like dd/mm/yyyy or dd-mmm-yyyy etc or any such combination that makes sense(and that is a manual to to see if the format string contains d / dd / ddd etc, then I can parse it and add the correct number of days and milliseconds onto the date and then format it as a string.
+			// Annoyingly also, Excel date format is very flexible and can confuse with time format, e.g.you can put mm for months or for minutes (it treats upper case and lower case the same, it does some parsing to work out what you mean), so that in c# I also have to convert the lower case 'm' to upper case (as required by DateTime.Format).
+			//This also means that this doesn't work at the moment for a time string. ONLY dates.
+
+			// When check the cell.DataType, IF it is NULL then don't return null but first do the next steps (and if they fail / can't find then return null)
+			// From the Cell element, check if it has a style Index. Get that (e.g. 14U)
+			// Find , in Styles = > CellFormats (by index - starts at 0) the style by index from last step
+			// If the style has a Number Format ID element (e.g. 167U) then ...
+			// Find the Styles => NumberingFormats node where its NumberFormatId is the ID above
+			// Then get the FormatCode attribute (e.g. "FormatCode = "dd/mm/yyyy;@" )
+			// Then do treat it as text but do a ToString with the format above
+
+			try
+			{
+				if (cell.StyleIndex.HasValue)
+				{
+					var styleIndex = (int)cell.StyleIndex.Value;
+					var cellFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.CellFormats;
+					var numberingFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.NumberingFormats;
+
+					// For built in styles, which we cannot read, we can get the style details but we have
+					// no way to get the styles, AND for different versions of Excel and different locales,
+					// they differ, so we are basically just going to handle CUSTOM formats (you MUST
+					// pick custom in Excel and save) and also a limited set of DateTime formats
+					if (cellFormats == null)
+					{
+						return null;
+					}
+					 
+					var cellFormat = (CellFormat)cellFormats.ElementAt(styleIndex);
+
+					if (cellFormat.NumberFormatId != null)
+					{
+						var numberFormatId = (uint)cellFormat.NumberFormatId.Value;
+
+						// May be a CUSTOM number format, OR a built-in one
+						if (numberFormatId >= 164)
+						{
+							// CUSTOM number format - but we only deal with dates for the moment
+							var numberingFormat = numberingFormats.Cast<NumberingFormat>()
+								.SingleOrDefault(f => f.NumberFormatId.Value == numberFormatId);
+
+							if (numberingFormat == null)
+							{
+								return null;
+							}
+
+							// >>> Get the format
+							var formatString = numberingFormat.FormatCode.Value;
+
+							// Unfortunately for dates, we can't just format the inner text (a number) as a DateTime.
+							// We have to detect if the formatString is a DateTime one and then parse it.
+							// Excel does NOT differentiate cases, so C#'s dd/MM/yyyy in Excel can be in ANY case!
+							if (IsFormatStringADate(formatString.ToLowerInvariant()))
+							{
+								// Excel stores dates as a number (number of days since January 1, 1900),
+								//so "44166" text is 03/12/2020
+								// IF the number is an integer, it's only days. If it's a double, it's a fractional
+								// portion of a day. 
+								var baseDate = new DateTime(1900, 01, 01);
+								DateTime? actualDate = null;
+
+								if (int.TryParse(cell.InnerText, out var intDaysSinceBaseDate))
+								{
+									actualDate = baseDate.AddDays(intDaysSinceBaseDate);
+
+									// Return the date - we have to replace lower-case 'm' with upper-case as
+									// required by C# else we get minutes
+									// Some custom formats used by customers also have @ and ; in them.
+									return actualDate.Value.ToString(
+										formatString
+											.Replace("\\", string.Empty)
+											.Replace(";", string.Empty)
+											.Replace("@", string.Empty)
+											.Replace("m", "M"))
+										.Trim();
+								}
+							}
+
+							// Check if it's a number
+							if (double.TryParse(cell.InnerText, out var number))
+							{
+								return number.ToString(formatString);
+							}
+
+							return cell.InnerText;
+						}
+
+						// Built-in number format
+
+						if (BuiltInCellFormats.GetBuiltInCellFormatByIndex((int)numberFormatId ) is string builtInStlye)
+						{
+							if (string.IsNullOrEmpty(builtInStlye))
+							{
+								var cellValue = cell.InnerText;
+
+								return cellValue;
+							}
+
+							var formattedString = string.Format(builtInStlye, cell.InnerText);
+
+							return formattedString;
+						}
+
+						// The format does not exist
+						return null;
+					}
+				}
+
+				// Everything else
+				return null;
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
 		private object? GetCellValueDirect(Cell cell, SharedStringTablePart stringTable)
 		{
 			var cellValueText = cell.CellValue?.Text;
 			if (cell.DataType == null)
 			{
+				// Check whether there is a built-in style set
+				if (GetCellFormatFromStyle(cell) is string text)
+				{
+					return text;
+				}
 				return cellValueText;
 			}
 			switch ((CellValues)cell.DataType)

@@ -936,7 +936,7 @@ namespace PanoramicData.SheetMagic
 					{
 						return null;
 					}
-					 
+
 					var cellFormat = (CellFormat)cellFormats.ElementAt(styleIndex);
 
 					if (cellFormat.NumberFormatId != null)
@@ -955,7 +955,7 @@ namespace PanoramicData.SheetMagic
 								return null;
 							}
 
-							// >>> Get the format
+							// Get the format
 							var formatString = numberingFormat.FormatCode.Value;
 
 							// Unfortunately for dates, we can't just format the inner text (a number) as a DateTime.
@@ -972,7 +972,9 @@ namespace PanoramicData.SheetMagic
 
 								if (int.TryParse(cell.InnerText, out var intDaysSinceBaseDate))
 								{
-									actualDate = baseDate.AddDays(intDaysSinceBaseDate);
+									// See: https://www.kirix.com/stratablog/excel-date-conversion-days-from-1900
+									// Note you DO have to take off 2 days!
+									actualDate = baseDate.AddDays(intDaysSinceBaseDate).AddDays(-2);
 
 									// Return the date - we have to replace lower-case 'm' with upper-case as
 									// required by C# else we get minutes

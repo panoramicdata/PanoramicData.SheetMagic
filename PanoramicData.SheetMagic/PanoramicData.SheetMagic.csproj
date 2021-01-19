@@ -15,7 +15,7 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Many of the built-in and custom number formats in Excel are now supported (fixes Dates being shown as numbers).</PackageReleaseNotes>
+		<PackageReleaseNotes>Correct date formula now used when formatting cells as dates (was 2 days out before).</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

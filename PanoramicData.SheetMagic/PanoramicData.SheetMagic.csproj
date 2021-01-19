@@ -15,7 +15,7 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Fixed handling of nullable doubles where the cell contents is a string.</PackageReleaseNotes>
+		<PackageReleaseNotes>Many of the built-in and custom number formats in Excel are now supported (fixes Dates being shown as numbers).</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

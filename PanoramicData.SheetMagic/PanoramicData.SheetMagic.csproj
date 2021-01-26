@@ -15,7 +15,7 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Correct date formula now used when formatting cells as dates (was 2 days out before).</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed an issue where formulas would show as the formula text rather than the cell value text.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

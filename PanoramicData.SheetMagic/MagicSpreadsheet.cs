@@ -922,7 +922,7 @@ namespace PanoramicData.SheetMagic
 
 			try
 			{
-				if (cell.StyleIndex.HasValue)
+				if (cell.StyleIndex?.HasValue == true)
 				{
 					var styleIndex = (int)cell.StyleIndex.Value;
 					var cellFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.CellFormats;
@@ -970,7 +970,11 @@ namespace PanoramicData.SheetMagic
 								var baseDate = new DateTime(1900, 01, 01);
 								DateTime? actualDate = null;
 
-								if (int.TryParse(cell.InnerText, out var intDaysSinceBaseDate))
+								if (int.TryParse(
+									(cell.CellValue != null &&
+									!string.IsNullOrEmpty(cell.CellValue.Text))
+									? cell.CellValue.Text
+									: cell.InnerText, out var intDaysSinceBaseDate))
 								{
 									// See: https://www.kirix.com/stratablog/excel-date-conversion-days-from-1900
 									// Note you DO have to take off 2 days!
@@ -990,7 +994,11 @@ namespace PanoramicData.SheetMagic
 							}
 
 							// Check if it's a number
-							if (double.TryParse(cell.InnerText, out var number))
+							if (double.TryParse(
+								(cell.CellValue != null &&
+								!string.IsNullOrEmpty(cell.CellValue.Text))
+								? cell.CellValue?.Text
+								: cell.InnerText, out var number))
 							{
 								return number.ToString(formatString);
 							}
@@ -1004,12 +1012,19 @@ namespace PanoramicData.SheetMagic
 						{
 							if (string.IsNullOrEmpty(builtInStlye))
 							{
-								var cellValue = cell.InnerText;
+								var cellValue =
+									(cell.CellValue != null && !string.IsNullOrEmpty(cell.CellValue.Text))
+									? cell.CellValue.Text
+									: cell.InnerText;
 
 								return cellValue;
 							}
 
-							var formattedString = string.Format(builtInStlye, cell.InnerText);
+							var formattedString =
+								string.Format(builtInStlye,
+								(cell.CellValue != null && !string.IsNullOrEmpty(cell.CellValue.Text))
+									? cell.CellValue.Text
+									: cell.InnerText);
 
 							return formattedString;
 						}

@@ -19,7 +19,7 @@ namespace PanoramicData.SheetMagic
 	{
 		private const string Letters = "abcdefghijklmnopqrstuvwxyz";
 		private const string Numbers = "0123456789";
-		private static readonly Regex CellReferenceRegex = new Regex(@"(?<col>([A-Z]|[a-z])+)(?<row>(\d)+)");
+		private static readonly Regex CellReferenceRegex = new(@"(?<col>([A-Z]|[a-z])+)(?<row>(\d)+)");
 
 		private readonly FileInfo _fileInfo;
 		private readonly Options _options;
@@ -64,7 +64,7 @@ namespace PanoramicData.SheetMagic
 		}
 
 		private static Cell CreateTextCell(string header, uint index, string? text) =>
-			 new Cell(new InlineString(new Text { Text = text }))
+			 new(new InlineString(new Text { Text = text }))
 			 {
 				 DataType = CellValues.InlineString,
 				 CellReference = header + index
@@ -414,7 +414,7 @@ namespace PanoramicData.SheetMagic
 				}
 			}
 
-			if (!(_document.WorkbookPart.GetPartById(sheet.Id.Value) is WorksheetPart worksheetPart))
+			if (_document.WorkbookPart.GetPartById(sheet.Id.Value) is not WorksheetPart worksheetPart)
 			{
 				throw new FormatException($"No WorksheetPart found for sheet {sheet.Name}");
 			}
@@ -839,29 +839,21 @@ namespace PanoramicData.SheetMagic
 			{
 				return cellValueText;
 			}
-			switch ((CellValues)cell.DataType)
+			return (CellValues)cell.DataType switch
 			{
-				case CellValues.SharedString:
-					return stringTable.SharedStringTable
-						 .ElementAt(int.Parse(cellValueText)).InnerText;
-				case CellValues.Boolean:
-					return cellValueText switch
-					{
-						"1" => true,
-						"0" => false,
-						_ => null,
-					};
-				case CellValues.Number:
-					return double.Parse(cellValueText);
-				case CellValues.Date:
-					return DateTime.Parse(cellValueText);
-				case CellValues.Error:
-				case CellValues.String:
-				case CellValues.InlineString:
-					return cellValueText ?? cell.InnerText;
-				default:
-					throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}");
-			}
+				CellValues.SharedString => stringTable.SharedStringTable
+										.ElementAt(int.Parse(cellValueText)).InnerText,
+				CellValues.Boolean => cellValueText switch
+				{
+					"1" => true,
+					"0" => false,
+					_ => null,
+				},
+				CellValues.Number => double.Parse(cellValueText),
+				CellValues.Date => DateTime.Parse(cellValueText),
+				CellValues.Error or CellValues.String or CellValues.InlineString => cellValueText ?? cell.InnerText,
+				_ => throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}"),
+			};
 		}
 
 		private object? GetCellValue<T>(Cell cell, SharedStringTablePart stringTable)
@@ -1157,7 +1149,9 @@ namespace PanoramicData.SheetMagic
 			return new Color { Rgb = GetHexBinaryValue(color) };
 		}
 
-		private static HexBinaryValue GetHexBinaryValue(System.Drawing.Color color)
-			=> new HexBinaryValue { Value = $"FF{color.R:X2}{color.G:X2}{color.B:X2}" };
+		private static HexBinaryValue GetHexBinaryValue(System.Drawing.Color color) => new()
+		{
+			Value = $"FF{color.R:X2}{color.G:X2}{color.B:X2}"
+		};
 	}
 }

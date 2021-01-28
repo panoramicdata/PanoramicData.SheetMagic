@@ -244,6 +244,7 @@ namespace PanoramicData.SheetMagic.Test
 			sheet.Load();
 
 			var sites = sheet.GetExtendedList<ImportedSite>("Sites");
+			sites[1].Item.FloorHeightFeet.Should().NotBe(0);
 			sites.Should().NotBeEmpty();
 
 			var devices = sheet.GetExtendedList<ImportedDevice>("Devices");
@@ -266,6 +267,22 @@ namespace PanoramicData.SheetMagic.Test
 
 			var devices = sheet.GetExtendedList<ImportedDevice>("Devices");
 			devices.Should().NotBeEmpty();
+		}
+
+		[Fact]
+		public void Load_SitesAndNoDevices_TryToLoadFromMissingWorkSheetShouldThrowException()
+		{
+			using var sheet = new MagicSpreadsheet(GetSheetFileInfo("SitesAndDevices"),
+				new Options
+				{
+					// StopProcessingOnFirstEmptyRow = true
+					EmptyRowInterpretedAsNull = false,
+					StopProcessingOnFirstEmptyRow = false
+				}
+			);
+			sheet.Load();
+
+			Assert.ThrowsAny<Exception>(() => sheet.GetExtendedList<ImportedDevice>("XXX"));
 		}
 
 		[Fact]

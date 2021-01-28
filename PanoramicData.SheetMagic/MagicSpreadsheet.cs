@@ -23,6 +23,7 @@ namespace PanoramicData.SheetMagic
 
 		private readonly FileInfo _fileInfo;
 		private readonly Options _options;
+		private readonly HashSet<string> _uniqueTableDisplayNames = new HashSet<string>();
 
 		public MagicSpreadsheet(FileInfo fileInfo, Options? options = default)
 		{
@@ -72,8 +73,34 @@ namespace PanoramicData.SheetMagic
 
 		public void AddSheet<T>(List<T> items, string? sheetName = null, AddSheetOptions? addSheetOptions = null)
 		{
-			var theAddSheetOptions = addSheetOptions ?? _options.DefaultAddSheetOptions;
+			AddSheetOptions theAddSheetOptions;
+			if (addSheetOptions != null)
+			{
+				theAddSheetOptions = addSheetOptions;
+			}
+			else
+			{
+				// Get the default but we need to make sure that it's a copy of the TableOptions as we might change Table DisplayName
+				theAddSheetOptions = _options.DefaultAddSheetOptions.Clone();
+			}
+
+			if (theAddSheetOptions.TableOptions != null)
+			{
+				if (_uniqueTableDisplayNames.Contains(theAddSheetOptions.TableOptions.DisplayName))
+				{
+					theAddSheetOptions.TableOptions.DisplayName = $"{theAddSheetOptions.TableOptions.DisplayName}_{_uniqueTableDisplayNames.Count}";
+				}
+			}
+
 			theAddSheetOptions.Validate(_options.TableStyles);
+
+			if (theAddSheetOptions.TableOptions?.DisplayName != null)
+			{
+				if (!_uniqueTableDisplayNames.Add(theAddSheetOptions.TableOptions.DisplayName))
+				{
+					throw new ArgumentException($"Table DisplayName must be unique. There is already a Table with the DisplayName {theAddSheetOptions.TableOptions.DisplayName}");
+				}
+			}
 
 			var type = typeof(T);
 			var isExtended = type.IsGenericType && type.GetGenericTypeDefinition().UnderlyingSystemType.FullName == "PanoramicData.SheetMagic.Extended`1";
@@ -666,6 +693,9 @@ namespace PanoramicData.SheetMagic
 										case bool typedValue2:
 											SetItemProperty(item, (bool?)typedValue2, propertyName);
 											break;
+										case null:
+											SetItemProperty(item, null, propertyName);
+											break;
 									}
 									break;
 								}
@@ -685,6 +715,9 @@ namespace PanoramicData.SheetMagic
 											break;
 										case double typedValue2:
 											SetItemProperty(item, (double?)typedValue2, propertyName);
+											break;
+										case null:
+											SetItemProperty(item, null, propertyName);
 											break;
 									}
 									break;
@@ -706,6 +739,9 @@ namespace PanoramicData.SheetMagic
 										case float typedValue2:
 											SetItemProperty(item, (float?)typedValue2, propertyName);
 											break;
+										case null:
+											SetItemProperty(item, null, propertyName);
+											break;
 									}
 									break;
 								}
@@ -725,6 +761,9 @@ namespace PanoramicData.SheetMagic
 											break;
 										case long typedValue2:
 											SetItemProperty(item, (long?)typedValue2, propertyName);
+											break;
+										case null:
+											SetItemProperty(item, null, propertyName);
 											break;
 									}
 									break;
@@ -746,6 +785,9 @@ namespace PanoramicData.SheetMagic
 										case int typedValue2:
 											SetItemProperty(item, (int?)typedValue2, propertyName);
 											break;
+										case null:
+											SetItemProperty(item, null, propertyName);
+											break;
 									}
 									break;
 								}
@@ -765,6 +807,9 @@ namespace PanoramicData.SheetMagic
 											break;
 										case short typedValue2:
 											SetItemProperty(item, (short?)typedValue2, propertyName);
+											break;
+										case null:
+											SetItemProperty(item, null, propertyName);
 											break;
 									}
 									break;
@@ -832,11 +877,170 @@ namespace PanoramicData.SheetMagic
 			};
 		}
 
+		private string? FormatCellAsNumber(Cell cell, string formatString)
+		{
+			// Check if it's a number
+			if (double.TryParse(
+				(cell.CellValue != null &&
+				!string.IsNullOrEmpty(cell.CellValue.Text))
+				? cell.CellValue?.Text
+				: cell.InnerText, out var number))
+			{
+				return number.ToString(formatString);
+			}
+
+			return null;
+		}
+
+		private string? FormatCellAsDateTime(Cell cell, string formatString)
+		{
+			// Excel stores dates as a number (number of days since January 1, 1900),
+			//so "44166" text is 03/12/2020
+			// IF the number is an integer, it's only days. If it's a double, it's a fractional
+			// portion of a day. 
+			var baseDate = new DateTime(1900, 01, 01);
+
+			if (int.TryParse(
+				(cell.CellValue != null &&
+				!string.IsNullOrEmpty(cell.CellValue.Text))
+				? cell.CellValue.Text
+				: cell.InnerText, out var intDaysSinceBaseDate))
+			{
+				// See: https://www.kirix.com/stratablog/excel-date-conversion-days-from-1900
+				// Note you DO have to take off 2 days!
+				DateTime? actualDate = baseDate.AddDays(intDaysSinceBaseDate).AddDays(-2);
+
+				// Return the date - we have to replace lower-case 'm' with upper-case as
+				// required by C# else we get minutes
+				// Some custom formats used by customers also have @ and ; in them.
+				return actualDate.Value.ToString(
+					formatString
+						.Replace("\\", string.Empty)
+						.Replace(";", string.Empty)
+						.Replace("@", string.Empty)
+						.Replace("m", "M"))
+					.Trim();
+			}
+
+			// Could not parse cell value as an integer
+			return null;
+		}
+
+		/// <summary>
+		/// Is the format string a date string?
+		/// </summary>
+		/// <param name="formatString"></param>
+		/// <returns></returns>
+		private bool IsFormatStringADate(string formatString) =>
+			formatString.IndexOf("d", StringComparison.OrdinalIgnoreCase) >= 0 ||
+			formatString.IndexOf("m", StringComparison.OrdinalIgnoreCase) >= 0 ||
+			formatString.IndexOf("y", StringComparison.OrdinalIgnoreCase) >= 0;
+
+		private string? GetCellFormatFromStyle(Cell cell)
+		{
+			// NOTES:
+			// First of all - when you choose a cell number format in Excel, you can choose from any of the 164 custom styles(not ALL are shown in the UI but they do exist).
+			// You CANNOT retrieve ANY of the built -in number formats from an XML document.
+			// You CANNOT guarantee that even if you could, that they are the same between different versions of Office, and between different locales.
+			// So, for this to work, you HAVE TO choose a custom style in Excel and set it to what you want.
+			// BUT, if you just choose any of the 'custom' formats, they are also actually built in -so if you see one in the list 'dd/mm/yyyy' and you select and OK it, it does NOT add a Custom Number Format to the XML document.
+			// What you HAVE to do is enter a custom format and ensure that it is NOT in any of the lists. The easiest way to do this is to in this case type 'dd/mm/yyyy ' with a space, with no quotes, and then OK it.
+			// This DOES then add it to the XML document and my code can read it, by finding the custom number format, it's style etc, etc.
+			// HOWEVER, the internal representation of dates and times is days(and fractions of days) since Jan 1, 1900.
+			// So the ONLY way I can tell if it's intended to be a date is by checking the format string (which I got from the XML style) and if it's anything like dd/mm/yyyy or dd-mmm-yyyy etc or any such combination that makes sense(and that is a manual to to see if the format string contains d / dd / ddd etc, then I can parse it and add the correct number of days and milliseconds onto the date and then format it as a string.
+			// Annoyingly also, Excel date format is very flexible and can confuse with time format, e.g.you can put mm for months or for minutes (it treats upper case and lower case the same, it does some parsing to work out what you mean), so that in c# I also have to convert the lower case 'm' to upper case (as required by DateTime.Format).
+			//This also means that this doesn't work at the moment for a time string. ONLY dates.
+
+			// When check the cell.DataType, IF it is NULL then don't return null but first do the next steps (and if they fail / can't find then return null)
+			// From the Cell element, check if it has a style Index. Get that (e.g. 14U)
+			// Find , in Styles = > CellFormats (by index - starts at 0) the style by index from last step
+			// If the style has a Number Format ID element (e.g. 167U) then ...
+			// Find the Styles => NumberingFormats node where its NumberFormatId is the ID above
+			// Then get the FormatCode attribute (e.g. "FormatCode = "dd/mm/yyyy;@" )
+			// Then do treat it as text but do a ToString with the format above
+
+			try
+			{
+				if (cell.StyleIndex?.HasValue == true)
+				{
+					var styleIndex = (int)cell.StyleIndex.Value;
+					var cellFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.CellFormats;
+					var numberingFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.NumberingFormats;
+
+					if (cellFormats == null)
+					{
+						// Results in a string
+						return null;
+					}
+
+					var cellFormat = (CellFormat)cellFormats.ElementAt(styleIndex);
+					var formatString = string.Empty;
+
+					if (cellFormat.NumberFormatId?.HasValue == true)
+					{
+						var numberFormatId = (uint)cellFormat.NumberFormatId.Value;
+
+						if (numberFormatId >= BuiltInCellFormats.CustomFormatStartIndex)
+						{
+							// CUSTOM cell format
+							var numberingFormat =
+								numberingFormats
+								.Cast<NumberingFormat>()
+								.SingleOrDefault(f => f.NumberFormatId.Value == numberFormatId);
+
+							if (numberingFormat == null)
+							{
+								return null;
+							}
+
+							// Get the format
+							formatString = numberingFormat.FormatCode.Value;
+						}
+						else
+						{
+							// BUILT-IN number format
+							var builtInFormat = BuiltInCellFormats.GetBuiltInCellFormatByIndex((int)numberFormatId);
+
+							if (builtInFormat != null)
+							{
+								if (builtInFormat.Value.formatType == CellFormatType.General ||
+									builtInFormat.Value.formatType == CellFormatType.Text ||
+									builtInFormat.Value.formatType == CellFormatType.Unknown)
+								{
+									// Results in a string
+									return null;
+								}
+
+								formatString = builtInFormat.Value.formatString;
+							}
+						}
+
+						return IsFormatStringADate(formatString)
+							? FormatCellAsDateTime(cell, formatString)
+							: FormatCellAsNumber(cell, formatString);
+					}
+				}
+
+				// Everything else (string)
+				return null;
+			}
+			catch
+			{
+				// Results in a string value
+				return null;
+			}
+		}
+
 		private object? GetCellValueDirect(Cell cell, SharedStringTablePart stringTable)
 		{
 			var cellValueText = cell.CellValue?.Text;
 			if (cell.DataType == null)
 			{
+				// Check whether there is a built-in style set
+				if (GetCellFormatFromStyle(cell) is string text)
+				{
+					return text;
+				}
 				return cellValueText;
 			}
 			return (CellValues)cell.DataType switch
@@ -888,6 +1092,7 @@ namespace PanoramicData.SheetMagic
 						}
 						throw new FormatException($"Could not convert cell {cell.CellReference} to a double.");
 					case "String":
+					case "Object":
 						return cellValueText;
 				}
 			}
@@ -1141,13 +1346,9 @@ namespace PanoramicData.SheetMagic
 		}
 
 		private Color GetColor(System.Drawing.Color color)
-		{
-			if (Equals(color, System.Drawing.Color.White))
-			{
-				return new Color { Theme = 0U };
-			}
-			return new Color { Rgb = GetHexBinaryValue(color) };
-		}
+			=> Equals(color, System.Drawing.Color.White)
+				? new Color { Theme = 0U }
+				: new Color { Rgb = GetHexBinaryValue(color) };
 
 		private static HexBinaryValue GetHexBinaryValue(System.Drawing.Color color) => new()
 		{

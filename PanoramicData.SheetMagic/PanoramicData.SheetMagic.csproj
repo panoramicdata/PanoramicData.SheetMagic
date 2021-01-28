@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Authors>Panoramic Data Limited</Authors>
-		<Copyright>Copyright (c) Panoramic Data Limited 2020</Copyright>
+		<Copyright>Copyright (c) Panoramic Data Limited 2021</Copyright>
 		<PackageProjectUrl>http://www.panoramicdata.com/sheetmagic/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.SheetMagic</RepositoryUrl>
 		<RepositoryType>GIT</RepositoryType>
@@ -15,12 +15,12 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Improved error messages.</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed an issue where some custom formats (and general formats) would not return the correct cell value.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.2.31">
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

@@ -42,5 +42,38 @@ namespace PanoramicData.SheetMagic
 
 			TableOptions?.Validate(tableStyles);
 		}
+
+		internal AddSheetOptions Clone()
+			=> new AddSheetOptions
+			{
+				EnumerableCellOptions = EnumerableCellOptions == null
+					? null
+					: new EnumerableCellOptions
+					{
+						CellDelimiter = EnumerableCellOptions.CellDelimiter,
+						Expand = EnumerableCellOptions.Expand,
+					},
+				ExcludeProperties = ExcludeProperties == null
+					? null
+					: new HashSet<string>(ExcludeProperties),
+				IncludeProperties = IncludeProperties == null
+					? null
+					: new HashSet<string>(IncludeProperties),
+				SortExtendedProperties = SortExtendedProperties,
+				TableOptions = TableOptions == null
+					? null
+					: new TableOptions
+					{
+						CustomTableStyle = TableOptions.CustomTableStyle,
+						DisplayName = TableOptions.DisplayName,
+						Name = TableOptions.Name,
+						ShowColumnStripes = TableOptions.ShowColumnStripes,
+						ShowFirstColumn = TableOptions.ShowFirstColumn,
+						ShowLastColumn = TableOptions.ShowLastColumn,
+						ShowRowStripes = TableOptions.ShowRowStripes,
+						ShowTotalsRow = TableOptions.ShowTotalsRow,
+						XlsxTableStyle = TableOptions.XlsxTableStyle
+					}
+			};
 	}
 }

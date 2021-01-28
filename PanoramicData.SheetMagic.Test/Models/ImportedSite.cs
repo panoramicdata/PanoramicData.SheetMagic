@@ -35,13 +35,13 @@ namespace PanoramicData.SheetMagic.Test.Models
 		public string FloorRfModel { get; set; } = string.Empty;
 
 		[Description("Floor Width (Feet)")]
-		public double FloorWidthFeet { get; set; }
+		public double? FloorWidthFeet { get; set; }
 
 		[Description("Floor Length (Feet)")]
-		public double FloorLengthFeet { get; set; }
+		public double? FloorLengthFeet { get; set; }
 
 		[Description("Floor Height (Feet)")]
-		public double FloorHeightFeet { get; set; }
+		public double? FloorHeightFeet { get; set; }
 
 		[Description("Network Tags")]
 		public string NetworkTags { get; set; } = string.Empty;

@@ -28,12 +28,12 @@ namespace PanoramicData.SheetMagic
 		{
 			if (DisplayName.Contains(" "))
 			{
-				throw new ValidationException($"TableOptions display name cannot contain spaces.  Found '{DisplayName}'.");
+				throw new ValidationException($"TableOptions display name cannot contain spaces. Found '{DisplayName}'.");
 			}
 
 			if (CustomTableStyle != null && !tableStyles.Any(ts => ts.Name == CustomTableStyle))
 			{
-				throw new ValidationException($"Undefined CustomTableStyle '{CustomTableStyle}' was requested.  Define it in the {nameof(Options)}.{nameof(Options.TableStyles)} provided in the {nameof(MagicSpreadsheet)} constructor.");
+				throw new ValidationException($"Undefined CustomTableStyle '{CustomTableStyle}' was requested. Define it in the {nameof(Options)}.{nameof(Options.TableStyles)} provided in the {nameof(MagicSpreadsheet)} constructor.");
 			}
 		}
 	}

@@ -5,7 +5,7 @@ namespace PanoramicData.SheetMagic.Test
 	public class FormulaTests : Test
 	{
 		[Fact]
-		public void GetValueFromFormulate_Succeeds()
+		public void GetValueFromFormula_Succeeds()
 		{
 			using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("FormulaTest"), new Options { StopProcessingOnFirstEmptyRow = true });
 			magicSpreadsheet.Load();

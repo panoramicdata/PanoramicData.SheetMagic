@@ -877,25 +877,64 @@ namespace PanoramicData.SheetMagic
 			};
 		}
 
+		private string? FormatCellAsNumber(Cell cell, string formatString)
+		{
+			// Check if it's a number
+			if (double.TryParse(
+				(cell.CellValue != null &&
+				!string.IsNullOrEmpty(cell.CellValue.Text))
+				? cell.CellValue?.Text
+				: cell.InnerText, out var number))
+			{
+				return number.ToString(formatString);
+			}
+
+			return null;
+		}
+
+		private string? FormatCellAsDateTime(Cell cell, string formatString)
+		{
+			// Excel stores dates as a number (number of days since January 1, 1900),
+			//so "44166" text is 03/12/2020
+			// IF the number is an integer, it's only days. If it's a double, it's a fractional
+			// portion of a day. 
+			var baseDate = new DateTime(1900, 01, 01);
+
+			if (int.TryParse(
+				(cell.CellValue != null &&
+				!string.IsNullOrEmpty(cell.CellValue.Text))
+				? cell.CellValue.Text
+				: cell.InnerText, out var intDaysSinceBaseDate))
+			{
+				// See: https://www.kirix.com/stratablog/excel-date-conversion-days-from-1900
+				// Note you DO have to take off 2 days!
+				DateTime? actualDate = baseDate.AddDays(intDaysSinceBaseDate).AddDays(-2);
+
+				// Return the date - we have to replace lower-case 'm' with upper-case as
+				// required by C# else we get minutes
+				// Some custom formats used by customers also have @ and ; in them.
+				return actualDate.Value.ToString(
+					formatString
+						.Replace("\\", string.Empty)
+						.Replace(";", string.Empty)
+						.Replace("@", string.Empty)
+						.Replace("m", "M"))
+					.Trim();
+			}
+
+			// Could not parse cell value as an integer
+			return null;
+		}
+
 		/// <summary>
 		/// Is the format string a date string?
-		/// TODO: make this way better
 		/// </summary>
 		/// <param name="formatString"></param>
 		/// <returns></returns>
-		private bool IsFormatStringADate(string formatString)
-			=> formatString.Contains("d") ||
-				formatString.Contains("dd") ||
-				formatString.Contains("ddd") ||
-				formatString.Contains("dddd") ||
-				formatString.Contains("m") ||	// Months (lower case in Excel, also can be used for minutes!) :-(
-				formatString.Contains("mm") ||
-				formatString.Contains("mmm") ||
-				formatString.Contains("mmmm") ||
-				formatString.Contains("mmmmm") ||
-				formatString.Contains("yy") ||
-				formatString.Contains("yyyy") ||
-				formatString.Contains("d");
+		private bool IsFormatStringADate(string formatString) =>
+			formatString.IndexOf("d", StringComparison.OrdinalIgnoreCase) >= 0 ||
+			formatString.IndexOf("m", StringComparison.OrdinalIgnoreCase) >= 0 ||
+			formatString.IndexOf("y", StringComparison.OrdinalIgnoreCase) >= 0;
 
 		private string? GetCellFormatFromStyle(Cell cell)
 		{
@@ -928,26 +967,25 @@ namespace PanoramicData.SheetMagic
 					var cellFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.CellFormats;
 					var numberingFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.NumberingFormats;
 
-					// For built in styles, which we cannot read, we can get the style details but we have
-					// no way to get the styles, AND for different versions of Excel and different locales,
-					// they differ, so we are basically just going to handle CUSTOM formats (you MUST
-					// pick custom in Excel and save) and also a limited set of DateTime formats
 					if (cellFormats == null)
 					{
+						// Results in a string
 						return null;
 					}
 
 					var cellFormat = (CellFormat)cellFormats.ElementAt(styleIndex);
+					var formatString = string.Empty;
 
-					if (cellFormat.NumberFormatId != null)
+					if (cellFormat.NumberFormatId?.HasValue == true)
 					{
 						var numberFormatId = (uint)cellFormat.NumberFormatId.Value;
 
-						// May be a CUSTOM number format, OR a built-in one
-						if (numberFormatId >= 164)
+						if (numberFormatId >= BuiltInCellFormats.CustomFormatStartIndex)
 						{
-							// CUSTOM number format - but we only deal with dates for the moment
-							var numberingFormat = numberingFormats.Cast<NumberingFormat>()
+							// CUSTOM cell format
+							var numberingFormat =
+								numberingFormats
+								.Cast<NumberingFormat>()
 								.SingleOrDefault(f => f.NumberFormatId.Value == numberFormatId);
 
 							if (numberingFormat == null)
@@ -956,89 +994,39 @@ namespace PanoramicData.SheetMagic
 							}
 
 							// Get the format
-							var formatString = numberingFormat.FormatCode.Value;
-
-							// Unfortunately for dates, we can't just format the inner text (a number) as a DateTime.
-							// We have to detect if the formatString is a DateTime one and then parse it.
-							// Excel does NOT differentiate cases, so C#'s dd/MM/yyyy in Excel can be in ANY case!
-							if (IsFormatStringADate(formatString.ToLowerInvariant()))
-							{
-								// Excel stores dates as a number (number of days since January 1, 1900),
-								//so "44166" text is 03/12/2020
-								// IF the number is an integer, it's only days. If it's a double, it's a fractional
-								// portion of a day. 
-								var baseDate = new DateTime(1900, 01, 01);
-								DateTime? actualDate = null;
-
-								if (int.TryParse(
-									(cell.CellValue != null &&
-									!string.IsNullOrEmpty(cell.CellValue.Text))
-									? cell.CellValue.Text
-									: cell.InnerText, out var intDaysSinceBaseDate))
-								{
-									// See: https://www.kirix.com/stratablog/excel-date-conversion-days-from-1900
-									// Note you DO have to take off 2 days!
-									actualDate = baseDate.AddDays(intDaysSinceBaseDate).AddDays(-2);
-
-									// Return the date - we have to replace lower-case 'm' with upper-case as
-									// required by C# else we get minutes
-									// Some custom formats used by customers also have @ and ; in them.
-									return actualDate.Value.ToString(
-										formatString
-											.Replace("\\", string.Empty)
-											.Replace(";", string.Empty)
-											.Replace("@", string.Empty)
-											.Replace("m", "M"))
-										.Trim();
-								}
-							}
-
-							// Check if it's a number
-							if (double.TryParse(
-								(cell.CellValue != null &&
-								!string.IsNullOrEmpty(cell.CellValue.Text))
-								? cell.CellValue?.Text
-								: cell.InnerText, out var number))
-							{
-								return number.ToString(formatString);
-							}
-
-							return cell.InnerText;
+							formatString = numberingFormat.FormatCode.Value;
 						}
-
-						// Built-in number format
-
-						if (BuiltInCellFormats.GetBuiltInCellFormatByIndex((int)numberFormatId ) is string builtInStlye)
+						else
 						{
-							if (string.IsNullOrEmpty(builtInStlye))
+							// BUILT-IN number format
+							var builtInFormat = BuiltInCellFormats.GetBuiltInCellFormatByIndex((int)numberFormatId);
+
+							if (builtInFormat != null)
 							{
-								var cellValue =
-									(cell.CellValue != null && !string.IsNullOrEmpty(cell.CellValue.Text))
-									? cell.CellValue.Text
-									: cell.InnerText;
+								if (builtInFormat.Value.formatType == CellFormatType.General ||
+									builtInFormat.Value.formatType == CellFormatType.Text ||
+									builtInFormat.Value.formatType == CellFormatType.Unknown)
+								{
+									// Results in a string
+									return null;
+								}
 
-								return cellValue;
+								formatString = builtInFormat.Value.formatString;
 							}
-
-							var formattedString =
-								string.Format(builtInStlye,
-								(cell.CellValue != null && !string.IsNullOrEmpty(cell.CellValue.Text))
-									? cell.CellValue.Text
-									: cell.InnerText);
-
-							return formattedString;
 						}
 
-						// The format does not exist
-						return null;
+						return IsFormatStringADate(formatString)
+							? FormatCellAsDateTime(cell, formatString)
+							: FormatCellAsNumber(cell, formatString);
 					}
 				}
 
-				// Everything else
+				// Everything else (string)
 				return null;
 			}
 			catch
 			{
+				// Results in a string value
 				return null;
 			}
 		}

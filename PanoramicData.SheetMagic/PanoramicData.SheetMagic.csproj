@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Authors>Panoramic Data Limited</Authors>
-		<Copyright>Copyright (c) Panoramic Data Limited 2020</Copyright>
+		<Copyright>Copyright (c) Panoramic Data Limited 2021</Copyright>
 		<PackageProjectUrl>http://www.panoramicdata.com/sheetmagic/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.SheetMagic</RepositoryUrl>
 		<RepositoryType>GIT</RepositoryType>
@@ -15,7 +15,7 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Fixed an issue where formulas would show as the formula text rather than the cell value text.</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed an issue where some custom formats (and general formats) would not return the correct cell value.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -174,7 +174,7 @@ namespace PanoramicData.SheetMagic.Test
 		}
 
 		internal static List<FunkyAnimal> GetFunkyAnimals()
-			=> new List<FunkyAnimal>
+			=> new()
 			{
 				new FunkyAnimal {Id = 1, Name = "Pig", Leg_Count = 4, WeightKg = 100.5, Description = "Bald sheep"},
 				new FunkyAnimal {Id = 2, Name = "Chicken", Leg_Count = 2, WeightKg = 0.5},
@@ -182,7 +182,7 @@ namespace PanoramicData.SheetMagic.Test
 			};
 
 		internal static List<Car> GetCars()
-			=> new List<Car>
+			=> new()
 			{
 				new Car {Id = 1, Name = "Ford Prefect", WheelCount = 4, WeightKg = 75},
 				new Car {Id = 2, Name = "Ford! Focus!", WheelCount = 4, WeightKg = 2000}
@@ -311,13 +311,6 @@ namespace PanoramicData.SheetMagic.Test
 			device.Properties.Count.Should().Be(2);
 			device.Properties["Column A"].Should().Be("ValueA");
 			device.Properties["column.b"].Should().Be("ValueB");
-		}
-
-		private static FileInfo GetSheetFileInfo(string worksheetName)
-		{
-			var location = typeof(LoadSheetTests).GetTypeInfo().Assembly.Location;
-			var dirPath = Path.Combine(Path.GetDirectoryName(location)!, "../../../Sheets");
-			return new FileInfo(Path.Combine(dirPath, $"{worksheetName}.xlsx"));
 		}
 	}
 }

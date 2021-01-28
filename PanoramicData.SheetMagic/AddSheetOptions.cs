@@ -44,7 +44,7 @@ namespace PanoramicData.SheetMagic
 		}
 
 		internal AddSheetOptions Clone()
-			=> new AddSheetOptions
+			=> new()
 			{
 				EnumerableCellOptions = EnumerableCellOptions == null
 					? null

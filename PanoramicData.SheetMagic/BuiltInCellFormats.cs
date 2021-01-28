@@ -19,7 +19,7 @@ namespace PanoramicData.SheetMagic
 		public const int CustomFormatStartIndex = 164;
 
 		private static readonly Dictionary<int, (string formatString, CellFormatType formatType)> _cellFormatsDictionary
-			= new Dictionary<int, (string, CellFormatType)>()
+			= new()
 		{
 			// Some of these may not work when doing a number.ToString() but can tweak over time
 			// Negative ones with colours have been updated i.e. removed the second part and colour like #;[Red](#)

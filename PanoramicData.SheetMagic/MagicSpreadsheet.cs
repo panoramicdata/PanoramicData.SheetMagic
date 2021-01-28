@@ -23,7 +23,7 @@ namespace PanoramicData.SheetMagic
 
 		private readonly FileInfo _fileInfo;
 		private readonly Options _options;
-		private readonly HashSet<string> _uniqueTableDisplayNames = new HashSet<string>();
+		private readonly HashSet<string> _uniqueTableDisplayNames = new();
 
 		public MagicSpreadsheet(FileInfo fileInfo, Options? options = default)
 		{

@@ -2,9 +2,7 @@ using FluentAssertions;
 using PanoramicData.SheetMagic.Test.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 
 namespace PanoramicData.SheetMagic.Test
@@ -176,16 +174,16 @@ namespace PanoramicData.SheetMagic.Test
 		internal static List<FunkyAnimal> GetFunkyAnimals()
 			=> new()
 			{
-				new FunkyAnimal {Id = 1, Name = "Pig", Leg_Count = 4, WeightKg = 100.5, Description = "Bald sheep"},
-				new FunkyAnimal {Id = 2, Name = "Chicken", Leg_Count = 2, WeightKg = 0.5},
-				new FunkyAnimal {Id = 3, Name = "Goat", Leg_Count = 4, WeightKg = 30}
+				new FunkyAnimal { Id = 1, Name = "Pig", Leg_Count = 4, WeightKg = 100.5, Description = "Bald sheep" },
+				new FunkyAnimal { Id = 2, Name = "Chicken", Leg_Count = 2, WeightKg = 0.5 },
+				new FunkyAnimal { Id = 3, Name = "Goat", Leg_Count = 4, WeightKg = 30 }
 			};
 
 		internal static List<Car> GetCars()
 			=> new()
 			{
-				new Car {Id = 1, Name = "Ford Prefect", WheelCount = 4, WeightKg = 75},
-				new Car {Id = 2, Name = "Ford! Focus!", WheelCount = 4, WeightKg = 2000}
+				new Car { Id = 1, Name = "Ford Prefect", WheelCount = 4, WeightKg = 75 },
+				new Car { Id = 2, Name = "Ford! Focus!", WheelCount = 4, WeightKg = 2000 }
 			};
 
 		/// <summary>

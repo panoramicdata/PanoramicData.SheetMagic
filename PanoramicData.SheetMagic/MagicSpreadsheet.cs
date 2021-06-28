@@ -88,12 +88,12 @@ namespace PanoramicData.SheetMagic
 			}
 
 			// Were any items provided?
-			if((items?.Count ?? 0) == 0)
+			if ((items?.Count ?? 0) == 0)
 			{
 				// No.  This is not permitted.
 
 				// How should we fail?
-				if(theAddSheetOptions.ThrowExceptionOnEmptyList)
+				if (theAddSheetOptions.ThrowExceptionOnEmptyList)
 				{
 					throw new InvalidOperationException("It is not permitted to add a sheet containing no items, as this would result in a corrupted XLSX file.");
 				}
@@ -388,7 +388,7 @@ namespace PanoramicData.SheetMagic
 				SheetId = (uint)document.WorkbookPart.WorksheetParts.Count() + 1,
 				Name = sheetName
 			};
-			(document.WorkbookPart.Workbook.Sheets ?? (document.WorkbookPart.Workbook.Sheets = new Sheets())).AppendChild(sheet);
+			(document.WorkbookPart.Workbook.Sheets ??= new Sheets()).AppendChild(sheet);
 
 			worksheetPart.Worksheet = worksheet;
 			return worksheetPart;
@@ -423,7 +423,7 @@ namespace PanoramicData.SheetMagic
 		}
 
 		public List<T?> GetList<T>(string? sheetName = null) where T : class, new()
-			 => GetExtendedList<T>(sheetName).Select(e => e.Item).ToList();
+			 => GetExtendedList<T>(sheetName).ConvertAll(e => e.Item);
 
 		/// <summary>
 		/// Get sheet data
@@ -917,7 +917,7 @@ namespace PanoramicData.SheetMagic
 			// Excel stores dates as a number (number of days since January 1, 1900),
 			//so "44166" text is 03/12/2020
 			// IF the number is an integer, it's only days. If it's a double, it's a fractional
-			// portion of a day. 
+			// portion of a day.
 			var baseDate = new DateTime(1900, 01, 01);
 
 			if (int.TryParse(

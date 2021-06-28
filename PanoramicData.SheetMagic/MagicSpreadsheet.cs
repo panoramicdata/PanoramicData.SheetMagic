@@ -71,7 +71,10 @@ namespace PanoramicData.SheetMagic
 				 CellReference = header + index
 			 };
 
-		public void AddSheet<T>(List<T> items, string? sheetName = null, AddSheetOptions? addSheetOptions = null)
+		public void AddSheet<T>(
+			List<T> items,
+			string? sheetName = null,
+			AddSheetOptions? addSheetOptions = null)
 		{
 			AddSheetOptions theAddSheetOptions;
 			if (addSheetOptions != null)
@@ -82,6 +85,23 @@ namespace PanoramicData.SheetMagic
 			{
 				// Get the default but we need to make sure that it's a copy of the TableOptions as we might change Table DisplayName
 				theAddSheetOptions = _options.DefaultAddSheetOptions.Clone();
+			}
+
+			// Were any items provided?
+			if((items?.Count ?? 0) == 0)
+			{
+				// No.  This is not permitted.
+
+				// How should we fail?
+				if(theAddSheetOptions.ThrowExceptionOnEmptyList)
+				{
+					throw new InvalidOperationException("It is not permitted to add a sheet containing no items, as this would result in a corrupted XLSX file.");
+				}
+				else
+				{
+					// Silently fail
+					return;
+				}
 			}
 
 			if (theAddSheetOptions.TableOptions != null)

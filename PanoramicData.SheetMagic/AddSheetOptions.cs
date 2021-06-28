@@ -33,6 +33,14 @@ namespace PanoramicData.SheetMagic
 		/// </summary>
 		public EnumerableCellOptions? EnumerableCellOptions { get; set; }
 
+		/// <summary>
+		/// In Excel, it is not possible to add a table with no rows.
+		/// If the user tries to add a table with no rows and this property is set to:
+		/// - true (default): SheetMagic will throw an InvalidOperationException if
+		/// - false: SheetMagic will silently not add a new sheet
+		/// </summary>
+		public bool ThrowExceptionOnEmptyList { get; set; } = true;
+
 		public void Validate(List<CustomTableStyle> tableStyles)
 		{
 			if (IncludeProperties != null && ExcludeProperties != null)
@@ -73,7 +81,8 @@ namespace PanoramicData.SheetMagic
 						ShowRowStripes = TableOptions.ShowRowStripes,
 						ShowTotalsRow = TableOptions.ShowTotalsRow,
 						XlsxTableStyle = TableOptions.XlsxTableStyle
-					}
+					},
+				ThrowExceptionOnEmptyList = ThrowExceptionOnEmptyList
 			};
 	}
 }

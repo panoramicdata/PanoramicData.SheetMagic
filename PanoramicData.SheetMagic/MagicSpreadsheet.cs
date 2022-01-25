@@ -21,13 +21,20 @@ namespace PanoramicData.SheetMagic
 		private const string Numbers = "0123456789";
 		private static readonly Regex CellReferenceRegex = new(@"(?<col>([A-Z]|[a-z])+)(?<row>(\d)+)");
 
-		private readonly FileInfo _fileInfo;
+		private readonly FileInfo? _fileInfo;
+		private readonly Stream? _stream;
 		private readonly Options _options;
 		private readonly HashSet<string> _uniqueTableDisplayNames = new();
 
 		public MagicSpreadsheet(FileInfo fileInfo, Options? options = default)
 		{
 			_fileInfo = fileInfo;
+			_options = options ?? new Options();
+		}
+
+		public MagicSpreadsheet(Stream stream, Options? options = default)
+		{
+			_stream = stream;
 			_options = options ?? new Options();
 		}
 
@@ -44,7 +51,9 @@ namespace PanoramicData.SheetMagic
 			 .ToList()
 			 ?? throw new InvalidOperationException("No document loaded.");
 
-		public void Load() => _document = SpreadsheetDocument.Open(_fileInfo.FullName, false);
+		public void Load() => _document = _fileInfo is not null
+			? SpreadsheetDocument.Open(_fileInfo.FullName, false)
+			: SpreadsheetDocument.Open(_stream!, false);
 
 		private static string ColumnLetter(int intCol)
 		{

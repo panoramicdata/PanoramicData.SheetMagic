@@ -85,19 +85,18 @@ namespace PanoramicData.SheetMagic
 			string? sheetName = null,
 			AddSheetOptions? addSheetOptions = null)
 		{
-			AddSheetOptions theAddSheetOptions;
-			if (addSheetOptions != null)
+			if (items is null)
 			{
-				theAddSheetOptions = addSheetOptions;
-			}
-			else
-			{
-				// Get the default but we need to make sure that it's a copy of the TableOptions as we might change Table DisplayName
-				theAddSheetOptions = _options.DefaultAddSheetOptions.Clone();
+				throw new ArgumentNullException(nameof(items));
 			}
 
+			// If an AddSheetOptions wasn't set, get a clone of the default
+			// but we need to make sure that it's a copy of the TableOptions
+			// as we might change Table DisplayName
+			AddSheetOptions theAddSheetOptions = addSheetOptions ?? _options.DefaultAddSheetOptions.Clone();
+
 			// Were any items provided?
-			if ((items?.Count ?? 0) == 0)
+			if (items.Count == 0)
 			{
 				// No.  This is not permitted.
 
@@ -113,7 +112,7 @@ namespace PanoramicData.SheetMagic
 				}
 			}
 
-			if (theAddSheetOptions.TableOptions != null)
+			if (theAddSheetOptions.TableOptions is not null)
 			{
 				if (_uniqueTableDisplayNames.Contains(theAddSheetOptions.TableOptions.DisplayName))
 				{

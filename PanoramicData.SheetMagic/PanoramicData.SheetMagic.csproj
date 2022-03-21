@@ -16,7 +16,7 @@
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReleaseNotes>
-			Improved error message when AddSheetOptions.ThrowExceptionOnEmptyList is set to true.
+			Fixed issue when saving a sheet with no data.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

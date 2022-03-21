@@ -439,7 +439,8 @@ namespace PanoramicData.SheetMagic
 			// Ensure that at least one sheet has been added
 			if (_document?.WorkbookPart?.Workbook?.Sheets == null || !_document.WorkbookPart.Workbook.Sheets.Any())
 			{
-				AddSheet(new List<object>(), "Sheet1");
+				// This has to contain some data to prevent file corruption.
+				AddSheet(new[] { new { Error = "No data was output." } }.ToList(), "Sheet1");
 			}
 
 			if (_document?.WorkbookPart?.Workbook is null)

@@ -72,7 +72,7 @@ namespace PanoramicData.SheetMagic
 				 thirdLetter).Trim();
 		}
 
-		private static Cell CreateTextCell(string header, uint index, string? text) =>
+		private static Cell CreateTextCell(string header, uint index, string text) =>
 			 new(new InlineString(new Text { Text = text }))
 			 {
 				 DataType = CellValues.InlineString,
@@ -257,14 +257,19 @@ namespace PanoramicData.SheetMagic
 
 			foreach (var header in propertyList.Select(p => p.GetPropertyDescription() ?? p.Name))
 			{
-				row.AppendChild(CreateTextCell(ColumnLetter(cellIndex++),
-					 rowIndex, header ?? string.Empty));
+				row.AppendChild(CreateTextCell(
+					ColumnLetter(cellIndex++),
+					rowIndex,
+					header ?? string.Empty)
+					);
 			}
 
 			foreach (var header in keyList)
 			{
-				row.AppendChild(CreateTextCell(ColumnLetter(cellIndex++),
-					 rowIndex, header ?? string.Empty));
+				row.AppendChild(CreateTextCell(
+					ColumnLetter(cellIndex++),
+					rowIndex,
+					header ?? string.Empty));
 			}
 
 			// Add sheet data
@@ -278,12 +283,19 @@ namespace PanoramicData.SheetMagic
 				// Add cells for the properties
 				foreach (var property in propertyList)
 				{
-					Cell cell;
+					Cell? cell = null;
 					if (isExtended)
 					{
 						var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item));
 						var baseItem = propertyInfo.GetValue(item);
-						cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, property.GetValue(baseItem)?.ToString() ?? string.Empty);
+						var value = property.GetValue(baseItem)?.ToString();
+						if (value is not null)
+						{
+							cell = CreateTextCell(
+								ColumnLetter(cellIndex++),
+								rowIndex,
+								value);
+						}
 					}
 					else
 					{
@@ -315,10 +327,16 @@ namespace PanoramicData.SheetMagic
 							value = property.GetValue(item)?.ToString() ?? string.Empty;
 						}
 
-						cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, value?.ToString() ?? string.Empty);
+						if (value is not null)
+						{
+							cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, value.ToString());
+						}
 					}
 
-					row.AppendChild(cell);
+					if (cell is not null)
+					{
+						row.AppendChild(cell);
+					}
 				}
 
 				// If not extended, this list will be empty
@@ -334,8 +352,12 @@ namespace PanoramicData.SheetMagic
 							@object = string.Empty;
 						}
 
-						var cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, @object?.ToString());
-						row.AppendChild(cell);
+						// Don't add cells for null objects
+						if (@object is not null)
+						{
+							var cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, @object.ToString());
+							row.AppendChild(cell);
+						}
 					}
 				}
 			}
@@ -468,7 +490,12 @@ namespace PanoramicData.SheetMagic
 			else if (sheetName == null)
 			{
 				var typeName = typeof(T).Name;
-				sheet = sheets.Find(s => StringsMatch(s.Name.Value, typeName));
+				sheet = sheets.Find(s => StringsMatch(
+					(s.Name
+						?? throw new InvalidOperationException("Sheet contains no name")).Value
+						?? throw new InvalidOperationException("Sheet name is null"),
+					typeName)
+				);
 				if (sheet == null)
 				{
 					throw new ArgumentException($"Could not find sheet with a name matching type {typeName}.  Try specifying the name explicitly.  Available options {string.Join(", ", sheets.Select(s => s.Name))}");

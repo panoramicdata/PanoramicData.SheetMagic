@@ -15,7 +15,10 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReleaseNotes>Nuget package updates.</PackageReleaseNotes>
+		<PackageReleaseNotes>
+			Better null handling
+			Nuget package updates
+		</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

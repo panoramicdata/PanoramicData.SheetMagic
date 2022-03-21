@@ -196,6 +196,7 @@ namespace PanoramicData.SheetMagic
 					{
 						continue;
 					}
+
 					var dictionary = (Dictionary<string, object>)propertyInfo.GetValue(item);
 
 					var keys = dictionary.Keys.ToList();
@@ -220,6 +221,7 @@ namespace PanoramicData.SheetMagic
 			{
 				basicType = type;
 			}
+
 			propertyList.AddRange(basicType.GetProperties());
 
 			// Filter the propertyList according to the AddSheetOptions
@@ -258,6 +260,7 @@ namespace PanoramicData.SheetMagic
 				row.AppendChild(CreateTextCell(ColumnLetter(cellIndex++),
 					 rowIndex, header ?? string.Empty));
 			}
+
 			foreach (var header in keyList)
 			{
 				row.AppendChild(CreateTextCell(ColumnLetter(cellIndex++),
@@ -300,17 +303,21 @@ namespace PanoramicData.SheetMagic
 								{
 									stringBuilder.Append(enumerableCellOptions.CellDelimiter);
 								}
+
 								stringBuilder.Append(il?.ToString() ?? "NULL");
 								isFirst = false;
 							}
+
 							value = stringBuilder.ToString();
 						}
 						else
 						{
 							value = property.GetValue(item)?.ToString() ?? string.Empty;
 						}
+
 						cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, value?.ToString() ?? string.Empty);
 					}
+
 					row.AppendChild(cell);
 				}
 
@@ -326,6 +333,7 @@ namespace PanoramicData.SheetMagic
 						{
 							@object = string.Empty;
 						}
+
 						var cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, @object?.ToString());
 						row.AppendChild(cell);
 					}
@@ -409,10 +417,12 @@ namespace PanoramicData.SheetMagic
 			{
 				AddSheet(new List<object>(), "Sheet1");
 			}
+
 			if (_document?.WorkbookPart?.Workbook is null)
 			{
 				throw new Exception("Document incorrectly created.");
 			}
+
 			_document.WorkbookPart.Workbook.Save();
 			_document.Close();
 		}
@@ -473,6 +483,7 @@ namespace PanoramicData.SheetMagic
 			{
 				throw new FormatException($"No WorksheetPart found for sheet {sheet.Name}");
 			}
+
 			var worksheet = worksheetPart.Worksheet;
 			// We have a worksheet part and a worksheet
 
@@ -630,6 +641,7 @@ namespace PanoramicData.SheetMagic
 								// No such cell.  Skip.
 								continue;
 							}
+
 							throw new InvalidOperationException($"Null cell found for column '{propertyName}'");
 						}
 
@@ -651,6 +663,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToDouble(cellValueDoubleObject), propertyName);
 								}
+
 								break;
 							case "Single":
 								var cellValueFloatObject = GetCellValue<float>(cell, stringTable);
@@ -658,6 +671,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToSingle(cellValueFloatObject), propertyName);
 								}
+
 								break;
 							case "Int16":
 								var cellValueShortObject = GetCellValue<short>(cell, stringTable);
@@ -665,6 +679,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToInt16(cellValueShortObject), propertyName);
 								}
+
 								break;
 							case "UInt16":
 								var cellValueUShortObject = GetCellValue<ushort>(cell, stringTable);
@@ -672,6 +687,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToInt16(cellValueUShortObject), propertyName);
 								}
+
 								break;
 							case "Int32":
 								var cellValueIntObject = GetCellValue<int>(cell, stringTable);
@@ -679,6 +695,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToInt32(cellValueIntObject), propertyName);
 								}
+
 								break;
 							case "UInt32":
 								var cellValueUIntObject = GetCellValue<uint>(cell, stringTable);
@@ -686,6 +703,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToUInt32(cellValueUIntObject), propertyName);
 								}
+
 								break;
 							case "Int64":
 								var cellValueLongObject = GetCellValue<long>(cell, stringTable);
@@ -693,6 +711,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToInt64(cellValueLongObject), propertyName);
 								}
+
 								break;
 							case "UInt64":
 								var cellValueULongObject = GetCellValue<ulong>(cell, stringTable);
@@ -700,6 +719,7 @@ namespace PanoramicData.SheetMagic
 								{
 									SetItemProperty(item, Convert.ToUInt64(cellValueULongObject), propertyName);
 								}
+
 								break;
 							case "String":
 								SetItemProperty(item, (string?)GetCellValue<string>(cell, stringTable), propertyName);
@@ -717,6 +737,7 @@ namespace PanoramicData.SheetMagic
 											{
 												SetItemProperty(item, (bool?)bool.Parse(stringValue2), propertyName);
 											}
+
 											break;
 										case bool typedValue2:
 											SetItemProperty(item, (bool?)typedValue2, propertyName);
@@ -725,6 +746,7 @@ namespace PanoramicData.SheetMagic
 											SetItemProperty(item, null, propertyName);
 											break;
 									}
+
 									break;
 								}
 							case "Nullable`1<Double>":
@@ -740,6 +762,7 @@ namespace PanoramicData.SheetMagic
 											{
 												SetItemProperty(item, (double?)double.Parse(stringValue2), propertyName);
 											}
+
 											break;
 										case double typedValue2:
 											SetItemProperty(item, (double?)typedValue2, propertyName);
@@ -748,6 +771,7 @@ namespace PanoramicData.SheetMagic
 											SetItemProperty(item, null, propertyName);
 											break;
 									}
+
 									break;
 								}
 							case "Nullable`1<Single>":
@@ -763,6 +787,7 @@ namespace PanoramicData.SheetMagic
 											{
 												SetItemProperty(item, (float?)float.Parse(stringValue2), propertyName);
 											}
+
 											break;
 										case float typedValue2:
 											SetItemProperty(item, (float?)typedValue2, propertyName);
@@ -771,6 +796,7 @@ namespace PanoramicData.SheetMagic
 											SetItemProperty(item, null, propertyName);
 											break;
 									}
+
 									break;
 								}
 							case "Nullable`1<Int64>":
@@ -786,6 +812,7 @@ namespace PanoramicData.SheetMagic
 											{
 												SetItemProperty(item, (long?)long.Parse(stringValue2), propertyName);
 											}
+
 											break;
 										case long typedValue2:
 											SetItemProperty(item, (long?)typedValue2, propertyName);
@@ -794,6 +821,7 @@ namespace PanoramicData.SheetMagic
 											SetItemProperty(item, null, propertyName);
 											break;
 									}
+
 									break;
 								}
 							case "Nullable`1<Int32>":
@@ -809,6 +837,7 @@ namespace PanoramicData.SheetMagic
 											{
 												SetItemProperty(item, (int?)int.Parse(stringValue2), propertyName);
 											}
+
 											break;
 										case int typedValue2:
 											SetItemProperty(item, (int?)typedValue2, propertyName);
@@ -817,6 +846,7 @@ namespace PanoramicData.SheetMagic
 											SetItemProperty(item, null, propertyName);
 											break;
 									}
+
 									break;
 								}
 							case "Nullable`1<Int16>":
@@ -832,6 +862,7 @@ namespace PanoramicData.SheetMagic
 											{
 												SetItemProperty(item, (short?)short.Parse(stringValue2), propertyName);
 											}
+
 											break;
 										case short typedValue2:
 											SetItemProperty(item, (short?)typedValue2, propertyName);
@@ -840,6 +871,7 @@ namespace PanoramicData.SheetMagic
 											SetItemProperty(item, null, propertyName);
 											break;
 									}
+
 									break;
 								}
 							default:
@@ -853,6 +885,7 @@ namespace PanoramicData.SheetMagic
 								{
 									throw new NotSupportedException($"Column index {columnIndex} matching {propertyName} has unsupported field type {propertyTypeName}.");
 								}
+
 								break;
 						}
 					}
@@ -861,8 +894,10 @@ namespace PanoramicData.SheetMagic
 						throw new ValidationException($"Issue with property '{propertyName}' on row {rowIndex}: {exception.Message}", exception);
 					}
 				}
+
 				list.Add(new Extended<T>(item, eiProperties));
 			}
+
 			return list;
 		}
 
@@ -878,6 +913,7 @@ namespace PanoramicData.SheetMagic
 				{
 					continue;
 				}
+
 				stringBuilder.Append(@char);
 			}
 
@@ -1069,8 +1105,10 @@ namespace PanoramicData.SheetMagic
 				{
 					return text;
 				}
+
 				return cellValueText;
 			}
+
 			return (CellValues)cell.DataType switch
 			{
 				CellValues.SharedString => stringTable.SharedStringTable
@@ -1100,30 +1138,35 @@ namespace PanoramicData.SheetMagic
 						{
 							return intValue;
 						}
+
 						throw new FormatException($"Could not convert cell {cell.CellReference} to an integer.");
 					case "Int64":
 						if (long.TryParse(cellValueText, out var longValue))
 						{
 							return longValue;
 						}
+
 						throw new FormatException($"Could not convert cell {cell.CellReference} to an integer.");
 					case "Double":
 						if (int.TryParse(cellValueText, out var doubleValue))
 						{
 							return doubleValue;
 						}
+
 						throw new FormatException($"Could not convert cell {cell.CellReference} to a double.");
 					case "Single":
 						if (float.TryParse(cellValueText, out var floatValue))
 						{
 							return floatValue;
 						}
+
 						throw new FormatException($"Could not convert cell {cell.CellReference} to a double.");
 					case "String":
 					case "Object":
 						return cellValueText;
 				}
 			}
+
 			switch (cell.DataType is null ? null : (CellValues?)cell.DataType)
 			{
 				case null:
@@ -1167,6 +1210,7 @@ namespace PanoramicData.SheetMagic
 			{
 				throw new ArgumentException($"Invalid cell reference {cellReference}", nameof(cellReference));
 			}
+
 			var col = match.Groups["col"].Value;
 			var row = match.Groups["row"].Value;
 
@@ -1186,6 +1230,7 @@ namespace PanoramicData.SheetMagic
 				sum *= 26;
 				sum += t - 'A' + 1;
 			}
+
 			return sum;
 		}
 
@@ -1266,18 +1311,22 @@ namespace PanoramicData.SheetMagic
 			{
 				tableStyleCount++;
 			}
+
 			if (customTableStyle.EvenRowStyle != null)
 			{
 				tableStyleCount++;
 			}
+
 			if (customTableStyle.HeaderRowStyle != null)
 			{
 				tableStyleCount++;
 			}
+
 			if (customTableStyle.WholeTableStyle != null)
 			{
 				tableStyleCount++;
 			}
+
 			var tableStyle1 = new TableStyle() { Name = customTableStyle.Name, Pivot = false, Count = tableStyleCount };
 			tableStyle1.SetAttribute(new OpenXmlAttribute("xr9", "uid", "http://schemas.microsoft.com/office/spreadsheetml/2016/revision9", "{640A183E-9F4E-4A71-80D9-2176963C18AB}"));
 			tableStyles1.Append(tableStyle1);
@@ -1332,6 +1381,7 @@ namespace PanoramicData.SheetMagic
 				{
 					font.Append(new Bold());
 				}
+
 				font.Append(GetColor(thisCustomTableStyle.FontColor.Value));
 				differentialFormat.Append(font);
 			}

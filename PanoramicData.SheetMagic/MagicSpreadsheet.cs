@@ -103,7 +103,7 @@ namespace PanoramicData.SheetMagic
 				if (theAddSheetOptions.ThrowExceptionOnEmptyList)
 				{
 					throw new InvalidOperationException(
-						"It is not permitted to add a sheet containing no items, as this would result in a corrupted XLSX file. " +
+						"It is not permitted to add a sheet containing no items, as this would result in a corrupted XLSX file.  " +
 						"To avoid this error, send an AddSheetOptions to the AddSheet call with ThrowExceptionOnEmptyList set to false.");
 				}
 				else

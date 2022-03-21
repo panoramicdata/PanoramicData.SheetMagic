@@ -14,14 +14,14 @@ namespace GeneratedCode
 	internal class SimplestTableFactory
 	{
 		// Creates a SpreadsheetDocument.
-		public void CreatePackage(string filePath)
+		public static void CreatePackage(string filePath)
 		{
 			using var package = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
 			CreateParts(package);
 		}
 
 		// Adds child parts and generates content of the specified part.
-		private void CreateParts(SpreadsheetDocument document)
+		private static void CreateParts(SpreadsheetDocument document)
 		{
 			ExtendedFilePropertiesPart extendedFilePropertiesPart1 = document.AddNewPart<ExtendedFilePropertiesPart>("rId3");
 			GenerateExtendedFilePropertiesPart1Content(extendedFilePropertiesPart1);
@@ -48,7 +48,7 @@ namespace GeneratedCode
 		}
 
 		// Generates content of extendedFilePropertiesPart1.
-		private void GenerateExtendedFilePropertiesPart1Content(ExtendedFilePropertiesPart extendedFilePropertiesPart1)
+		private static void GenerateExtendedFilePropertiesPart1Content(ExtendedFilePropertiesPart extendedFilePropertiesPart1)
 		{
 			var properties1 = new Ap.Properties();
 			properties1.AddNamespaceDeclaration("vt", "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes");
@@ -137,7 +137,7 @@ namespace GeneratedCode
 		}
 
 		// Generates content of workbookPart1.
-		private void GenerateWorkbookPart1Content(WorkbookPart workbookPart1)
+		private static void GenerateWorkbookPart1Content(WorkbookPart workbookPart1)
 		{
 			var workbook1 = new Workbook() { MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "x15 xr xr6 xr10 xr2" } };
 			workbook1.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
@@ -208,7 +208,7 @@ namespace GeneratedCode
 		}
 
 		// Generates content of workbookStylesPart1.
-		private void GenerateWorkbookStylesPart1Content(WorkbookStylesPart workbookStylesPart1)
+		private static void GenerateWorkbookStylesPart1Content(WorkbookStylesPart workbookStylesPart1)
 		{
 			var stylesheet1 = new Stylesheet() { MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "x14ac x16r2 xr" } };
 			stylesheet1.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
@@ -313,7 +313,7 @@ namespace GeneratedCode
 		}
 
 		// Generates content of themePart1.
-		private void GenerateThemePart1Content(ThemePart themePart1)
+		private static void GenerateThemePart1Content(ThemePart themePart1)
 		{
 			var theme1 = new A.Theme() { Name = "Office Theme" };
 			theme1.AddNamespaceDeclaration("a", "http://schemas.openxmlformats.org/drawingml/2006/main");
@@ -905,7 +905,7 @@ namespace GeneratedCode
 		}
 
 		// Generates content of worksheetPart1.
-		private void GenerateWorksheetPart1Content(WorksheetPart worksheetPart1)
+		private static void GenerateWorksheetPart1Content(WorksheetPart worksheetPart1)
 		{
 			var worksheet1 = new Worksheet() { MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "x14ac xr xr2 xr3" } };
 			worksheet1.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
@@ -997,7 +997,7 @@ namespace GeneratedCode
 		}
 
 		// Generates content of tableDefinitionPart1.
-		private void GenerateTableDefinitionPart1Content(TableDefinitionPart tableDefinitionPart1)
+		private static void GenerateTableDefinitionPart1Content(TableDefinitionPart tableDefinitionPart1)
 		{
 			var table1 = new Table() { Id = (UInt32Value)1U, Name = "Table1", DisplayName = "Table1", Reference = "B2:C3", TotalsRowShown = false, MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "xr xr3" } };
 			table1.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
@@ -1028,7 +1028,7 @@ namespace GeneratedCode
 		}
 
 		// Generates content of sharedStringTablePart1.
-		private void GenerateSharedStringTablePart1Content(SharedStringTablePart sharedStringTablePart1)
+		private static void GenerateSharedStringTablePart1Content(SharedStringTablePart sharedStringTablePart1)
 		{
 			var sharedStringTable1 = new SharedStringTable() { Count = (UInt32Value)4U, UniqueCount = (UInt32Value)4U };
 
@@ -1072,7 +1072,7 @@ namespace GeneratedCode
 			sharedStringTablePart1.SharedStringTable = sharedStringTable1;
 		}
 
-		private void SetPackageProperties(OpenXmlPackage document)
+		private static void SetPackageProperties(OpenXmlPackage document)
 		{
 			document.PackageProperties.Creator = "david.bond";
 			document.PackageProperties.Created = System.Xml.XmlConvert.ToDateTime("2020-05-12T12:07:26Z", System.Xml.XmlDateTimeSerializationMode.RoundtripKind);

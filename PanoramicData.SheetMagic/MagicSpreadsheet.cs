@@ -40,16 +40,15 @@ namespace PanoramicData.SheetMagic
 
 		private SpreadsheetDocument? _document;
 
-		public List<string> SheetNames =>
-			 _document?
-			 .WorkbookPart
-			 .Workbook
-			 .Sheets
-			 .ChildElements
-			 .Cast<Sheet>()
-			 .Select(s => s.Name.Value)
-			 .ToList()
-			 ?? throw new InvalidOperationException("No document loaded.");
+		public List<string> SheetNames
+			=> ((((_document ?? throw new InvalidOperationException("No document loaded."))
+				.WorkbookPart ?? throw new InvalidOperationException("WorkbookPart not created"))
+				.Workbook ?? throw new InvalidOperationException("Workbook not created"))
+				.Sheets ?? throw new InvalidOperationException("Sheets not created"))
+				.ChildElements
+				.Cast<Sheet>()
+				.Select(s => s.Name?.Value ?? string.Empty)
+				.ToList();
 
 		public void Load() => _document = _fileInfo is not null
 			? SpreadsheetDocument.Open(_fileInfo.FullName, false)
@@ -179,7 +178,8 @@ namespace PanoramicData.SheetMagic
 			}
 
 			var worksheetPart = CreateWorksheetPart(_document, sheetName);
-			var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+			var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>()
+				?? throw new InvalidOperationException("No sheetdata in Worksheet.");
 
 			// Determine property list
 			var propertyList = new List<PropertyInfo>();
@@ -291,7 +291,7 @@ namespace PanoramicData.SheetMagic
 						var v = property.GetValue(item);
 						if (
 							enumerableCellOptions.Expand
-							&& !(v is string)
+							&& v is not string
 							&& v is IEnumerable iEnumerable
 							)
 						{
@@ -456,7 +456,11 @@ namespace PanoramicData.SheetMagic
 			}
 
 			Sheet sheet;
-			var sheets = _document.WorkbookPart.Workbook.Sheets.Cast<Sheet>().ToList();
+			var sheets = (_document.WorkbookPart ?? throw new InvalidOperationException("No WorkbookPart in document"))
+				.Workbook
+				.Sheets
+				.Cast<Sheet>()
+				.ToList();
 			if (sheets.Count == 1)
 			{
 				sheet = sheets.Single();

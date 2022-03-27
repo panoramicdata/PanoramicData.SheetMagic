@@ -294,10 +294,11 @@ namespace PanoramicData.SheetMagic
 						if (value is not null)
 						{
 							cell = CreateTextCell(
-								ColumnLetter(cellIndex++),
+								ColumnLetter(cellIndex),
 								rowIndex,
 								value);
 						}
+						cellIndex++;
 					}
 					else
 					{
@@ -331,8 +332,10 @@ namespace PanoramicData.SheetMagic
 
 						if (value is not null)
 						{
-							cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, value.ToString());
+							cell = CreateTextCell(ColumnLetter(cellIndex), rowIndex, value.ToString());
 						}
+
+						cellIndex++;
 					}
 
 					if (cell is not null)
@@ -357,9 +360,11 @@ namespace PanoramicData.SheetMagic
 						// Don't add cells for null objects
 						if (@object is not null)
 						{
-							var cell = CreateTextCell(ColumnLetter(cellIndex++), rowIndex, @object.ToString());
+							var cell = CreateTextCell(ColumnLetter(cellIndex), rowIndex, @object.ToString());
 							row.AppendChild(cell);
 						}
+
+						cellIndex++;
 					}
 				}
 			}

@@ -16,7 +16,7 @@
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReleaseNotes>
-			Fixed issue when saving a sheet with no data.
+			Fixed issue with blank cells.
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

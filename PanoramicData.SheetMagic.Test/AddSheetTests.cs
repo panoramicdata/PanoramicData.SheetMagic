@@ -1,4 +1,5 @@
-﻿using PanoramicData.SheetMagic.Test.Models;
+﻿using Newtonsoft.Json.Linq;
+using PanoramicData.SheetMagic.Test.Models;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -13,11 +14,35 @@ namespace PanoramicData.SheetMagic.Test
 		public void AddSheet_SheetNameTooLong_Fails(string badSheetName)
 		{
 			var fileInfo = GetXlsxTempFileInfo();
+			var items = new List<SimpleAnimal> { new SimpleAnimal { Id = 1, Name = "Alligator" } };
 
 			try
 			{
 				using var s = new MagicSpreadsheet(fileInfo);
-				Assert.Throws<ArgumentException>(() => s.AddSheet(new List<SimpleAnimal>(), badSheetName));
+				Assert.Throws<ArgumentException>(() => s.AddSheet(items, badSheetName));
+			}
+			finally
+			{
+				fileInfo.Delete();
+			}
+		}
+
+		[Fact]
+		public void AddSheet_JObjects_Succeeds()
+		{
+			var fileInfo = GetXlsxTempFileInfo();
+
+			try
+			{
+				using var s = new MagicSpreadsheet(fileInfo);
+				Assert.Throws<ArgumentException>(() => s
+					.AddSheet(
+						new List<JObject>
+						{
+							new JObject (new SimpleAnimal { Id = 1, Name = "alligator" }),
+							new JObject (new SimpleAnimal { Id = 2, Name = "bee" })
+						}
+						));
 			}
 			finally
 			{
@@ -33,8 +58,9 @@ namespace PanoramicData.SheetMagic.Test
 			try
 			{
 				using var s = new MagicSpreadsheet(fileInfo);
-				s.AddSheet(new List<SimpleAnimal>(), "Sheet1");
-				Assert.Throws<ArgumentException>(() => s.AddSheet(new List<SimpleAnimal>(), "Sheet1"));
+				var items = new List<SimpleAnimal> { new SimpleAnimal { Id = 1, Name = "Alligator" } };
+				s.AddSheet(items, "Sheet1");
+				Assert.Throws<ArgumentException>(() => s.AddSheet(items, "Sheet1"));
 			}
 			finally
 			{

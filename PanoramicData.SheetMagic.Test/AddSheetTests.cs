@@ -35,14 +35,23 @@ namespace PanoramicData.SheetMagic.Test
 			try
 			{
 				using var s = new MagicSpreadsheet(fileInfo);
-				Assert.Throws<ArgumentException>(() => s
-					.AddSheet(
-						new List<JObject>
-						{
-							new JObject (new SimpleAnimal { Id = 1, Name = "alligator" }),
-							new JObject (new SimpleAnimal { Id = 2, Name = "bee" })
-						}
-						));
+				var jObjectList = new List<JObject>
+					{
+						JObject.FromObject(new SimpleAnimal { Id = 1, Name = "alligator" }),
+						JObject.FromObject(new SimpleAnimal { Id = 2, Name = "bee" })
+					};
+
+				// Convert JObjects to Extended<object>
+				var extendedList = new List<Extended<object>>();
+				foreach (var jObject in jObjectList)
+				{
+					var extended = new Extended<object>(new(), jObject.ToObject<Dictionary<string, object?>>() ?? throw new ArgumentException("Could not convert JObject to dictionary"));
+					extendedList.Add(extended);
+				}
+
+				s.AddSheet(
+					extendedList
+				);
 			}
 			finally
 			{

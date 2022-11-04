@@ -288,60 +288,28 @@ namespace PanoramicData.SheetMagic
 					Cell? cell = null;
 					if (isExtended)
 					{
-						var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item));
-						var baseItem = propertyInfo.GetValue(item);
-						var value = property.GetValue(baseItem)?.ToString();
-						if (value is not null)
-						{
-							cell = CreateTextCell(
-								ColumnLetter(cellIndex),
-								rowIndex,
-								value);
-						}
-						cellIndex++;
+						var baseItem = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item)).GetValue(item);
+						cell = GetCell(
+							enumerableCellOptions,
+							property.GetValue(baseItem),
+							cellIndex,
+							rowIndex);
 					}
 					else
 					{
-						object value;
-						var v = property.GetValue(item);
-						if (
-							enumerableCellOptions.Expand
-							&& v is not string
-							&& v is IEnumerable iEnumerable
-							)
-						{
-							var stringBuilder = new StringBuilder();
-							var isFirst = true;
-							foreach (var il in iEnumerable)
-							{
-								if (!isFirst)
-								{
-									stringBuilder.Append(enumerableCellOptions.CellDelimiter);
-								}
-
-								stringBuilder.Append(il?.ToString() ?? "NULL");
-								isFirst = false;
-							}
-
-							value = stringBuilder.ToString();
-						}
-						else
-						{
-							value = property.GetValue(item)?.ToString() ?? string.Empty;
-						}
-
-						if (value is not null)
-						{
-							cell = CreateTextCell(ColumnLetter(cellIndex), rowIndex, value.ToString());
-						}
-
-						cellIndex++;
+						cell = GetCell(
+							enumerableCellOptions,
+							property.GetValue(item),
+							cellIndex,
+							rowIndex);
 					}
 
 					if (cell is not null)
 					{
 						row.AppendChild(cell);
 					}
+
+					cellIndex++;
 				}
 
 				// If not extended, this list will be empty
@@ -421,6 +389,46 @@ namespace PanoramicData.SheetMagic
 			};
 			tableParts.Append(new TablePart { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
 			worksheetPart.Worksheet.Append(tableParts);
+		}
+
+		private static Cell? GetCell<T>(
+			EnumerableCellOptions enumerableCellOptions,
+			T? v,
+			int cellIndex,
+			uint rowIndex)
+		{
+			object? value;
+			if (
+				enumerableCellOptions.Expand
+				&& v is not string
+				&& v is IEnumerable iEnumerable
+				)
+			{
+				var stringBuilder = new StringBuilder();
+				var isFirst = true;
+				foreach (var il in iEnumerable)
+				{
+					if (!isFirst)
+					{
+						stringBuilder.Append(enumerableCellOptions.CellDelimiter);
+					}
+
+					stringBuilder.Append(il?.ToString() ?? "NULL");
+					isFirst = false;
+				}
+
+				value = stringBuilder.ToString();
+			}
+			else
+			{
+				value = v?.ToString() ?? string.Empty;
+			}
+
+			var cell = CreateTextCell(
+				ColumnLetter(cellIndex),
+				rowIndex,
+				value.ToString());
+			return cell;
 		}
 
 		private static WorksheetPart CreateWorksheetPart(SpreadsheetDocument document, string? sheetName)

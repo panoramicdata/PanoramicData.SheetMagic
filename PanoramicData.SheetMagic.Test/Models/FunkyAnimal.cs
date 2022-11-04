@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace PanoramicData.SheetMagic.Test.Models
@@ -15,5 +16,9 @@ namespace PanoramicData.SheetMagic.Test.Models
 		public double WeightKg { get; set; }
 
 		public string? Description { get; set; }
+
+		public List<string>? Nicknames { get; set; }
+
+		public List<FunkyAnimal> Friends { get; set; } = new();
 	}
 }

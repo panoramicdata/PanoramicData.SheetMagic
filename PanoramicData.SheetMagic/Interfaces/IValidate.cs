@@ -1,10 +1,9 @@
-﻿namespace PanoramicData.SheetMagic.Interfaces
+﻿namespace PanoramicData.SheetMagic.Interfaces;
+
+public interface IValidate
 {
-	public interface IValidate
-	{
-		/// <summary>
-		/// Throws an exception if the item is invalid
-		/// </summary>
-		void Validate();
-	}
+	/// <summary>
+	/// Throws an exception if the item is invalid
+	/// </summary>
+	void Validate();
 }

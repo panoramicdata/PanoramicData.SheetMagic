@@ -2,18 +2,17 @@
 using System.IO;
 using System.Reflection;
 
-namespace PanoramicData.SheetMagic.Test
-{
-	public abstract class Test
-	{
-		protected static FileInfo GetXlsxTempFileInfo()
-	 		=> new(Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.xlsx"));
+namespace PanoramicData.SheetMagic.Test;
 
-		protected static FileInfo GetSheetFileInfo(string worksheetName)
-		{
-			var location = typeof(LoadSheetTests).GetTypeInfo().Assembly.Location;
-			var dirPath = Path.Combine(Path.GetDirectoryName(location)!, "../../../Sheets");
-			return new FileInfo(Path.Combine(dirPath, $"{worksheetName}.xlsx"));
-		}
+public abstract class Test
+{
+	protected static FileInfo GetXlsxTempFileInfo()
+ 		=> new(Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.xlsx"));
+
+	protected static FileInfo GetSheetFileInfo(string worksheetName)
+	{
+		var location = typeof(LoadSheetTests).GetTypeInfo().Assembly.Location;
+		var dirPath = Path.Combine(Path.GetDirectoryName(location)!, "../../../Sheets");
+		return new FileInfo(Path.Combine(dirPath, $"{worksheetName}.xlsx"));
 	}
 }

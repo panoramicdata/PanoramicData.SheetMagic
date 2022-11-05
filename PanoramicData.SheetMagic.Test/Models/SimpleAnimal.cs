@@ -1,9 +1,8 @@
-namespace PanoramicData.SheetMagic.Test.Models
-{
-	internal class SimpleAnimal
-	{
-		public int Id { get; set; }
+namespace PanoramicData.SheetMagic.Test.Models;
 
-		public string? Name { get; set; }
-	}
+internal class SimpleAnimal
+{
+	public int Id { get; set; }
+
+	public string? Name { get; set; }
 }

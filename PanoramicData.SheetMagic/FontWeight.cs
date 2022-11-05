@@ -1,8 +1,7 @@
-﻿namespace PanoramicData.SheetMagic
+﻿namespace PanoramicData.SheetMagic;
+
+public enum FontWeight
 {
-	public enum FontWeight
-	{
-		Regular = 0,
-		Bold = 1
-	}
+	Regular = 0,
+	Bold = 1
 }

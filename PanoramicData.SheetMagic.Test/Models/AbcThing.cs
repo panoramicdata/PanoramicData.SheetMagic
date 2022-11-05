@@ -1,7 +1,6 @@
-﻿namespace PanoramicData.SheetMagic.Test.Models
+﻿namespace PanoramicData.SheetMagic.Test.Models;
+
+public class AbcThing
 {
-	public class AbcThing
-	{
-		public AbcEnum AbcEnum { get; set; }
-	}
+	public AbcEnum AbcEnum { get; set; }
 }

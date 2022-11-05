@@ -1,10 +1,9 @@
-﻿namespace PanoramicData.SheetMagic.Test.Models
+﻿namespace PanoramicData.SheetMagic.Test.Models;
+
+public enum AbcEnum
 {
-	public enum AbcEnum
-	{
-		A,
-		B,
-		C,
-		D
-	}
+	A,
+	B,
+	C,
+	D
 }

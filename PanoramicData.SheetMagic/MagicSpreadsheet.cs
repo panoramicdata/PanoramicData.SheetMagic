@@ -768,6 +768,14 @@ namespace PanoramicData.SheetMagic
 								}
 
 								break;
+							case "DateTime":
+								var cellValueDateTimeObject = GetCellValue<DateTime>(cell, stringTable);
+								if (cellValueDateTimeObject != null)
+								{
+									SetItemProperty(item, Convert.ToDateTime(cellValueDateTimeObject), propertyName);
+								}
+
+								break;
 							case "String":
 								SetItemProperty(item, (string?)GetCellValue<string>(cell, stringTable), propertyName);
 								break;
@@ -913,6 +921,31 @@ namespace PanoramicData.SheetMagic
 											break;
 										case short typedValue2:
 											SetItemProperty(item, (short?)typedValue2, propertyName);
+											break;
+										case null:
+											SetItemProperty(item, null, propertyName);
+											break;
+									}
+
+									break;
+								}
+							case "Nullable`1<DateTime>":
+								{
+									switch (GetCellValue<object?>(cell, stringTable))
+									{
+										case string stringValue2:
+											if (string.IsNullOrWhiteSpace(stringValue2))
+											{
+												SetItemProperty(item, (DateTime?)null, propertyName);
+											}
+											else
+											{
+												SetItemProperty(item, (DateTime?)DateTime.Parse(stringValue2), propertyName);
+											}
+
+											break;
+										case DateTime typedValue2:
+											SetItemProperty(item, (DateTime?)typedValue2, propertyName);
 											break;
 										case null:
 											SetItemProperty(item, null, propertyName);

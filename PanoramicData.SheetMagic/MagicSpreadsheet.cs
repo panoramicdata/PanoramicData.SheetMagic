@@ -779,6 +779,19 @@ public class MagicSpreadsheet : IDisposable
 						case "String":
 							SetItemProperty(item, (string?)GetCellValue<string>(cell, stringTable), propertyName);
 							break;
+						case "List`1<String>":
+							var text = (string?)GetCellValue<string>(cell, stringTable);
+							if (text is null)
+							{
+								SetItemProperty(item, new List<string>(), propertyName);
+							}
+							else
+							{
+								var stringList = text.Split(new[] { _options.ListSeparator }, StringSplitOptions.RemoveEmptyEntries).ToList();
+								SetItemProperty(item, stringList, propertyName);
+							}
+
+							break;
 						case "Nullable`1<Boolean>":
 							{
 								switch (GetCellValue<object?>(cell, stringTable))

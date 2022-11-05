@@ -41,6 +41,8 @@ public class Options : IValidate
 	/// </summary>
 	public EnumerableCellOptions EnumerableCellOptions { get; set; } = new EnumerableCellOptions();
 
+	public string ListSeparator { get; set; } = ", ";
+
 	public void Validate()
 	{
 		foreach (var tableStyle in TableStyles)

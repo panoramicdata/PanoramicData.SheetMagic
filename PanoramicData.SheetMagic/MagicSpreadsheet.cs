@@ -392,7 +392,7 @@ public class MagicSpreadsheet : IDisposable
 		};
 		tableDefinitionPart.Table.Save();
 
-		// Add the TableParts to the worksheet;
+		// Add the TableParts to the worksheet
 		var tableParts = new TableParts
 		{
 			Count = 1U

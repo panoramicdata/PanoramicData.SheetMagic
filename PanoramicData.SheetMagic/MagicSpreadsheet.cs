@@ -354,7 +354,7 @@ public class MagicSpreadsheet : IDisposable
 		}
 		// Yes - apply style
 
-		var tableColumns = new TableColumns() { Count = totalColumnCount };
+		var tableColumns = new TableColumns { Count = totalColumnCount };
 		var columnIndex = 0;
 		var combinedList = propertyList
 			.Select(p => p.GetPropertyDescription() ?? p.Name)
@@ -1370,7 +1370,7 @@ public class MagicSpreadsheet : IDisposable
 
 	private void GenerateWorkbookStylesPart1Content(WorkbookStylesPart workbookStylesPart1, CustomTableStyle customTableStyle)
 	{
-		var stylesheet1 = new Stylesheet() { MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "x14ac x16r2 xr xr9" } };
+		var stylesheet1 = new Stylesheet { MCAttributes = new MarkupCompatibilityAttributes { Ignorable = "x14ac x16r2 xr xr9" } };
 		stylesheet1.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
 		stylesheet1.AddNamespaceDeclaration("x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
 		stylesheet1.AddNamespaceDeclaration("x16r2", "http://schemas.microsoft.com/office/spreadsheetml/2015/02/main");
@@ -1378,26 +1378,26 @@ public class MagicSpreadsheet : IDisposable
 		stylesheet1.AddNamespaceDeclaration("xr9", "http://schemas.microsoft.com/office/spreadsheetml/2016/revision9");
 
 		// Fonts
-		var fonts = new Fonts() { Count = 1U, KnownFonts = true };
+		var fonts = new Fonts { Count = 1U, KnownFonts = true };
 		var font = new Font();
-		font.Append(new FontSize() { Val = 11D });
-		font.Append(new Color() { Theme = 1U });
-		font.Append(new FontName() { Val = "Calibri" });
-		font.Append(new FontFamilyNumbering() { Val = 2 });
-		font.Append(new FontScheme() { Val = FontSchemeValues.Minor });
+		font.Append(new FontSize { Val = 11D });
+		font.Append(new Color { Theme = 1U });
+		font.Append(new FontName { Val = "Calibri" });
+		font.Append(new FontFamilyNumbering { Val = 2 });
+		font.Append(new FontScheme { Val = FontSchemeValues.Minor });
 		fonts.Append(font);
 
 		// Fills
-		var fills = new Fills() { Count = 2U };
+		var fills = new Fills { Count = 2U };
 		var noneFill = new Fill();
-		noneFill.Append(new PatternFill() { PatternType = PatternValues.None });
+		noneFill.Append(new PatternFill { PatternType = PatternValues.None });
 		var gray125Fill = new Fill();
-		gray125Fill.Append(new PatternFill() { PatternType = PatternValues.Gray125 });
+		gray125Fill.Append(new PatternFill { PatternType = PatternValues.Gray125 });
 		fills.Append(noneFill);
 		fills.Append(gray125Fill);
 
 		// Outer Borders
-		var borders = new Borders() { Count = 1U };
+		var borders = new Borders { Count = 1U };
 		var outerBorder = new Border();
 		outerBorder.Append(new LeftBorder());
 		outerBorder.Append(new RightBorder());
@@ -1406,23 +1406,23 @@ public class MagicSpreadsheet : IDisposable
 		outerBorder.Append(new DiagonalBorder());
 		borders.Append(outerBorder);
 
-		var cellStyleFormats1 = new CellStyleFormats() { Count = 1U };
-		var cellFormat1 = new CellFormat() { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U };
+		var cellStyleFormats1 = new CellStyleFormats { Count = 1U };
+		var cellFormat1 = new CellFormat { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U };
 
 		cellStyleFormats1.Append(cellFormat1);
 
-		var cellFormats1 = new CellFormats() { Count = 1U };
-		var cellFormat2 = new CellFormat() { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U, FormatId = 0U };
+		var cellFormats1 = new CellFormats { Count = 1U };
+		var cellFormat2 = new CellFormat { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U, FormatId = 0U };
 
 		cellFormats1.Append(cellFormat2);
 
-		var cellStyles1 = new CellStyles() { Count = 1U };
-		var cellStyle1 = new CellStyle() { Name = "Normal", FormatId = 0U, BuiltinId = 0U };
+		var cellStyles1 = new CellStyles { Count = 1U };
+		var cellStyle1 = new CellStyle { Name = "Normal", FormatId = 0U, BuiltinId = 0U };
 
 		cellStyles1.Append(cellStyle1);
 
-		var differentialFormats = new DifferentialFormats() { Count = 3U };
-		var tableStyles1 = new TableStyles() { Count = 1U, DefaultTableStyle = "TableStyleMedium2", DefaultPivotStyle = "PivotStyleLight16" };
+		var differentialFormats = new DifferentialFormats { Count = 3U };
+		var tableStyles1 = new TableStyles { Count = 1U, DefaultTableStyle = "TableStyleMedium2", DefaultPivotStyle = "PivotStyleLight16" };
 
 		var tableStyleCount = 0U;
 		if (customTableStyle.OddRowStyle != null)
@@ -1445,7 +1445,7 @@ public class MagicSpreadsheet : IDisposable
 			tableStyleCount++;
 		}
 
-		var tableStyle1 = new TableStyle() { Name = customTableStyle.Name, Pivot = false, Count = tableStyleCount };
+		var tableStyle1 = new TableStyle { Name = customTableStyle.Name, Pivot = false, Count = tableStyleCount };
 		tableStyle1.SetAttribute(new OpenXmlAttribute("xr9", "uid", "http://schemas.microsoft.com/office/spreadsheetml/2016/revision9", "{640A183E-9F4E-4A71-80D9-2176963C18AB}"));
 		tableStyles1.Append(tableStyle1);
 		var tableStyleIndex = 0U;
@@ -1458,7 +1458,7 @@ public class MagicSpreadsheet : IDisposable
 		var colors1 = new Colors();
 
 		var mruColors1 = new MruColors();
-		var color5 = new Color() { Rgb = "FFE1CCF0" };
+		var color5 = new Color { Rgb = "FFE1CCF0" };
 
 		mruColors1.Append(color5);
 
@@ -1509,7 +1509,7 @@ public class MagicSpreadsheet : IDisposable
 		{
 			var fill = new Fill();
 			var patternFill = new PatternFill();
-			patternFill.Append(new BackgroundColor() { Rgb = GetHexBinaryValue(thisCustomTableStyle.BackgroundColor.Value) });
+			patternFill.Append(new BackgroundColor { Rgb = GetHexBinaryValue(thisCustomTableStyle.BackgroundColor.Value) });
 			fill.Append(patternFill);
 			differentialFormat.Append(fill);
 		}
@@ -1521,16 +1521,16 @@ public class MagicSpreadsheet : IDisposable
 
 			if (thisCustomTableStyle.OuterBorderColor.HasValue)
 			{
-				border.Append(new LeftBorder() { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
-				border.Append(new RightBorder() { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
-				border.Append(new TopBorder() { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
-				border.Append(new BottomBorder() { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
+				border.Append(new LeftBorder { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
+				border.Append(new RightBorder { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
+				border.Append(new TopBorder { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
+				border.Append(new BottomBorder { Color = GetColor(thisCustomTableStyle.OuterBorderColor.Value), Style = BorderStyleValues.Thin });
 			}
 
 			if (thisCustomTableStyle.InnerBorderColor.HasValue)
 			{
-				border.Append(new VerticalBorder() { Color = GetColor(thisCustomTableStyle.InnerBorderColor.Value), Style = BorderStyleValues.Thin });
-				border.Append(new HorizontalBorder() { Color = GetColor(thisCustomTableStyle.InnerBorderColor.Value), Style = BorderStyleValues.Thin });
+				border.Append(new VerticalBorder { Color = GetColor(thisCustomTableStyle.InnerBorderColor.Value), Style = BorderStyleValues.Thin });
+				border.Append(new HorizontalBorder { Color = GetColor(thisCustomTableStyle.InnerBorderColor.Value), Style = BorderStyleValues.Thin });
 			}
 
 			differentialFormat ??= new DifferentialFormat();
@@ -1538,7 +1538,7 @@ public class MagicSpreadsheet : IDisposable
 		}
 
 		differentialFormats.Append(differentialFormat);
-		tableStyle1.Append(new TableStyleElement() { Type = tableStyleValues, FormatId = tableStyleIndex });
+		tableStyle1.Append(new TableStyleElement { Type = tableStyleValues, FormatId = tableStyleIndex });
 	}
 
 	private Color GetColor(System.Drawing.Color color)

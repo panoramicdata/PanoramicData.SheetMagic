@@ -227,7 +227,6 @@ public class LoadSheetTests : Test
 			StopProcessingOnFirstEmptyRow = false
 		});
 		sheet.Load();
-		var deviceSpecifications = sheet.GetExtendedList<object>("Successes");
 	}
 
 	[Fact]

@@ -441,7 +441,8 @@ public class MagicSpreadsheet : IDisposable
 			SheetId = (uint)document.WorkbookPart.WorksheetParts.Count() + 1,
 			Name = sheetName
 		};
-		(document.WorkbookPart.Workbook.Sheets ??= new Sheets()).AppendChild(sheet);
+		document.WorkbookPart.Workbook.Sheets ??= new Sheets();
+		document.WorkbookPart.Workbook.Sheets.AppendChild(sheet);
 
 		worksheetPart.Worksheet = worksheet;
 		return worksheetPart;
@@ -458,7 +459,7 @@ public class MagicSpreadsheet : IDisposable
 
 		if (_document?.WorkbookPart?.Workbook is null)
 		{
-			throw new Exception("Document incorrectly created.");
+			throw new InvalidOperationException("Document incorrectly created.");
 		}
 
 		_document.WorkbookPart.Workbook.Save();
@@ -813,6 +814,8 @@ public class MagicSpreadsheet : IDisposable
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
+									default:
+										throw new InvalidOperationException("Invalid value type");
 								}
 
 								break;
@@ -838,6 +841,8 @@ public class MagicSpreadsheet : IDisposable
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
+									default:
+										throw new InvalidOperationException("Invalid value type");
 								}
 
 								break;
@@ -863,6 +868,8 @@ public class MagicSpreadsheet : IDisposable
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
+									default:
+										throw new InvalidOperationException("Invalid value type");
 								}
 
 								break;
@@ -888,6 +895,8 @@ public class MagicSpreadsheet : IDisposable
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
+									default:
+										throw new InvalidOperationException("Invalid value type");
 								}
 
 								break;
@@ -913,6 +922,8 @@ public class MagicSpreadsheet : IDisposable
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
+									default:
+										throw new InvalidOperationException("Invalid value type");
 								}
 
 								break;
@@ -938,6 +949,8 @@ public class MagicSpreadsheet : IDisposable
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
+									default:
+										throw new InvalidOperationException("Invalid value type");
 								}
 
 								break;
@@ -963,6 +976,8 @@ public class MagicSpreadsheet : IDisposable
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
+									default:
+										throw new InvalidOperationException("Invalid value type");
 								}
 
 								break;
@@ -1257,6 +1272,8 @@ public class MagicSpreadsheet : IDisposable
 				case "String":
 				case "Object":
 					return cellValueText;
+				default:
+					throw new NotSupportedException($"Unsupported data type {typeof(T).Name}");
 			}
 		}
 
@@ -1427,7 +1444,7 @@ public class MagicSpreadsheet : IDisposable
 		AddTableStyleElement(customTableStyle.OddRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.FirstRowStripe);
 		AddTableStyleElement(customTableStyle.EvenRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.SecondRowStripe);
 		AddTableStyleElement(customTableStyle.HeaderRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.HeaderRow);
-		AddTableStyleElement(customTableStyle.WholeTableStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.WholeTable);
+		AddTableStyleElement(customTableStyle.WholeTableStyle, differentialFormats, tableStyle1, tableStyleIndex, TableStyleValues.WholeTable);
 
 		// Colors
 		var colors1 = new Colors();

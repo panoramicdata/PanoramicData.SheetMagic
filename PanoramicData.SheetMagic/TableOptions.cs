@@ -22,7 +22,7 @@ public class TableOptions
 
 	public bool ShowColumnStripes { get; set; }
 
-	public string? CustomTableStyle { get; set; } = null;
+	public string? CustomTableStyle { get; set; }
 
 	internal void Validate(List<CustomTableStyle> tableStyles)
 	{

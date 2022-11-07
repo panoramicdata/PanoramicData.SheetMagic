@@ -141,9 +141,9 @@ public class AddSheetOptionsTests : Test
 
 			s.Load();
 
-			// TODO
 			var reloadedAnimals = s.GetExtendedList<object>("Animals");
-			//Assert.Equal(reloadedAnimals.[0].Key, "Name");
+			reloadedAnimals.Should().NotBeNull();
+			reloadedAnimals.Should().HaveCountGreaterThan(0);
 		}
 		finally
 		{
@@ -180,9 +180,9 @@ public class AddSheetOptionsTests : Test
 
 			s.Load();
 
-			// TODO
 			var reloadedAnimals = s.GetExtendedList<object>("Animals");
-			//Assert.Equal(reloadedAnimals.[0].Key, "Type");
+			reloadedAnimals.Should().NotBeNull();
+			reloadedAnimals.Should().HaveCountGreaterThan(0);
 		}
 		finally
 		{

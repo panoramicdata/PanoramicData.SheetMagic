@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Xunit;
 
 namespace PanoramicData.SheetMagic.Test;
@@ -13,5 +14,7 @@ public class DateTimeColumnTests : Test
 		var items = magicSpreadsheet.GetExtendedList<object>("Sheet1");
 
 		// Loaded
+		items.Should().NotBeNull();
+		items.Should().HaveCountGreaterThan(0);
 	}
 }

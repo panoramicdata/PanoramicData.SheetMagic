@@ -4,7 +4,7 @@
 
 $apiKeyFilename = "nuget-api-key.txt";
 if(-not (Test-Path($apiKeyFilename))){
-	Write-Host "$apiKeyFilename does not exist"
+	Write-Output "$apiKeyFilename does not exist"
 	exit 1;
 }
 $apiKey = Get-Content $apiKeyFilename;
@@ -21,5 +21,5 @@ if ($lastexitcode -ne 0) {
 dotnet pack -c Release
 
 $mostRecentPackage = Get-ChildItem bin\Release\*.nupkg | Sort-Object LastWriteTime | Select-Object -last 1
-Write-Host "Publishing $mostRecentPackage..."
+Write-Output "Publishing $mostRecentPackage..."
 .\nuget.exe push -Source https://api.nuget.org/v3/index.json -ApiKey $apiKey "$mostRecentPackage"

@@ -7,20 +7,14 @@ public class ImportedSite
 	[Description("Estate Name")]
 	public string EstateName { get; set; } = string.Empty;
 
-	//public string AreaName { get; set; } = string.Empty;
-
 	[Description("Area Name Hierarchy")]
 	public string AreaNameHierarchy { get; set; } = string.Empty;
-
-	//public string AreaParentName { get; set; } = string.Empty;
 
 	[Description("Building Name")]
 	public string BuildingName { get; set; } = string.Empty;
 
 	[Description("Building Address")]
 	public string BuildingAddress { get; set; } = string.Empty;
-
-	//public string SchoolAddress { get; set; } = string.Empty;
 
 	[Description("Building Latitude")]
 	public double? BuildingLatitude { get; set; }

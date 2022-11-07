@@ -28,7 +28,7 @@ public class SaveSheetTests : Test
 	{
 		var a = new Extended<object>(
 			new object(),
-			new Dictionary<string, object?>()
+			new Dictionary<string, object?>
 			{
 				{ "a", "b" }
 			}

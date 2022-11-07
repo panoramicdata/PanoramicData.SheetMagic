@@ -3,7 +3,6 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/70d9929b4d3c4d8ab2d69c5209a29b6e)](https://www.codacy.com/gh/panoramicdata/PanoramicData.SheetMagic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=panoramicdata/PanoramicData.SheetMagic&amp;utm_campaign=Badge_Grade)
 ![Commit Activity](https://img.shields.io/github/commit-activity/m/panoramicdata/PanoramicData.SheetMagic)
 
-
 Easily save/load from/to Excel (XLSX) documents using generics in C#
 
 ## Writing to a file

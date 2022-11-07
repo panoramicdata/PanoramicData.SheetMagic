@@ -11,7 +11,7 @@ using X15ac = DocumentFormat.OpenXml.Office2013.ExcelAc;
 
 namespace GeneratedCode;
 
-internal class SimplestTableFactory
+static internal class SimplestTableFactory
 {
 	// Creates a SpreadsheetDocument.
 	public static void CreatePackage(string filePath)

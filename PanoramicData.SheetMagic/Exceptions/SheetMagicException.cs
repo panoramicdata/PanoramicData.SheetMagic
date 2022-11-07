@@ -5,19 +5,19 @@ namespace PanoramicData.SheetMagic.Exceptions;
 
 public abstract class SheetMagicException : Exception
 {
-	internal SheetMagicException()
+	protected SheetMagicException()
 	{
 	}
 
-	internal SheetMagicException(string message) : base(message)
+	protected SheetMagicException(string message) : base(message)
 	{
 	}
 
-	internal SheetMagicException(string message, Exception innerException) : base(message, innerException)
+	protected SheetMagicException(string message, Exception innerException) : base(message, innerException)
 	{
 	}
 
-	internal SheetMagicException(SerializationInfo info, StreamingContext context) : base(info, context)
+	protected SheetMagicException(SerializationInfo info, StreamingContext context) : base(info, context)
 	{
 	}
 }

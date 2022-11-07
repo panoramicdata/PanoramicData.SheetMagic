@@ -4,10 +4,16 @@ namespace PanoramicData.SheetMagic;
 
 public class Extended<T> where T : class
 {
-	public Extended(T? item, Dictionary<string, object?>? properties = null)
+	public Extended(T? item, Dictionary<string, object?> properties)
 	{
 		Item = item;
-		Properties = properties ?? new Dictionary<string, object?>();
+		Properties = properties;
+	}
+
+	public Extended(T? item)
+	{
+		Item = item;
+		Properties = new Dictionary<string, object?>();
 	}
 
 	public T? Item { get; }

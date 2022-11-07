@@ -26,16 +26,26 @@ public class MagicSpreadsheet : IDisposable
 	private readonly Options _options;
 	private readonly HashSet<string> _uniqueTableDisplayNames = new();
 
-	public MagicSpreadsheet(FileInfo fileInfo, Options? options = default)
+	public MagicSpreadsheet(FileInfo fileInfo, Options options)
 	{
 		_fileInfo = fileInfo;
-		_options = options ?? new Options();
+		_options = options;
 	}
 
-	public MagicSpreadsheet(Stream stream, Options? options = default)
+	public MagicSpreadsheet(FileInfo fileInfo)
+		: this(fileInfo, new Options())
+	{
+	}
+
+	public MagicSpreadsheet(Stream stream, Options options)
 	{
 		_stream = stream;
-		_options = options ?? new Options();
+		_options = options;
+	}
+
+	public MagicSpreadsheet(Stream stream)
+		: this(stream, new Options())
+	{
 	}
 
 	private SpreadsheetDocument? _document;
@@ -1042,11 +1052,9 @@ public class MagicSpreadsheet : IDisposable
 	private string GetCellValueString(Cell cell, SharedStringTablePart stringTable)
 	{
 		var cellValueText = cell.CellValue?.Text;
-		return ((CellValues)cell.DataType) switch
-		{
-			CellValues.SharedString => stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText,
-			_ => cellValueText ?? cell.InnerText,
-		};
+		return (CellValues)cell.DataType == CellValues.SharedString
+			? stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText
+			: cellValueText ?? cell.InnerText;
 	}
 
 	private string? FormatCellAsNumber(Cell cell, string formatString)

@@ -16,7 +16,7 @@ public enum CellFormatType
 /// </summary>
 public static class BuiltInCellFormats
 {
-	public const int CustomFormatStartIndex = 164;
+	internal const int CustomFormatStartIndex = 164;
 
 	private static readonly Dictionary<int, (string formatString, CellFormatType formatType)> _cellFormatsDictionary
 		= new()

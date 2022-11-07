@@ -89,20 +89,24 @@ public class MagicSpreadsheet : IDisposable
 			 CellReference = header + index
 		 };
 
+	public void AddSheet<T>(List<T> items)
+		=> AddSheet(items, null);
+
+
 	public void AddSheet<T>(
 		List<T> items,
-		string? sheetName = null,
-		AddSheetOptions? addSheetOptions = null)
+		string? sheetName)
+		=> AddSheet(items, sheetName, _options.DefaultAddSheetOptions.Clone());
+
+	public void AddSheet<T>(
+		List<T> items,
+		string? sheetName,
+		AddSheetOptions addSheetOptions)
 	{
 		if (items is null)
 		{
 			throw new ArgumentNullException(nameof(items));
 		}
-
-		// If an AddSheetOptions wasn't set, get a clone of the default
-		// but we need to make sure that it's a copy of the TableOptions
-		// as we might change Table DisplayName
-		AddSheetOptions theAddSheetOptions = addSheetOptions ?? _options.DefaultAddSheetOptions.Clone();
 
 		// Were any items provided?
 		if (items.Count == 0)
@@ -110,7 +114,7 @@ public class MagicSpreadsheet : IDisposable
 			// No.  This is not permitted.
 
 			// How should we fail?
-			if (theAddSheetOptions.ThrowExceptionOnEmptyList)
+			if (addSheetOptions.ThrowExceptionOnEmptyList)
 			{
 				throw new InvalidOperationException(
 					"It is not permitted to add a sheet containing no items, as this would result in a corrupted XLSX file.  " +
@@ -123,21 +127,21 @@ public class MagicSpreadsheet : IDisposable
 			}
 		}
 
-		if (theAddSheetOptions.TableOptions is not null)
+		if (addSheetOptions.TableOptions is not null)
 		{
-			if (_uniqueTableDisplayNames.Contains(theAddSheetOptions.TableOptions.DisplayName))
+			if (_uniqueTableDisplayNames.Contains(addSheetOptions.TableOptions.DisplayName))
 			{
-				theAddSheetOptions.TableOptions.DisplayName = $"{theAddSheetOptions.TableOptions.DisplayName}_{_uniqueTableDisplayNames.Count}";
+				addSheetOptions.TableOptions.DisplayName = $"{addSheetOptions.TableOptions.DisplayName}_{_uniqueTableDisplayNames.Count}";
 			}
 		}
 
-		theAddSheetOptions.Validate(_options.TableStyles);
+		addSheetOptions.Validate(_options.TableStyles);
 
-		if (theAddSheetOptions.TableOptions?.DisplayName != null)
+		if (addSheetOptions.TableOptions?.DisplayName != null)
 		{
-			if (!_uniqueTableDisplayNames.Add(theAddSheetOptions.TableOptions.DisplayName))
+			if (!_uniqueTableDisplayNames.Add(addSheetOptions.TableOptions.DisplayName))
 			{
-				throw new ArgumentException($"Table DisplayName must be unique. There is already a Table with the DisplayName {theAddSheetOptions.TableOptions.DisplayName}");
+				throw new ArgumentException($"Table DisplayName must be unique. There is already a Table with the DisplayName {addSheetOptions.TableOptions.DisplayName}");
 			}
 		}
 
@@ -157,7 +161,6 @@ public class MagicSpreadsheet : IDisposable
 			{
 				var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>("rId3");
 				GenerateWorkbookStylesPart1Content(workbookStylesPart, _options.TableStyles[0]);
-				//GenerateWorkbookStylesPartContent(workbookStylesPart, _options.TableStyles[0]);
 			}
 		}
 
@@ -214,13 +217,13 @@ public class MagicSpreadsheet : IDisposable
 				var keys = dictionary.Keys.ToList();
 
 				// Include/exclude as appropriate
-				if (theAddSheetOptions.IncludeProperties?.Any() ?? false)
+				if (addSheetOptions.IncludeProperties?.Any() ?? false)
 				{
-					keys = keys.Where(key => theAddSheetOptions.IncludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
+					keys = keys.Where(key => addSheetOptions.IncludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
 				}
-				else if (theAddSheetOptions.ExcludeProperties?.Any() ?? false)
+				else if (addSheetOptions.ExcludeProperties?.Any() ?? false)
 				{
-					keys = keys.Where(key => !theAddSheetOptions.ExcludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
+					keys = keys.Where(key => !addSheetOptions.ExcludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
 				}
 
 				foreach (var key in keys)
@@ -237,17 +240,17 @@ public class MagicSpreadsheet : IDisposable
 		propertyList.AddRange(basicType.GetProperties());
 
 		// Filter the propertyList according to the AddSheetOptions
-		if (theAddSheetOptions.IncludeProperties?.Any() ?? false)
+		if (addSheetOptions.IncludeProperties?.Any() ?? false)
 		{
-			propertyList = propertyList.Where(p => theAddSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
+			propertyList = propertyList.Where(p => addSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 		}
-		else if (theAddSheetOptions.ExcludeProperties?.Any() ?? false)
+		else if (addSheetOptions.ExcludeProperties?.Any() ?? false)
 		{
-			propertyList = propertyList.Where(p => !theAddSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
+			propertyList = propertyList.Where(p => !addSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 		}
 
 		// By default, apply a sort
-		var keyList = theAddSheetOptions.SortExtendedProperties
+		var keyList = addSheetOptions.SortExtendedProperties
 			? keyHashset.OrderBy(k => k).ToList()
 			: keyHashset.ToList();
 
@@ -348,7 +351,7 @@ public class MagicSpreadsheet : IDisposable
 		}
 
 		// Adding table style?
-		if (theAddSheetOptions?.TableOptions == null)
+		if (addSheetOptions?.TableOptions == null)
 		{
 			return;
 		}
@@ -375,19 +378,19 @@ public class MagicSpreadsheet : IDisposable
 		tableDefinitionPart.Table = new Table
 		{
 			Id = (uint)_document.WorkbookPart.Workbook.Sheets.Count(),
-			Name = theAddSheetOptions.TableOptions.Name,
-			DisplayName = theAddSheetOptions.TableOptions.DisplayName,
+			Name = addSheetOptions.TableOptions.Name,
+			DisplayName = addSheetOptions.TableOptions.DisplayName,
 			Reference = reference,
-			TotalsRowShown = theAddSheetOptions.TableOptions.ShowTotalsRow,
+			TotalsRowShown = addSheetOptions.TableOptions.ShowTotalsRow,
 			AutoFilter = new AutoFilter { Reference = reference },
 			TableColumns = tableColumns,
 			TableStyleInfo = new TableStyleInfo
 			{
-				Name = theAddSheetOptions.TableOptions.CustomTableStyle ?? theAddSheetOptions.TableOptions.XlsxTableStyle.ToString(),
-				ShowFirstColumn = theAddSheetOptions.TableOptions.ShowFirstColumn,
-				ShowLastColumn = theAddSheetOptions.TableOptions.ShowLastColumn,
-				ShowRowStripes = theAddSheetOptions.TableOptions.ShowRowStripes,
-				ShowColumnStripes = theAddSheetOptions.TableOptions.ShowColumnStripes
+				Name = addSheetOptions.TableOptions.CustomTableStyle ?? addSheetOptions.TableOptions.XlsxTableStyle.ToString(),
+				ShowFirstColumn = addSheetOptions.TableOptions.ShowFirstColumn,
+				ShowLastColumn = addSheetOptions.TableOptions.ShowLastColumn,
+				ShowRowStripes = addSheetOptions.TableOptions.ShowRowStripes,
+				ShowColumnStripes = addSheetOptions.TableOptions.ShowColumnStripes
 			},
 		};
 		tableDefinitionPart.Table.Save();
@@ -489,15 +492,21 @@ public class MagicSpreadsheet : IDisposable
 		ReleaseUnmanagedResources();
 	}
 
-	public List<T?> GetList<T>(string? sheetName = null) where T : class, new()
+	public List<T?> GetList<T>() where T : class, new()
+		=> GetList<T>(null);
+
+	public List<T?> GetList<T>(string? sheetName) where T : class, new()
 		 => GetExtendedList<T>(sheetName).ConvertAll(e => e.Item);
+
+	public List<Extended<T>> GetExtendedList<T>() where T : class, new()
+		=> GetExtendedList<T>(null);
 
 	/// <summary>
 	/// Get sheet data
 	/// </summary>
 	/// <typeparam name="T">The type of object to load</typeparam>
 	/// <param name="sheetName">The sheet name (if null, uses the first sheet in the workbook)</param>
-	public List<Extended<T>> GetExtendedList<T>(string? sheetName = null) where T : class, new()
+	public List<Extended<T>> GetExtendedList<T>(string? sheetName) where T : class, new()
 	{
 		if (_document == null)
 		{

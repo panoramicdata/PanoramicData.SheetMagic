@@ -1064,7 +1064,7 @@ public class MagicSpreadsheet : IDisposable
 		
 		return cell.DataType != null && (CellValues)cell.DataType == CellValues.SharedString
 			? stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText
-			: cell.CellValue?.Text ?? cell.InnerText;
+			: cellValueText ?? cell.InnerText;
 	}
 
 	private string? FormatCellAsNumber(Cell cell, string formatString)

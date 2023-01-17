@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Authors>Panoramic Data Limited</Authors>
-		<Copyright>Copyright © Panoramic Data Limited 2021-2022</Copyright>
+		<Copyright>Copyright © Panoramic Data Limited 2021-2023</Copyright>
 		<PackageProjectUrl>http://www.panoramicdata.com/sheetmagic/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.SheetMagic</RepositoryUrl>
 		<RepositoryType>GIT</RepositoryType>
@@ -16,7 +16,7 @@
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReleaseNotes>
-			Added DateTime and string list support for loading data.
+			Updated to handle numeric values in header rows (where the data is NOT an actual table)
 		</PackageReleaseNotes>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>

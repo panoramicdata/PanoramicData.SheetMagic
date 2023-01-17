@@ -1061,9 +1061,10 @@ public class MagicSpreadsheet : IDisposable
 	private string GetCellValueString(Cell cell, SharedStringTablePart stringTable)
 	{
 		var cellValueText = cell.CellValue?.Text;
-		return (CellValues)cell.DataType == CellValues.SharedString
+		
+		return cell.DataType != null && (CellValues)cell.DataType == CellValues.SharedString
 			? stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText
-			: cellValueText ?? cell.InnerText;
+			: cell.CellValue?.Text ?? cell.InnerText;
 	}
 
 	private string? FormatCellAsNumber(Cell cell, string formatString)

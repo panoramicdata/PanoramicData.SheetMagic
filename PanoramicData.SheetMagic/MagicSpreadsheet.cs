@@ -152,7 +152,21 @@ public class MagicSpreadsheet : IDisposable
 		// Create a document for writing if not already loaded or created
 		if (_document == null)
 		{
-			_document = SpreadsheetDocument.Create(_fileInfo.FullName, SpreadsheetDocumentType.Workbook);
+			// Check that either a stream of document was provided
+			if (_stream is not null)
+			{
+				_document = SpreadsheetDocument.Create(_stream, SpreadsheetDocumentType.Workbook);
+			}
+			else
+			{
+				if (_fileInfo is null)
+				{
+					throw new InvalidOperationException("No file or stream provided.");
+				}
+
+				_document = SpreadsheetDocument.Create(_fileInfo.FullName, SpreadsheetDocumentType.Workbook);
+			}
+
 			var workbookPart = _document.AddWorkbookPart();
 			workbookPart.Workbook = new Workbook();
 
@@ -1061,7 +1075,7 @@ public class MagicSpreadsheet : IDisposable
 	private string GetCellValueString(Cell cell, SharedStringTablePart stringTable)
 	{
 		var cellValueText = cell.CellValue?.Text;
-		
+
 		return cell.DataType != null && (CellValues)cell.DataType == CellValues.SharedString
 			? stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText
 			: cellValueText ?? cell.InnerText;

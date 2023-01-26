@@ -96,7 +96,13 @@ public class AddSheetOptionsTests : Test
 				var reloadedAnimals = s.GetExtendedList<SimpleAnimal>("Sheet1");
 				Assert.Equal(funkyAnimals.Count, reloadedAnimals.Count);
 				// Make sure there are no extra properties
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.Empty(extendedAnimal.Properties));
+
+				var expectedProperties = new Dictionary<string, object?> {
+					{ "Nicknames", "" },
+					{ "Friends", "" }
+					};
+
+				Assert.All(reloadedAnimals, extendedAnimal => extendedAnimal.Properties.Should().BeEquivalentTo(expectedProperties));
 
 				// Make sure items exist for every row
 				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));

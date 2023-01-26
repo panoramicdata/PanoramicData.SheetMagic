@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using FluentAssertions;
+using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
@@ -25,6 +26,8 @@ namespace PanoramicData.SheetMagic.Test
 			s1.Save();
 
 			var bytes = stream.ToArray();
+
+			bytes.Should().NotBeNullOrEmpty();
 		}
 	}
 }

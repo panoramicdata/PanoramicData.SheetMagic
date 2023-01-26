@@ -21,7 +21,7 @@ public class LoadSheetTests : Test
 		}
 
 		// Loaded
-		parentChildRelationships.Count.Should().Be(3);
+		_ = parentChildRelationships.Count.Should().Be(3);
 	}
 
 	[Fact]
@@ -31,7 +31,7 @@ public class LoadSheetTests : Test
 		using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("LMREP-7413"), new Options { StopProcessingOnFirstEmptyRow = true });
 		magicSpreadsheet.Load();
 		var values = magicSpreadsheet.GetExtendedList<object>();
-		((bool?)values[0].Properties["IncludeSection2"]).Should().BeTrue();
+		_ = ((bool?)values[0].Properties["IncludeSection2"]).Should().BeTrue();
 	}
 
 	[Fact]
@@ -40,7 +40,7 @@ public class LoadSheetTests : Test
 		// Load the parent/child relationships
 		using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"));
 		magicSpreadsheet.Load();
-		magicSpreadsheet.GetList<ParentChildRelationship>();
+		_ = magicSpreadsheet.GetList<ParentChildRelationship>();
 
 		// Loaded
 	}
@@ -57,8 +57,8 @@ public class LoadSheetTests : Test
 		}
 
 		// Loaded
-		things.Count.Should().Be(6);
-		things[1]?.AbcEnum.Should().Be(AbcEnum.B);
+		_ = things.Count.Should().Be(6);
+		_ = (things[1]?.AbcEnum.Should().Be(AbcEnum.B));
 	}
 
 	[Fact]
@@ -67,7 +67,7 @@ public class LoadSheetTests : Test
 		// Load the parent/child relationships
 		using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"));
 		magicSpreadsheet.Load();
-		Assert.ThrowsAny<Exception>(() => magicSpreadsheet.GetList<ExtendedParentChildRelationship>());
+		_ = Assert.ThrowsAny<Exception>(magicSpreadsheet.GetList<ExtendedParentChildRelationship>);
 		// Loaded
 	}
 
@@ -77,7 +77,7 @@ public class LoadSheetTests : Test
 		// Load the parent/child relationships
 		using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"), new Options { IgnoreUnmappedProperties = true });
 		magicSpreadsheet.Load();
-		magicSpreadsheet.GetList<ExtendedParentChildRelationship>();
+		_ = magicSpreadsheet.GetList<ExtendedParentChildRelationship>();
 		// Loaded
 	}
 
@@ -103,14 +103,14 @@ public class LoadSheetTests : Test
 			{
 				magicSpreadsheet.Load();
 				var sheetNames = magicSpreadsheet.SheetNames;
-				sheetNames.Should().Contain("FunkyAnimals");
-				sheetNames.Should().Contain("Cars");
+				_ = sheetNames.Should().Contain("FunkyAnimals");
+				_ = sheetNames.Should().Contain("Cars");
 
 				var reloadedCars = magicSpreadsheet.GetList<Car>();
-				reloadedCars.Count.Should().Be(cars.Count);
+				_ = reloadedCars.Count.Should().Be(cars.Count);
 
 				var reloadedAnimals = magicSpreadsheet.GetList<FunkyAnimal>("FunkyAnimals");
-				reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
+				_ = reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
 			}
 		}
 		finally
@@ -146,14 +146,14 @@ public class LoadSheetTests : Test
 			{
 				magicSpreadsheet.Load();
 				var sheetNames = magicSpreadsheet.SheetNames;
-				sheetNames.Should().Contain("FunkyAnimals");
-				sheetNames.Should().Contain("Cars");
+				_ = sheetNames.Should().Contain("FunkyAnimals");
+				_ = sheetNames.Should().Contain("Cars");
 
 				var reloadedCars = magicSpreadsheet.GetList<Car>();
-				reloadedCars.Count.Should().Be(cars.Count);
+				_ = reloadedCars.Count.Should().Be(cars.Count);
 
 				var reloadedAnimals = magicSpreadsheet.GetExtendedList<SimpleAnimal>("FunkyAnimals");
-				reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
+				_ = reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
 				// Make sure the extra fields are there in the additional items
 				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
 				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
@@ -207,10 +207,10 @@ public class LoadSheetTests : Test
 			using var loadMagicSpreadsheet = new MagicSpreadsheet(tempFileInfo);
 			loadMagicSpreadsheet.Load();
 
-			Assert.Throws<InvalidOperationException>(() => loadMagicSpreadsheet.GetList<Car>("Animals"));
+			_ = Assert.Throws<InvalidOperationException>(() => loadMagicSpreadsheet.GetList<Car>("Animals"));
 
 			// Try to load FunkyAnimals into a list of Animals (should succeed)
-			loadMagicSpreadsheet.GetList<Animal>("Animals");
+			_ = loadMagicSpreadsheet.GetList<Animal>("Animals");
 		}
 		finally
 		{
@@ -242,12 +242,12 @@ public class LoadSheetTests : Test
 
 		var sites = sheet.GetExtendedList<ImportedSite>("Sites");
 		var siteItem = sites[1].Item;
-		siteItem.Should().NotBeNull();
-		siteItem!.FloorHeightFeet.Should().NotBe(0);
-		sites.Should().NotBeEmpty();
+		_ = siteItem.Should().NotBeNull();
+		_ = siteItem!.FloorHeightFeet.Should().NotBe(0);
+		_ = sites.Should().NotBeEmpty();
 
 		var devices = sheet.GetExtendedList<ImportedDevice>("Devices");
-		devices.Should().NotBeEmpty();
+		_ = devices.Should().NotBeEmpty();
 	}
 
 	[Fact]
@@ -262,10 +262,10 @@ public class LoadSheetTests : Test
 		sheet.Load();
 
 		var sites = sheet.GetExtendedList<ImportedSite>("Sites");
-		sites.Should().NotBeEmpty();
+		_ = sites.Should().NotBeEmpty();
 
 		var devices = sheet.GetExtendedList<ImportedDevice>("Devices");
-		devices.Should().NotBeEmpty();
+		_ = devices.Should().NotBeEmpty();
 	}
 
 	[Fact]
@@ -281,7 +281,7 @@ public class LoadSheetTests : Test
 		);
 		sheet.Load();
 
-		Assert.ThrowsAny<Exception>(() => sheet.GetExtendedList<ImportedDevice>("XXX"));
+		_ = Assert.ThrowsAny<Exception>(() => sheet.GetExtendedList<ImportedDevice>("XXX"));
 	}
 
 	[Fact]
@@ -292,23 +292,23 @@ public class LoadSheetTests : Test
 		var deviceSpecifications = sheet.GetExtendedList<DeviceSpecification>();
 		// do some sheet
 		Assert.NotEmpty(deviceSpecifications);
-		Assert.Single(deviceSpecifications);
+		_ = Assert.Single(deviceSpecifications);
 
 		var device = deviceSpecifications[0];
-		device.Item.Should().NotBeNull();
-		device.Item!.HostName.Should().Be("localhost");
-		device.Item.DeviceDisplayName.Should().Be("DeviceDisplayName");
-		device.Item.DeviceDescription.Should().Be("The device description");
-		device.Item.DeviceGroups.Should().Be("Group/SubGroup1;Group/SubGroup2");
-		device.Item.PreferredCollector.Should().Be("CollectorDescription");
-		device.Item.EnableAlerts.Should().Be(true);
-		device.Item.EnableNetflow.Should().Be(false);
-		device.Item.NetflowCollector.Should().Be(string.Empty);
-		device.Item.Link.Should().Be("http://www.logicmonitor.com/");
+		_ = device.Item.Should().NotBeNull();
+		_ = device.Item!.HostName.Should().Be("localhost");
+		_ = device.Item.DeviceDisplayName.Should().Be("DeviceDisplayName");
+		_ = device.Item.DeviceDescription.Should().Be("The device description");
+		_ = device.Item.DeviceGroups.Should().Be("Group/SubGroup1;Group/SubGroup2");
+		_ = device.Item.PreferredCollector.Should().Be("CollectorDescription");
+		_ = device.Item.EnableAlerts.Should().Be(true);
+		_ = device.Item.EnableNetflow.Should().Be(false);
+		_ = device.Item.NetflowCollector.Should().Be(string.Empty);
+		_ = device.Item.Link.Should().Be("http://www.logicmonitor.com/");
 
 		// make sure there are 2 custom properties and are the values we're expecting
-		device.Properties.Count.Should().Be(2);
-		device.Properties["Column A"].Should().Be("ValueA");
-		device.Properties["column.b"].Should().Be("ValueB");
+		_ = device.Properties.Count.Should().Be(2);
+		_ = device.Properties["Column A"].Should().Be("ValueA");
+		_ = device.Properties["column.b"].Should().Be("ValueB");
 	}
 }

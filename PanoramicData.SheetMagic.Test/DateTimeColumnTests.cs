@@ -14,7 +14,7 @@ public class DateTimeColumnTests : Test
 		var items = magicSpreadsheet.GetExtendedList<object>("Sheet1");
 
 		// Loaded
-		items.Should().NotBeNull();
-		items.Should().HaveCountGreaterThan(0);
+		_ = items.Should().NotBeNull();
+		_ = items.Should().HaveCountGreaterThan(0);
 	}
 }

@@ -92,7 +92,6 @@ public class MagicSpreadsheet : IDisposable
 	public void AddSheet<T>(List<T> items)
 		=> AddSheet(items, null);
 
-
 	public void AddSheet<T>(
 		List<T> items,
 		string? sheetName)
@@ -201,18 +200,18 @@ public class MagicSpreadsheet : IDisposable
 		}
 
 		// Fail if there any sheets existing with the new sheet's name
-		if (_document.WorkbookPart.Workbook.Sheets?.Any(existingSheet => string.Equals(((Sheet)existingSheet).Name.Value, sheetName, StringComparison.InvariantCultureIgnoreCase)) ?? false)
+		if (_document.WorkbookPart!.Workbook.Sheets?.Any(existingSheet => string.Equals(((Sheet)existingSheet).Name!.Value, sheetName, StringComparison.InvariantCultureIgnoreCase)) ?? false)
 		{
 			throw new ArgumentException($"Sheet name {sheetName} already exists. Sheet names must be unique per Workbook", nameof(sheetName));
 		}
 
 		var worksheetPart = CreateWorksheetPart(_document, sheetName);
 		var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>()
-			?? throw new InvalidOperationException("No sheetdata in Worksheet.");
+			?? throw new InvalidOperationException("No SheetData in Worksheet.");
 
 		// Determine property list
 		var propertyList = new List<PropertyInfo>();
-		var keyHashset = new HashSet<string>();
+		var keyHashSet = new HashSet<string>();
 		var columnConfigurations = new Columns();
 		Type basicType;
 		if (isExtended)
@@ -242,7 +241,7 @@ public class MagicSpreadsheet : IDisposable
 
 				foreach (var key in keys)
 				{
-					keyHashset.Add(key);
+					_ = keyHashSet.Add(key);
 				}
 			}
 		}
@@ -265,14 +264,14 @@ public class MagicSpreadsheet : IDisposable
 
 		// By default, apply a sort
 		var keyList = addSheetOptions.SortExtendedProperties
-			? keyHashset.OrderBy(k => k).ToList()
-			: keyHashset.ToList();
+			? keyHashSet.OrderBy(k => k).ToList()
+			: keyHashSet.ToList();
 
 		// Add the columns
 		var totalColumnCount = (uint)(propertyList.Count + keyList.Count);
 		for (var n = 0; n < totalColumnCount; n++)
 		{
-			columnConfigurations.AppendChild(new Column
+			_ = columnConfigurations.AppendChild(new Column
 			{
 				BestFit = true
 			});
@@ -281,12 +280,12 @@ public class MagicSpreadsheet : IDisposable
 		// Add header
 		uint rowIndex = 0;
 		var row = new Row { RowIndex = ++rowIndex };
-		sheetData.AppendChild(row);
+		_ = sheetData.AppendChild(row);
 		var cellIndex = 0;
 
 		foreach (var header in propertyList.Select(p => p.GetPropertyDescription() ?? p.Name))
 		{
-			row.AppendChild(CreateTextCell(
+			_ = row.AppendChild(CreateTextCell(
 				ColumnLetter(cellIndex++),
 				rowIndex,
 				header ?? string.Empty)
@@ -295,7 +294,7 @@ public class MagicSpreadsheet : IDisposable
 
 		foreach (var header in keyList)
 		{
-			row.AppendChild(CreateTextCell(
+			_ = row.AppendChild(CreateTextCell(
 				ColumnLetter(cellIndex++),
 				rowIndex,
 				header ?? string.Empty));
@@ -307,7 +306,7 @@ public class MagicSpreadsheet : IDisposable
 		{
 			cellIndex = 0;
 			row = new Row { RowIndex = ++rowIndex };
-			sheetData.AppendChild(row);
+			_ = sheetData.AppendChild(row);
 
 			// Add cells for the properties
 			foreach (var property in propertyList)
@@ -333,7 +332,7 @@ public class MagicSpreadsheet : IDisposable
 
 				if (cell is not null)
 				{
-					row.AppendChild(cell);
+					_ = row.AppendChild(cell);
 				}
 
 				cellIndex++;
@@ -356,7 +355,7 @@ public class MagicSpreadsheet : IDisposable
 					if (@object is not null)
 					{
 						var cell = CreateTextCell(ColumnLetter(cellIndex), rowIndex, @object.ToString());
-						row.AppendChild(cell);
+						_ = row.AppendChild(cell);
 					}
 
 					cellIndex++;
@@ -437,10 +436,10 @@ public class MagicSpreadsheet : IDisposable
 			{
 				if (!isFirst)
 				{
-					stringBuilder.Append(enumerableCellOptions.CellDelimiter);
+					_ = stringBuilder.Append(enumerableCellOptions.CellDelimiter);
 				}
 
-				stringBuilder.Append(il?.ToString() ?? "NULL");
+				_ = stringBuilder.Append(il?.ToString() ?? "NULL");
 				isFirst = false;
 			}
 
@@ -460,7 +459,7 @@ public class MagicSpreadsheet : IDisposable
 
 	private static WorksheetPart CreateWorksheetPart(SpreadsheetDocument document, string? sheetName)
 	{
-		var worksheetPart = document.WorkbookPart.AddNewPart<WorksheetPart>();
+		var worksheetPart = document.WorkbookPart!.AddNewPart<WorksheetPart>();
 		var worksheet = new Worksheet(new SheetData());
 		var sheet = new Sheet
 		{
@@ -469,7 +468,7 @@ public class MagicSpreadsheet : IDisposable
 			Name = sheetName
 		};
 		document.WorkbookPart.Workbook.Sheets ??= new Sheets();
-		document.WorkbookPart.Workbook.Sheets.AppendChild(sheet);
+		_ = document.WorkbookPart.Workbook.Sheets.AppendChild(sheet);
 
 		worksheetPart.Worksheet = worksheet;
 		return worksheetPart;
@@ -568,7 +567,7 @@ public class MagicSpreadsheet : IDisposable
 			}
 		}
 
-		if (_document.WorkbookPart.GetPartById(sheet.Id.Value) is not WorksheetPart worksheetPart)
+		if (_document.WorkbookPart.GetPartById(sheet.Id!.Value!) is not WorksheetPart worksheetPart)
 		{
 			throw new FormatException($"No WorksheetPart found for sheet {sheet.Name}");
 		}
@@ -582,7 +581,8 @@ public class MagicSpreadsheet : IDisposable
 			 .FirstOrDefault();
 
 		// Get the SheetData
-		var sheetData = worksheet.GetFirstChild<SheetData>();
+		var sheetData = worksheet.GetFirstChild<SheetData>()
+			?? throw new FormatException($"No SheetData found for workSheet {sheet.Name}");
 
 		// How many table parts are there on this worksheet part?
 		var tableDefinitionParts = worksheetPart.TableDefinitionParts.ToList();
@@ -609,7 +609,7 @@ public class MagicSpreadsheet : IDisposable
 		{
 			// Yes - determine the rows and columns to use based on the table definition
 			var table = tableDefinitionParts.Single().Table;
-			var tableReference = table.Reference.Value;
+			var tableReference = table.Reference!.Value!;
 			var tableReferenceArray = tableReference.Split(':');
 			var fromReference = tableReferenceArray[0];
 			var toReference = tableReferenceArray[1];
@@ -630,8 +630,8 @@ public class MagicSpreadsheet : IDisposable
 			columns = rows
 				 .FirstOrDefault()
 				 ?.Descendants<Cell>()
-				 .SkipWhile(c => GetReference(c.CellReference).columnIndex < firstColumnIndex)
-				 .TakeWhile(c => GetReference(c.CellReference).columnIndex <= lastColumnIndex)
+				 .SkipWhile(c => GetReference(c.CellReference!).columnIndex < firstColumnIndex)
+				 .TakeWhile(c => GetReference(c.CellReference!).columnIndex <= lastColumnIndex)
 				 .Select(c => GetCellValueString(c, stringTable))
 				 .ToList();
 		}
@@ -722,7 +722,7 @@ public class MagicSpreadsheet : IDisposable
 				{
 					var property = properties.SingleOrDefault(p => p.Name == propertyName);
 					var index = columnIndex;
-					var cell = cells.SingleOrDefault(c => GetReference(c.CellReference.Value).columnIndex == index + tableColumnOffset);
+					var cell = cells.SingleOrDefault(c => GetReference(c.CellReference!.Value!).columnIndex == index + tableColumnOffset);
 					if (cell == null)
 					{
 						if (!_options.LoadNullExtendedProperties)
@@ -1063,7 +1063,7 @@ public class MagicSpreadsheet : IDisposable
 				continue;
 			}
 
-			stringBuilder.Append(@char);
+			_ = stringBuilder.Append(@char);
 		}
 
 		var tweakString = stringBuilder.ToString();
@@ -1090,19 +1090,15 @@ public class MagicSpreadsheet : IDisposable
 	}
 
 	private string? FormatCellAsNumber(Cell cell, string formatString)
-	{
 		// Check if it's a number
-		if (double.TryParse(
-			(cell.CellValue != null &&
-			!string.IsNullOrEmpty(cell.CellValue.Text))
-			? cell.CellValue?.Text
-			: cell.InnerText, out var number))
-		{
-			return number.ToString(formatString);
-		}
-
-		return null;
-	}
+		=> double.TryParse(
+			string.IsNullOrEmpty(cell.CellValue?.Text)
+				? cell.InnerText
+				: cell.CellValue!.Text,
+			out var number
+			)
+				? number.ToString(formatString)
+				: null;
 
 	private string? FormatCellAsDateTime(Cell cell, string formatString)
 	{
@@ -1176,8 +1172,8 @@ public class MagicSpreadsheet : IDisposable
 			if (cell.StyleIndex?.HasValue == true)
 			{
 				var styleIndex = (int)cell.StyleIndex.Value;
-				var cellFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.CellFormats;
-				var numberingFormats = _document?.WorkbookPart.WorkbookStylesPart.Stylesheet.NumberingFormats;
+				var cellFormats = _document?.WorkbookPart?.WorkbookStylesPart?.Stylesheet.CellFormats;
+				var numberingFormats = _document?.WorkbookPart?.WorkbookStylesPart?.Stylesheet.NumberingFormats;
 
 				if (cellFormats == null)
 				{
@@ -1198,7 +1194,7 @@ public class MagicSpreadsheet : IDisposable
 						var numberingFormat =
 							numberingFormats
 							.Cast<NumberingFormat>()
-							.SingleOrDefault(f => f.NumberFormatId.Value == numberFormatId);
+							.SingleOrDefault(f => f.NumberFormatId?.Value == numberFormatId);
 
 						if (numberingFormat == null)
 						{
@@ -1206,7 +1202,7 @@ public class MagicSpreadsheet : IDisposable
 						}
 
 						// Get the format
-						formatString = numberingFormat.FormatCode.Value;
+						formatString = numberingFormat.FormatCode!.Value!;
 					}
 					else
 					{
@@ -1215,9 +1211,10 @@ public class MagicSpreadsheet : IDisposable
 
 						if (builtInFormat != null)
 						{
-							if (builtInFormat.Value.formatType == CellFormatType.General ||
-								builtInFormat.Value.formatType == CellFormatType.Text ||
-								builtInFormat.Value.formatType == CellFormatType.Unknown)
+							if (builtInFormat.Value.formatType is
+								CellFormatType.General or
+								CellFormatType.Text or
+								CellFormatType.Unknown)
 							{
 								// Results in a string
 								return null;
@@ -1249,12 +1246,9 @@ public class MagicSpreadsheet : IDisposable
 		if (cell.DataType == null)
 		{
 			// Check whether there is a built-in style set
-			if (GetCellFormatFromStyle(cell) is string text)
-			{
-				return text;
-			}
-
-			return cellValueText;
+			return GetCellFormatFromStyle(cell) is string text
+				? text
+				: (object?)cellValueText;
 		}
 
 		return (CellValues)cell.DataType switch
@@ -1354,12 +1348,8 @@ public class MagicSpreadsheet : IDisposable
 
 	private (int columnIndex, int rowIndex) GetReference(string cellReference)
 	{
-		var match = CellReferenceRegex.Match(cellReference);
-
-		if (match == null)
-		{
-			throw new ArgumentException($"Invalid cell reference {cellReference}", nameof(cellReference));
-		}
+		var match = CellReferenceRegex.Match(cellReference)
+			?? throw new ArgumentException($"Invalid cell reference {cellReference}", nameof(cellReference));
 
 		var col = match.Groups["col"].Value;
 		var row = match.Groups["row"].Value;
@@ -1387,7 +1377,7 @@ public class MagicSpreadsheet : IDisposable
 	private void SetItemProperty<T, T1>(T item, T1 cellValue, string propertyName)
 	{
 		var cellValues = new List<object?> { cellValue };
-		typeof(T).InvokeMember(propertyName,
+		_ = typeof(T).InvokeMember(propertyName,
 			 BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
 			 Type.DefaultBinder, item, cellValues.ToArray());
 	}
@@ -1395,7 +1385,7 @@ public class MagicSpreadsheet : IDisposable
 	private void SetItemProperty<T>(T item, object? cellValue, string propertyName)
 	{
 		var cellValues = new List<object?> { cellValue };
-		typeof(T).InvokeMember(propertyName,
+		_ = typeof(T).InvokeMember(propertyName,
 			 BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
 			 Type.DefaultBinder, item, cellValues.ToArray());
 	}

@@ -13,7 +13,7 @@ namespace PanoramicData.SheetMagic.Test
 				new object(),
 				new Dictionary<string, object?>
 				{
-				{ "a", "b" }
+					{ "a", "b" }
 				}
 			);
 			using var stream = new MemoryStream();

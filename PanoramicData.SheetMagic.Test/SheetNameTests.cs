@@ -18,10 +18,10 @@ public class SheetNameTests : Test
 		}
 
 		// Loaded
-		sheetNames.Count.Should().Be(2);
-		sheetNames[0].Should().NotBeNull();
-		sheetNames[0].Should().Be("Sites");
-		sheetNames[1].Should().NotBeNull();
-		sheetNames[1].Should().Be("Devices");
+		_ = sheetNames.Count.Should().Be(2);
+		_ = sheetNames[0].Should().NotBeNull();
+		_ = sheetNames[0].Should().Be("Sites");
+		_ = sheetNames[1].Should().NotBeNull();
+		_ = sheetNames[1].Should().Be("Devices");
 	}
 }

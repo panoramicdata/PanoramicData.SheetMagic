@@ -47,10 +47,10 @@ public class SaveSheetTests : Test
 			using var s2 = new MagicSpreadsheet(fileInfo);
 			s2.Load();
 			var b = s2.GetExtendedList<object>();
-			b.Should().NotBeNullOrEmpty();
+			_ = b.Should().NotBeNullOrEmpty();
 			var firstItem = b[0];
-			firstItem.Properties.Keys.Should().Contain("a");
-			firstItem.Properties["a"].Should().Be("b");
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be("b");
 		}
 		finally
 		{
@@ -89,12 +89,12 @@ public class SaveSheetTests : Test
 			using var s2 = new MagicSpreadsheet(fileInfo);
 			s2.Load();
 			var cars = s2.GetExtendedList<Car>();
-			cars.Should().NotBeNullOrEmpty();
+			_ = cars.Should().NotBeNullOrEmpty();
 			var firstCar = cars[0];
-			firstCar.Item.Should().NotBeNull();
-			carWeightKg.Should().Be(firstCar.Item!.WeightKg);
-			firstCar.Properties.Keys.Should().Contain(customPropertyName);
-			firstCar.Properties[customPropertyName].Should().Be(customPropertyValue);
+			_ = firstCar.Item.Should().NotBeNull();
+			_ = carWeightKg.Should().Be(firstCar.Item!.WeightKg);
+			_ = firstCar.Properties.Keys.Should().Contain(customPropertyName);
+			_ = firstCar.Properties[customPropertyName].Should().Be(customPropertyValue);
 		}
 		finally
 		{

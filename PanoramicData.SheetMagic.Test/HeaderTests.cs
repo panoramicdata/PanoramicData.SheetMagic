@@ -17,6 +17,6 @@ public class HeaderTests : Test
 			items = magicSpreadsheet.GetExtendedList<object>(magicSpreadsheet.SheetNames.FirstOrDefault() ?? string.Empty);
 		}
 
-		items.Should().NotBeNull();
+		_ = items.Should().NotBeNull();
 	}
 }

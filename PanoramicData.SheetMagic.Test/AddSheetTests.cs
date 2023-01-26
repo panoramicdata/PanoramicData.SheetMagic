@@ -19,7 +19,7 @@ public class AddSheetTests : Test
 		try
 		{
 			using var s = new MagicSpreadsheet(fileInfo);
-			Assert.Throws<ArgumentException>(() => s.AddSheet(items, badSheetName));
+			_ = Assert.Throws<ArgumentException>(() => s.AddSheet(items, badSheetName));
 		}
 		finally
 		{
@@ -69,7 +69,7 @@ public class AddSheetTests : Test
 			using var s = new MagicSpreadsheet(fileInfo);
 			var items = new List<SimpleAnimal> { new SimpleAnimal { Id = 1, Name = "Alligator" } };
 			s.AddSheet(items, "Sheet1");
-			Assert.Throws<ArgumentException>(() => s.AddSheet(items, "Sheet1"));
+			_ = Assert.Throws<ArgumentException>(() => s.AddSheet(items, "Sheet1"));
 		}
 		finally
 		{

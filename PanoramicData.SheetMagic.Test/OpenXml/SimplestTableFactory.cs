@@ -23,25 +23,25 @@ static internal class SimplestTableFactory
 	// Adds child parts and generates content of the specified part.
 	private static void CreateParts(SpreadsheetDocument document)
 	{
-		ExtendedFilePropertiesPart extendedFilePropertiesPart1 = document.AddNewPart<ExtendedFilePropertiesPart>("rId3");
+		var extendedFilePropertiesPart1 = document.AddNewPart<ExtendedFilePropertiesPart>("rId3");
 		GenerateExtendedFilePropertiesPart1Content(extendedFilePropertiesPart1);
 
-		WorkbookPart workbookPart1 = document.AddWorkbookPart();
+		var workbookPart1 = document.AddWorkbookPart();
 		GenerateWorkbookPart1Content(workbookPart1);
 
-		WorkbookStylesPart workbookStylesPart1 = workbookPart1.AddNewPart<WorkbookStylesPart>("rId3");
+		var workbookStylesPart1 = workbookPart1.AddNewPart<WorkbookStylesPart>("rId3");
 		GenerateWorkbookStylesPart1Content(workbookStylesPart1);
 
-		ThemePart themePart1 = workbookPart1.AddNewPart<ThemePart>("rId2");
+		var themePart1 = workbookPart1.AddNewPart<ThemePart>("rId2");
 		GenerateThemePart1Content(themePart1);
 
-		WorksheetPart worksheetPart1 = workbookPart1.AddNewPart<WorksheetPart>("rId1");
+		var worksheetPart1 = workbookPart1.AddNewPart<WorksheetPart>("rId1");
 		GenerateWorksheetPart1Content(worksheetPart1);
 
-		TableDefinitionPart tableDefinitionPart1 = worksheetPart1.AddNewPart<TableDefinitionPart>("rId1");
+		var tableDefinitionPart1 = worksheetPart1.AddNewPart<TableDefinitionPart>("rId1");
 		GenerateTableDefinitionPart1Content(tableDefinitionPart1);
 
-		SharedStringTablePart sharedStringTablePart1 = workbookPart1.AddNewPart<SharedStringTablePart>("rId4");
+		var sharedStringTablePart1 = workbookPart1.AddNewPart<SharedStringTablePart>("rId4");
 		GenerateSharedStringTablePart1Content(sharedStringTablePart1);
 
 		SetPackageProperties(document);

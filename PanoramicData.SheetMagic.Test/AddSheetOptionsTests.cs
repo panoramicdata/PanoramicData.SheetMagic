@@ -41,7 +41,7 @@ public class AddSheetOptionsTests : Test
 				s.Load();
 
 				var reloadedAnimals = s.GetExtendedList<SimpleAnimal>("Sheet1");
-				reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
+				_ = reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
 
 				// Make sure there are no extra properties
 				Assert.All(reloadedAnimals, extendedAnimal => Assert.Empty(extendedAnimal.Properties));
@@ -142,8 +142,8 @@ public class AddSheetOptionsTests : Test
 			s.Load();
 
 			var reloadedAnimals = s.GetExtendedList<object>("Animals");
-			reloadedAnimals.Should().NotBeNull();
-			reloadedAnimals.Should().HaveCountGreaterThan(0);
+			_ = reloadedAnimals.Should().NotBeNull();
+			_ = reloadedAnimals.Should().HaveCountGreaterThan(0);
 		}
 		finally
 		{
@@ -181,8 +181,8 @@ public class AddSheetOptionsTests : Test
 			s.Load();
 
 			var reloadedAnimals = s.GetExtendedList<object>("Animals");
-			reloadedAnimals.Should().NotBeNull();
-			reloadedAnimals.Should().HaveCountGreaterThan(0);
+			_ = reloadedAnimals.Should().NotBeNull();
+			_ = reloadedAnimals.Should().HaveCountGreaterThan(0);
 		}
 		finally
 		{

@@ -491,6 +491,14 @@ public class MagicSpreadsheet : IDisposable
 
 		_document.WorkbookPart.Workbook.Save();
 		_document.Close();
+
+		// Do we have a stream?
+		if (_stream is not null)
+		{
+			// YES - Ensure it's flushed and seek back to the beginning for consumption
+			_stream.Flush();
+			_ = _stream.Seek(0, SeekOrigin.Begin);
+		}
 	}
 
 	private void ReleaseUnmanagedResources() => _document?.Dispose();

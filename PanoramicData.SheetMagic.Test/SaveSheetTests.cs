@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using PanoramicData.SheetMagic.Test.Models;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -51,6 +52,77 @@ public class SaveSheetTests : Test
 			var firstItem = b[0];
 			_ = firstItem.Properties.Keys.Should().Contain("a");
 			_ = firstItem.Properties["a"].Should().Be("b");
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingInt_Succeeds()
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", 1 }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(1);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingDateTime_Succeeds()
+	{
+		var dateTime = new DateTime(2000, 1, 2, 3, 4, 5);
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", dateTime }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(dateTime);
 		}
 		finally
 		{

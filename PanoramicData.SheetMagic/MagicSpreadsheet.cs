@@ -82,7 +82,19 @@ public class MagicSpreadsheet : IDisposable
 			 thirdLetter).Trim();
 	}
 
-	private static Cell CreateTextCell(string header, uint index, string text) =>
+	private static Cell CreateCell(string header, uint index, object? @object)
+	{
+		var objectTypeName = @object?.GetType().Name ?? string.Empty;
+
+		switch (objectTypeName)
+		{
+			// TODO - add other cases here to fix the broken SaveSheetTests
+			default:
+				return CreateTextCell2(header, index, @object?.ToString() ?? string.Empty);
+		}
+	}
+
+	private static Cell CreateTextCell2(string header, uint index, string text) =>
 		 new(new InlineString(new Text { Text = text }))
 		 {
 			 DataType = CellValues.InlineString,
@@ -285,7 +297,7 @@ public class MagicSpreadsheet : IDisposable
 
 		foreach (var header in propertyList.Select(p => p.GetPropertyDescription() ?? p.Name))
 		{
-			_ = row.AppendChild(CreateTextCell(
+			_ = row.AppendChild(CreateCell(
 				ColumnLetter(cellIndex++),
 				rowIndex,
 				header ?? string.Empty)
@@ -294,7 +306,7 @@ public class MagicSpreadsheet : IDisposable
 
 		foreach (var header in keyList)
 		{
-			_ = row.AppendChild(CreateTextCell(
+			_ = row.AppendChild(CreateCell(
 				ColumnLetter(cellIndex++),
 				rowIndex,
 				header ?? string.Empty));
@@ -354,7 +366,7 @@ public class MagicSpreadsheet : IDisposable
 					// Don't add cells for null objects
 					if (@object is not null)
 					{
-						var cell = CreateTextCell(ColumnLetter(cellIndex), rowIndex, @object.ToString());
+						var cell = CreateCell(ColumnLetter(cellIndex), rowIndex, @object.ToString());
 						_ = row.AppendChild(cell);
 					}
 
@@ -450,7 +462,7 @@ public class MagicSpreadsheet : IDisposable
 			value = v?.ToString() ?? string.Empty;
 		}
 
-		var cell = CreateTextCell(
+		var cell = CreateCell(
 			ColumnLetter(cellIndex),
 			rowIndex,
 			value.ToString());
@@ -1186,7 +1198,7 @@ public class MagicSpreadsheet : IDisposable
 
 				if (cellFormat.NumberFormatId?.HasValue == true)
 				{
-					var numberFormatId = (uint)cellFormat.NumberFormatId.Value;
+					var numberFormatId = cellFormat.NumberFormatId.Value;
 
 					if (numberFormatId >= BuiltInCellFormats.CustomFormatStartIndex)
 					{

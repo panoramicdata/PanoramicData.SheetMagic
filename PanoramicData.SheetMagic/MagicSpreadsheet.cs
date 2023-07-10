@@ -90,11 +90,11 @@ public class MagicSpreadsheet : IDisposable
 		{
 			// TODO - add other cases here to fix the broken SaveSheetTests
 			default:
-				return CreateTextCell2(header, index, @object?.ToString() ?? string.Empty);
+				return CreateTextCell(header, index, @object?.ToString() ?? string.Empty);
 		}
 	}
 
-	private static Cell CreateTextCell2(string header, uint index, string text) =>
+	private static Cell CreateTextCell(string header, uint index, string text) =>
 		 new(new InlineString(new Text { Text = text }))
 		 {
 			 DataType = CellValues.InlineString,

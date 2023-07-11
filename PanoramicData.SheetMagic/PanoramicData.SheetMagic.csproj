@@ -16,7 +16,7 @@
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReleaseNotes>
-			Updated to handle numeric values in header rows (where the data is NOT an actual table)
+			Numeric types now correctly output as numbers rather than strings.
 		</PackageReleaseNotes>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -24,7 +24,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="DocumentFormat.OpenXml" Version="2.18.0" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.5.113">
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

@@ -526,7 +526,7 @@ public class MagicSpreadsheet : IDisposable
 		}
 
 		_document.WorkbookPart.Workbook.Save();
-		_document.Close();
+		_document.Dispose();
 
 		// Do we have a stream?
 		if (_stream is not null)

@@ -185,7 +185,7 @@ static internal class SimplestTableFactory
 
 		alternateContent1.Append(alternateContentChoice1);
 
-		var openXmlUnknownElement1 = OpenXmlUnknownElement.CreateOpenXmlUnknownElement("<xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{D93C4835-9CB1-4F2E-BEBC-8B38B516D332}\" xr6:coauthVersionLast=\"45\" xr6:coauthVersionMax=\"45\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" />");
+		var openXmlUnknownElement1 = workbookPart1.CreateUnknownElement("<xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{D93C4835-9CB1-4F2E-BEBC-8B38B516D332}\" xr6:coauthVersionLast=\"45\" xr6:coauthVersionMax=\"45\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" />");
 
 		var bookViews1 = new BookViews();
 
@@ -228,7 +228,7 @@ static internal class SimplestTableFactory
 		};
 		workbookExtension2.AddNamespaceDeclaration("xcalcf", "http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures");
 
-		var openXmlUnknownElement2 = OpenXmlUnknownElement.CreateOpenXmlUnknownElement("<xcalcf:calcFeatures xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:feature name=\"microsoft.com:RD\" /><xcalcf:feature name=\"microsoft.com:FV\" /></xcalcf:calcFeatures>");
+		var openXmlUnknownElement2 = workbookPart1.CreateUnknownElement("<xcalcf:calcFeatures xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:feature name=\"microsoft.com:RD\" /><xcalcf:feature name=\"microsoft.com:FV\" /></xcalcf:calcFeatures>");
 
 		workbookExtension2.Append(openXmlUnknownElement2);
 

@@ -6,6 +6,7 @@ using PanoramicData.SheetMagic.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -86,13 +87,40 @@ public class MagicSpreadsheet : IDisposable
 	{
 		var objectTypeName = @object?.GetType().Name ?? string.Empty;
 
-		switch (objectTypeName)
+		return objectTypeName switch
 		{
 			// TODO - add other cases here to fix the broken SaveSheetTests
-			default:
-				return CreateTextCell(header, index, @object?.ToString() ?? string.Empty);
-		}
+			nameof(Int16) or
+			nameof(Int32) or
+			nameof(Int64) or
+			nameof(UInt16) or
+			nameof(UInt32) or
+			nameof(UInt64)
+			=> CreateNumericCell(header, index, Convert.ToInt64(@object)),
+			nameof(Single) or
+			nameof(Double) or
+			nameof(Decimal)
+			=> CreateNumericCell(header, index, Convert.ToDouble(@object)),
+			nameof(DateTime)
+			=> CreateDateCell(header, index, (DateTime)@object),
+			_ => CreateTextCell(header, index, @object?.ToString() ?? string.Empty),
+		};
 	}
+
+	private static Cell CreateNumericCell(string header, uint index, double number) =>
+		new(new CellValue(number.ToString(CultureInfo.InvariantCulture)))
+		{
+			DataType = CellValues.Number,
+			CellReference = header + index
+		};
+
+	private static Cell CreateDateCell(string header, uint index, DateTime date) =>
+		new(new CellValue(date))
+		{
+			DataType = CellValues.Date,
+			CellReference = header + index,
+			StyleIndex = 1
+		};
 
 	private static Cell CreateTextCell(string header, uint index, string text) =>
 		 new(new InlineString(new Text { Text = text }))
@@ -182,11 +210,8 @@ public class MagicSpreadsheet : IDisposable
 			workbookPart.Workbook = new Workbook();
 
 			// Add any custom table styles
-			if (_options.TableStyles.Count > 0)
-			{
-				var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>("rId3");
-				GenerateWorkbookStylesPart1Content(workbookStylesPart, _options.TableStyles[0]);
-			}
+			var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>("rId3");
+			GenerateWorkbookStylesPart1Content(workbookStylesPart);
 		}
 
 		// Set a sheet name if not provided
@@ -366,7 +391,7 @@ public class MagicSpreadsheet : IDisposable
 					// Don't add cells for null objects
 					if (@object is not null)
 					{
-						var cell = CreateCell(ColumnLetter(cellIndex), rowIndex, @object.ToString());
+						var cell = CreateCell(ColumnLetter(cellIndex), rowIndex, @object);
 						_ = row.AppendChild(cell);
 					}
 
@@ -459,13 +484,13 @@ public class MagicSpreadsheet : IDisposable
 		}
 		else
 		{
-			value = v?.ToString() ?? string.Empty;
+			value = v is not null ? v is string ? v.ToString() : v : string.Empty;
 		}
 
 		var cell = CreateCell(
 			ColumnLetter(cellIndex),
 			rowIndex,
-			value.ToString());
+			value);
 		return cell;
 	}
 
@@ -1402,7 +1427,7 @@ public class MagicSpreadsheet : IDisposable
 			 Type.DefaultBinder, item, cellValues.ToArray());
 	}
 
-	private void GenerateWorkbookStylesPart1Content(WorkbookStylesPart workbookStylesPart1, CustomTableStyle customTableStyle)
+	private void GenerateWorkbookStylesPart1Content(WorkbookStylesPart workbookStylesPart1)
 	{
 		var stylesheet1 = new Stylesheet { MCAttributes = new MarkupCompatibilityAttributes { Ignorable = "x14ac x16r2 xr xr9" } };
 		stylesheet1.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
@@ -1440,15 +1465,33 @@ public class MagicSpreadsheet : IDisposable
 		outerBorder.Append(new DiagonalBorder());
 		borders.Append(outerBorder);
 
+		// Adding a new date format
+		var nf = new NumberingFormat
+		{
+			NumberFormatId = 165, // any number greater than 164 will do for custom format
+			FormatCode = "yyyy-mm-dd hh:mm:ss"
+		};
+		var numberingFormats = new NumberingFormats { Count = 1U };
+		numberingFormats.Append(nf);
+
 		var cellStyleFormats1 = new CellStyleFormats { Count = 1U };
 		var cellFormat1 = new CellFormat { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U };
-
+		var csf = new CellFormat
+		{
+			NumberFormatId = nf.NumberFormatId
+		};
 		cellStyleFormats1.Append(cellFormat1);
+		cellStyleFormats1.Append(csf);
 
 		var cellFormats1 = new CellFormats { Count = 1U };
 		var cellFormat2 = new CellFormat { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U, FormatId = 0U };
+		var cf = new CellFormat
+		{
+			NumberFormatId = csf.NumberFormatId
+		};
 
 		cellFormats1.Append(cellFormat2);
+		cellFormats1.Append(cf);
 
 		var cellStyles1 = new CellStyles { Count = 1U };
 		var cellStyle1 = new CellStyle { Name = "Normal", FormatId = 0U, BuiltinId = 0U };
@@ -1458,36 +1501,40 @@ public class MagicSpreadsheet : IDisposable
 		var differentialFormats = new DifferentialFormats { Count = 3U };
 		var tableStyles1 = new TableStyles { Count = 1U, DefaultTableStyle = "TableStyleMedium2", DefaultPivotStyle = "PivotStyleLight16" };
 
-		var tableStyleCount = 0U;
-		if (customTableStyle.OddRowStyle != null)
+		if (_options.TableStyles.Count > 0)
 		{
-			tableStyleCount++;
+			CustomTableStyle customTableStyle = _options.TableStyles[0];
+
+			var tableStyleCount = 0U;
+			if (customTableStyle.OddRowStyle != null)
+			{
+				tableStyleCount++;
+			}
+
+			if (customTableStyle.EvenRowStyle != null)
+			{
+				tableStyleCount++;
+			}
+
+			if (customTableStyle.HeaderRowStyle != null)
+			{
+				tableStyleCount++;
+			}
+
+			if (customTableStyle.WholeTableStyle != null)
+			{
+				tableStyleCount++;
+			}
+
+			var tableStyle1 = new TableStyle { Name = customTableStyle.Name, Pivot = false, Count = tableStyleCount };
+			tableStyle1.SetAttribute(new OpenXmlAttribute("xr9", "uid", "http://schemas.microsoft.com/office/spreadsheetml/2016/revision9", "{640A183E-9F4E-4A71-80D9-2176963C18AB}"));
+			tableStyles1.Append(tableStyle1);
+			var tableStyleIndex = 0U;
+			AddTableStyleElement(customTableStyle.OddRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.FirstRowStripe);
+			AddTableStyleElement(customTableStyle.EvenRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.SecondRowStripe);
+			AddTableStyleElement(customTableStyle.HeaderRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.HeaderRow);
+			AddTableStyleElement(customTableStyle.WholeTableStyle, differentialFormats, tableStyle1, tableStyleIndex, TableStyleValues.WholeTable);
 		}
-
-		if (customTableStyle.EvenRowStyle != null)
-		{
-			tableStyleCount++;
-		}
-
-		if (customTableStyle.HeaderRowStyle != null)
-		{
-			tableStyleCount++;
-		}
-
-		if (customTableStyle.WholeTableStyle != null)
-		{
-			tableStyleCount++;
-		}
-
-		var tableStyle1 = new TableStyle { Name = customTableStyle.Name, Pivot = false, Count = tableStyleCount };
-		tableStyle1.SetAttribute(new OpenXmlAttribute("xr9", "uid", "http://schemas.microsoft.com/office/spreadsheetml/2016/revision9", "{640A183E-9F4E-4A71-80D9-2176963C18AB}"));
-		tableStyles1.Append(tableStyle1);
-		var tableStyleIndex = 0U;
-		AddTableStyleElement(customTableStyle.OddRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.FirstRowStripe);
-		AddTableStyleElement(customTableStyle.EvenRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.SecondRowStripe);
-		AddTableStyleElement(customTableStyle.HeaderRowStyle, differentialFormats, tableStyle1, tableStyleIndex++, TableStyleValues.HeaderRow);
-		AddTableStyleElement(customTableStyle.WholeTableStyle, differentialFormats, tableStyle1, tableStyleIndex, TableStyleValues.WholeTable);
-
 		// Colors
 		var colors1 = new Colors();
 
@@ -1498,6 +1545,7 @@ public class MagicSpreadsheet : IDisposable
 
 		colors1.Append(mruColors1);
 
+		stylesheet1.Append(numberingFormats);
 		stylesheet1.Append(fonts);
 		stylesheet1.Append(fills);
 		stylesheet1.Append(borders);

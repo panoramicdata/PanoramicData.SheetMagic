@@ -60,13 +60,48 @@ public class SaveSheetTests : Test
 	}
 
 	[Fact]
-	public void SavingWithExtendedObjectContainingInt_Succeeds()
+	public void SavingWithExtendedObjectContainingInt16_Succeeds()
 	{
 		var a = new Extended<object>(
 			new object(),
 			new Dictionary<string, object?>
 			{
-				{ "a", 1 }
+			{ "a", (short)1 }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be((short)1);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingInt32_Succeeds()
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+			{ "a", 1 }
 			}
 		);
 		var fileInfo = GetXlsxTempFileInfo();
@@ -87,6 +122,182 @@ public class SaveSheetTests : Test
 			var firstItem = b[0];
 			_ = firstItem.Properties.Keys.Should().Contain("a");
 			_ = firstItem.Properties["a"].Should().Be(1);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingInt64_Succeeds()
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+			{ "a", (long)1 }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be((long)1);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingUInt16_Succeeds()
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+			{ "a", (ushort)1 }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be((ushort)1);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingUInt32_Succeeds()
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+			{ "a", (uint)1 }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be((uint)1);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingUInt64_Succeeds()
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+			{ "a", (ulong)1 }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be((ulong)1);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingDouble_Succeeds()
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", 12.3 }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(12.3);
 		}
 		finally
 		{

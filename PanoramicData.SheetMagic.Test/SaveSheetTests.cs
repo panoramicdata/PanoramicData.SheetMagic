@@ -170,14 +170,17 @@ public class SaveSheetTests : Test
 	{
 		var fileInfo = GetXlsxTempFileInfo();
 
-		var dealerships = new List<CarDealership>
+		var dealerships = new List<CarDealershipWithCars>
 		{
-			new CarDealership
+			new CarDealershipWithCars
 			{
 				Name = "Slough",
 				Cars = new List<Car?>(),
+				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
+				UkRanking = 1,
+				EmployeeCount = 10,
 			},
-			new CarDealership
+			new CarDealershipWithCars
 			{
 				Name = "Maidenhead",
 				Cars = new List<Car?>
@@ -189,8 +192,12 @@ public class SaveSheetTests : Test
 					},
 					null,
 				},
+				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
+				ClosureDate = new DateTime(2002, 1, 2, 3, 4, 5),
+				UkRanking = 2,
+				EmployeeCount = null,
 			},
-			new CarDealership
+			new CarDealershipWithCars
 			{
 				Name = "Reading",
 				Cars = new List<Car?>
@@ -206,6 +213,53 @@ public class SaveSheetTests : Test
 						WeightKg = 1500
 					},
 				},
+				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
+				UkRanking = 3,
+				EmployeeCount = 20,
+			}
+		};
+
+		try
+		{
+			using var s = new MagicSpreadsheet(fileInfo);
+			s.AddSheet(dealerships);
+			s.Save();
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void TypesWithoutLists_Succeeds()
+	{
+		var fileInfo = GetXlsxTempFileInfo();
+
+		var dealerships = new List<CarDealership>
+		{
+			new CarDealership
+			{
+				Name = "Slough",
+				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
+				IsPrivatelyOwned = true,
+				UkRanking = 1,
+				EmployeeCount = 10,
+			},
+			new CarDealership
+			{
+				Name = "Maidenhead",
+				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
+				ClosureDate = new DateTime(2002, 1, 2, 3, 4, 5),
+				UkRanking = 2,
+				EmployeeCount = null,
+			},
+			new CarDealership
+			{
+				Name = "Reading",
+				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
+				UkRanking = 3,
+				EmployeeCount = 20,
 			},
 		};
 
@@ -214,6 +268,18 @@ public class SaveSheetTests : Test
 			using var s = new MagicSpreadsheet(fileInfo);
 			s.AddSheet(dealerships);
 			s.Save();
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetList<CarDealership>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			firstItem.Should().NotBeNull();
+			firstItem.Name.Should().Be("Slough");
+			firstItem.IsPrivatelyOwned.Should().BeTrue();
+			firstItem.Founded.Should().Be(new DateTime(2000, 1, 2, 3, 4, 5));
+			firstItem.UkRanking.Should().Be(1);
+			firstItem.EmployeeCount.Should().Be(10);
 		}
 		finally
 		{

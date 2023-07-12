@@ -870,11 +870,29 @@ public class MagicSpreadsheet : IDisposable
 							}
 
 							break;
+						case "Boolean":
+							{
+								var cellValue = GetCellValue<bool>(cell, stringTable);
+								if (cellValue != null)
+								{
+									SetItemProperty(item, cellValue, propertyName);
+								}
+
+								break;
+							}
 						case "DateTime":
 							var cellValueDateTimeObject = GetCellValue<DateTime>(cell, stringTable);
 							if (cellValueDateTimeObject != null)
 							{
 								SetItemProperty(item, Convert.ToDateTime(cellValueDateTimeObject), propertyName);
+							}
+
+							break;
+						case "DateTimeOffset":
+							var cellValueDateTimeOffsetObject = GetCellValue<DateTimeOffset>(cell, stringTable);
+							if (cellValueDateTimeOffsetObject != null)
+							{
+								SetItemProperty(item, Convert.ToDateTime(cellValueDateTimeOffsetObject), propertyName);
 							}
 
 							break;
@@ -896,7 +914,8 @@ public class MagicSpreadsheet : IDisposable
 							break;
 						case "Nullable`1<Boolean>":
 							{
-								switch (GetCellValue<object?>(cell, stringTable))
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
 								{
 									case string stringValue2:
 										if (string.IsNullOrWhiteSpace(stringValue2))
@@ -916,14 +935,15 @@ public class MagicSpreadsheet : IDisposable
 										SetItemProperty(item, null, propertyName);
 										break;
 									default:
-										throw new InvalidOperationException("Invalid value type");
+										throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");
 								}
 
 								break;
 							}
 						case "Nullable`1<Double>":
 							{
-								switch (GetCellValue<object?>(cell, stringTable))
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
 								{
 									case string stringValue2:
 										if (string.IsNullOrWhiteSpace(stringValue2))
@@ -950,7 +970,8 @@ public class MagicSpreadsheet : IDisposable
 							}
 						case "Nullable`1<Single>":
 							{
-								switch (GetCellValue<object?>(cell, stringTable))
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
 								{
 									case string stringValue2:
 										if (string.IsNullOrWhiteSpace(stringValue2))
@@ -970,14 +991,15 @@ public class MagicSpreadsheet : IDisposable
 										SetItemProperty(item, null, propertyName);
 										break;
 									default:
-										throw new InvalidOperationException("Invalid value type");
+										throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");
 								}
 
 								break;
 							}
 						case "Nullable`1<Int64>":
 							{
-								switch (GetCellValue<object?>(cell, stringTable))
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
 								{
 									case string stringValue2:
 										if (string.IsNullOrWhiteSpace(stringValue2))
@@ -997,14 +1019,15 @@ public class MagicSpreadsheet : IDisposable
 										SetItemProperty(item, null, propertyName);
 										break;
 									default:
-										throw new InvalidOperationException("Invalid value type");
+										throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");
 								}
 
 								break;
 							}
 						case "Nullable`1<Int32>":
 							{
-								switch (GetCellValue<object?>(cell, stringTable))
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
 								{
 									case string stringValue2:
 										if (string.IsNullOrWhiteSpace(stringValue2))
@@ -1020,18 +1043,22 @@ public class MagicSpreadsheet : IDisposable
 									case int typedValue2:
 										SetItemProperty(item, (int?)typedValue2, propertyName);
 										break;
+									case double typedValue2:
+										SetItemProperty(item, (int?)typedValue2, propertyName);
+										break;
 									case null:
 										SetItemProperty(item, null, propertyName);
 										break;
 									default:
-										throw new InvalidOperationException("Invalid value type");
+										throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");
 								}
 
 								break;
 							}
 						case "Nullable`1<Int16>":
 							{
-								switch (GetCellValue<object?>(cell, stringTable))
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
 								{
 									case string stringValue2:
 										if (string.IsNullOrWhiteSpace(stringValue2))
@@ -1051,14 +1078,15 @@ public class MagicSpreadsheet : IDisposable
 										SetItemProperty(item, null, propertyName);
 										break;
 									default:
-										throw new InvalidOperationException("Invalid value type");
+										throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");
 								}
 
 								break;
 							}
 						case "Nullable`1<DateTime>":
 							{
-								switch (GetCellValue<object?>(cell, stringTable))
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
 								{
 									case string stringValue2:
 										if (string.IsNullOrWhiteSpace(stringValue2))
@@ -1078,7 +1106,38 @@ public class MagicSpreadsheet : IDisposable
 										SetItemProperty(item, null, propertyName);
 										break;
 									default:
-										throw new InvalidOperationException("Invalid value type");
+										throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");
+								}
+
+								break;
+							}
+						case "Nullable`1<DateTimeOffset>":
+							{
+								var cellValue = GetCellValue<object?>(cell, stringTable);
+								switch (cellValue)
+								{
+									case string stringValue2:
+										if (string.IsNullOrWhiteSpace(stringValue2))
+										{
+											SetItemProperty(item, (DateTimeOffset?)null, propertyName);
+										}
+										else
+										{
+											SetItemProperty(item, (DateTimeOffset?)DateTimeOffset.Parse(stringValue2), propertyName);
+										}
+
+										break;
+									case DateTime typedValue2:
+										SetItemProperty(item, new DateTimeOffset(typedValue2, TimeSpan.Zero), propertyName);
+										break;
+									case DateTimeOffset typedValue2:
+										SetItemProperty(item, (DateTimeOffset?)typedValue2, propertyName);
+										break;
+									case null:
+										SetItemProperty(item, null, propertyName);
+										break;
+									default:
+										throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");
 								}
 
 								break;
@@ -1363,6 +1422,25 @@ public class MagicSpreadsheet : IDisposable
 					}
 
 					throw new FormatException($"Could not convert cell {cell.CellReference} to a double.");
+				case "Boolean":
+					if (bool.TryParse(cellValueText, out var boolValue))
+					{
+						return boolValue;
+					}
+
+					throw new FormatException($"Could not convert cell {cell.CellReference} to a bool.");
+				case "Nullable`1<Boolean>":
+					if (cellValueText == "NULL" || cellValueText == string.Empty)
+					{
+						return null;
+					}
+
+					if (bool.TryParse(cellValueText, out boolValue))
+					{
+						return boolValue;
+					}
+
+					throw new FormatException($"Could not convert cell {cell.CellReference} to a bool.");
 				case "String":
 				case "Object":
 					return cellValueText;
@@ -1383,7 +1461,9 @@ public class MagicSpreadsheet : IDisposable
 				return cellValueText switch
 				{
 					"1" => true,
+					"true" => true,
 					"0" => false,
+					"false" => false,
 					_ => null,
 				};
 			case CellValues.Number:

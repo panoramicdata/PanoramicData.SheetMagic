@@ -27,393 +27,99 @@ public class SaveSheetTests : Test
 	[Fact]
 	public void SavingWithExtendedObject_Succeeds()
 	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", "b" }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
+		var theString = "b";
 
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be("b");
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
+		Check(theString);
 	}
 
-	[Fact]
-	public void SavingWithExtendedObjectContainingInt16_Succeeds()
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-			{ "a", (short)1 }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
+	[Theory]
+	[InlineData(int.MinValue)]
+	[InlineData(-1)]
+	[InlineData(0)]
+	[InlineData(1)]
+	[InlineData(int.MaxValue)]
+	public void SavingWithExtendedObjectContainingInt32_Succeeds(long value)
+		=> Check(value);
 
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
+	[Theory]
+	[InlineData((uint)0)]
+	[InlineData((uint)1)]
+	[InlineData(uint.MaxValue)]
+	public void SavingWithExtendedObjectContainingUInt32_Succeeds(uint value)
+		=> Check(value);
 
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be((short)1);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
+	[Theory]
+	[InlineData(long.MinValue)]
+	[InlineData((long)-1)]
+	[InlineData((long)0)]
+	[InlineData((long)1)]
+	[InlineData(long.MaxValue)]
+	public void SavingWithExtendedObjectContainingInt64_Succeeds(long value)
+		=> Check(value);
 
-	[Fact]
-	public void SavingWithExtendedObjectContainingInt32_Succeeds()
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-			{ "a", 1 }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
+	[Theory]
+	[InlineData((ulong)0)]
+	[InlineData((ulong)1)]
+	[InlineData(ulong.MaxValue)]
+	public void SavingWithExtendedObjectContainingUInt64_Succeeds(ulong value)
+		=> Check(value);
 
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
+	[Theory]
+	[InlineData(short.MinValue)]
+	[InlineData((short)-1)]
+	[InlineData((short)0)]
+	[InlineData((short)1)]
+	[InlineData(short.MaxValue)]
+	public void SavingWithExtendedObjectContainingInt16_Succeeds(short value)
+		=> Check(value);
 
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(1);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
 
-	[Fact]
-	public void SavingWithExtendedObjectContainingInt64_Succeeds()
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-			{ "a", (long)1 }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be((long)1);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
-
-	[Fact]
-	public void SavingWithExtendedObjectContainingUInt16_Succeeds()
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-			{ "a", (ushort)1 }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be((ushort)1);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
-
-	[Fact]
-	public void SavingWithExtendedObjectContainingUInt32_Succeeds()
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-			{ "a", (uint)1 }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be((uint)1);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
+	[Theory]
+	[InlineData((ushort)0)]
+	[InlineData((ushort)1)]
+	[InlineData(ushort.MaxValue)]
+	public void SavingWithExtendedObjectContainingUInt16_Succeeds(ushort value)
+		=> Check(value);
 
 	[Theory]
 	[InlineData(true)]
 	[InlineData(false)]
 	public void SavingWithExtendedObjectContainingBoolean_Succeeds(bool inputBool)
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-			{ "a", inputBool }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
+		=> Check(inputBool);
 
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	[InlineData(null)]
+	public void SavingWithExtendedObjectContainingNullableBoolean_Succeeds(bool? inputBool)
+		=> Check(inputBool);
 
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(inputBool);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
-
-	[Fact]
-	public void SavingWithExtendedObjectContainingUInt64_Succeeds()
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-			{ "a", (ulong)1 }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be((ulong)1);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
-
-
-	[Fact]
-	public void SavingWithExtendedObjectContainingDouble_Succeeds()
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", 12.3 }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(12.3);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
+	[Theory]
+	[InlineData(double.MinValue)]
+	[InlineData(double.MaxValue)]
+	[InlineData(double.NegativeInfinity)]
+	[InlineData(double.PositiveInfinity)]
+	[InlineData(double.NaN)]
+	[InlineData(12.3)]
+	[InlineData(-1.0)]
+	public void SavingWithExtendedObjectContainingDouble_Succeeds(double value)
+		=> Check(value);
 
 	[Fact]
 	public void SavingWithExtendedObjectContainingDateTime_Succeeds()
-	{
-		var dateTime = new DateTime(2000, 1, 2, 3, 4, 5);
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", dateTime }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(dateTime);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
+		=> Check(new DateTime(2000, 1, 2, 3, 4, 5));
 
 	[Fact]
-	public void SavingWithExtendedObjectContainingDateTimeOffSet_Succeeds()
-	{
-		DateTimeOffset dateTimeOffset = new DateTimeOffset(2000, 1, 2, 3, 4, 5, new TimeSpan(0, 0, 0));
+	public void SavingWithExtendedObjectContainingNullableDateTime_Succeeds()
+		=> Check((DateTime?)new DateTime(2000, 1, 2, 3, 4, 5));
 
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", dateTimeOffset }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
+	[Fact]
+	public void SavingWithExtendedObjectContainingDateTimeOffset_Succeeds()
+		=> Check(new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero));
 
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet(new List<Extended<object>> { a });
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(dateTimeOffset.UtcDateTime);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
+	[Fact]
+	public void SavingWithExtendedObjectContainingNullableDateTimeOffset_Succeeds()
+		=> Check((DateTimeOffset?)new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero));
 
 	[Fact]
 	public void SavingWithExtendedModel_Succeeds()
@@ -558,6 +264,40 @@ public class SaveSheetTests : Test
 			s1.AddSheet(new List<Extended<object>> { a }, "Sheet A");
 			s1.AddSheet(new List<Extended<object>> { a }, "Sheet B");
 			s1.Save();
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	private static void Check<T>(T theValue)
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", theValue }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(theValue);
 		}
 		finally
 		{

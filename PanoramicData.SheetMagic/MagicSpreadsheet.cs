@@ -89,21 +89,37 @@ public class MagicSpreadsheet : IDisposable
 
 		return objectTypeName switch
 		{
-			// TODO - add other cases here to fix the broken SaveSheetTests
 			nameof(Int16) or
 			nameof(Int32) or
 			nameof(Int64) or
 			nameof(UInt16) or
 			nameof(UInt32) or
-			nameof(UInt64)
-			=> CreateNumericCell(header, index, Convert.ToInt64(@object)),
+			nameof(UInt64) or
+			nameof(Nullable<Int16>) or
+			nameof(Nullable<Int32>) or
+			nameof(Nullable<Int64>) or
+			nameof(Nullable<UInt16>) or
+			nameof(Nullable<UInt32>) or
+			nameof(Nullable<UInt64>)
+				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToInt64(@object)),
 			nameof(Single) or
 			nameof(Double) or
-			nameof(Decimal)
-			=> CreateNumericCell(header, index, Convert.ToDouble(@object)),
-			nameof(DateTime)
-			=> CreateDateCell(header, index, (DateTime)@object),
-			_ => CreateTextCell(header, index, @object?.ToString() ?? string.Empty),
+			nameof(Decimal) or
+			"Nullable`1<Single>" or
+			"Nullable`1<Double>" or
+			"Nullable`1<Decimal>"
+				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToDouble(@object)),
+			nameof(Boolean) or
+			"Nullable`1<Boolean>"
+				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateBooleanCell(header, index, (bool)@object),
+			nameof(DateTime) or
+			"Nullable`1<DateTime>"
+				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateDateCell(header, index, (DateTime)@object),
+			nameof(DateTimeOffset) or
+			"Nullable`1<DateTimeOffset>"
+				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateDateCell(header, index, ((DateTimeOffset)@object).UtcDateTime),
+			_
+				=> CreateTextCell(header, index, @object?.ToString() ?? string.Empty),
 		};
 	}
 
@@ -128,6 +144,13 @@ public class MagicSpreadsheet : IDisposable
 			 DataType = CellValues.InlineString,
 			 CellReference = header + index
 		 };
+
+	private static Cell CreateBooleanCell(string header, uint index, bool booleanValue) =>
+	new(new CellValue(booleanValue))
+	{
+		DataType = CellValues.Boolean,
+		CellReference = header + index
+	};
 
 	public void AddSheet<T>(List<T> items)
 		=> AddSheet(items, null);
@@ -1294,8 +1317,8 @@ public class MagicSpreadsheet : IDisposable
 									.ElementAt(int.Parse(cellValueText)).InnerText,
 			CellValues.Boolean => cellValueText switch
 			{
-				"1" => true,
-				"0" => false,
+				"1" or "true" => true,
+				"0" or "false" => false,
 				_ => null,
 			},
 			CellValues.Number => double.Parse(cellValueText),

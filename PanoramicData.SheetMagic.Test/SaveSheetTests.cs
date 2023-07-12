@@ -234,6 +234,43 @@ public class SaveSheetTests : Test
 		}
 	}
 
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	public void SavingWithExtendedObjectContainingBoolean_Succeeds(bool inputBool)
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+			{ "a", inputBool }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(inputBool);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
 	[Fact]
 	public void SavingWithExtendedObjectContainingUInt64_Succeeds()
 	{
@@ -334,6 +371,43 @@ public class SaveSheetTests : Test
 			var firstItem = b[0];
 			_ = firstItem.Properties.Keys.Should().Contain("a");
 			_ = firstItem.Properties["a"].Should().Be(dateTime);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingDateTimeOffSet_Succeeds()
+	{
+		DateTimeOffset dateTimeOffset = new DateTimeOffset(2000, 1, 2, 3, 4, 5, new TimeSpan(0, 0, 0));
+
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", dateTimeOffset }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(dateTimeOffset.UtcDateTime);
 		}
 		finally
 		{

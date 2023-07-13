@@ -108,7 +108,7 @@ public class MagicSpreadsheet : IDisposable
 			"Nullable`1<Single>" or
 			"Nullable`1<Double>" or
 			"Nullable`1<Decimal>"
-				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToDouble(@object)),
+				=> @object == null || double.IsNaN(Convert.ToDouble(@object)) ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToDouble(@object)),
 			nameof(Boolean) or
 			"Nullable`1<Boolean>"
 				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateBooleanCell(header, index, (bool)@object),
@@ -1370,21 +1370,47 @@ public class MagicSpreadsheet : IDisposable
 				: (object?)cellValueText;
 		}
 
-		return (CellValues)cell.DataType switch
+		switch ((CellValues)cell.DataType)
 		{
-			CellValues.SharedString => stringTable.SharedStringTable
-									.ElementAt(int.Parse(cellValueText)).InnerText,
-			CellValues.Boolean => cellValueText switch
-			{
-				"1" or "true" => true,
-				"0" or "false" => false,
-				_ => null,
-			},
-			CellValues.Number => double.Parse(cellValueText),
-			CellValues.Date => DateTime.Parse(cellValueText),
-			CellValues.Error or CellValues.String or CellValues.InlineString => cellValueText ?? cell.InnerText,
-			_ => throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}"),
-		};
+			case CellValues.SharedString:
+				return stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText;
+
+			case CellValues.Boolean:
+				return cellValueText switch
+				{
+					"1" or "true" => true,
+					"0" or "false" => false,
+					_ => null,
+				};
+			case CellValues.Number:
+				double result;
+
+				if (double.TryParse(cellValueText, out result))
+				{
+					return result;
+				}
+				else if (cellValueText == "Infinity")
+				{
+					result = double.PositiveInfinity;
+				}
+				else if (cellValueText == "-Infinity")
+				{
+					result = double.NegativeInfinity;
+				}
+				return result;
+
+			case CellValues.Date:
+				return DateTime.Parse(cellValueText);
+
+			case CellValues.Error:
+			case CellValues.String:
+			case CellValues.InlineString:
+				return cellValueText ?? cell.InnerText;
+
+			default:
+				throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}");
+		}
+
 	}
 
 	private object? GetCellValue<T>(Cell cell, SharedStringTablePart stringTable)

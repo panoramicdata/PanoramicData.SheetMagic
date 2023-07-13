@@ -115,11 +115,11 @@ public class SaveSheetTests : Test
 
 	[Fact]
 	public void SavingWithExtendedObjectContainingDateTimeOffset_Succeeds()
-		=> Check(new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero));
+		=> CheckDateTimeOffset(new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero), new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero).UtcDateTime);
 
 	[Fact]
 	public void SavingWithExtendedObjectContainingNullableDateTimeOffset_Succeeds()
-		=> Check((DateTimeOffset?)new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero));
+		=> CheckDateTimeOffset((DateTimeOffset?)new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero), new DateTimeOffset(2000, 1, 2, 3, 4, 5, TimeSpan.Zero).UtcDateTime);
 
 	[Fact]
 	public void SavingWithExtendedModel_Succeeds()
@@ -343,7 +343,8 @@ public class SaveSheetTests : Test
 			new object(),
 			new Dictionary<string, object?>
 			{
-				{ "a", theValue }
+				{ "a", theValue },
+				{ "b", "randomString" }
 			}
 		);
 		var fileInfo = GetXlsxTempFileInfo();
@@ -364,6 +365,42 @@ public class SaveSheetTests : Test
 			var firstItem = b[0];
 			_ = firstItem.Properties.Keys.Should().Contain("a");
 			_ = firstItem.Properties["a"].Should().Be(theValue);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	//When creating cells with DateTimeOffset we use the .UtcDateTime
+	//which creates a DateTime object so we need to compare that
+	private static void CheckDateTimeOffset(DateTimeOffset? inputDate, DateTime expectedDate)
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", inputDate }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet(new List<Extended<object>> { a });
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(expectedDate);
 		}
 		finally
 		{

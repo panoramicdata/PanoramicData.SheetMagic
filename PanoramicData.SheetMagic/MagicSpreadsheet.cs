@@ -1397,6 +1397,7 @@ public class MagicSpreadsheet : IDisposable
 				{
 					result = double.NegativeInfinity;
 				}
+
 				return result;
 
 			case CellValues.Date:

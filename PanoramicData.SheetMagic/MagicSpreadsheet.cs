@@ -209,6 +209,7 @@ public class MagicSpreadsheet : IDisposable
 
 		var type = typeof(T);
 		var isExtended = type.IsGenericType && type.GetGenericTypeDefinition().UnderlyingSystemType.FullName == "PanoramicData.SheetMagic.Extended`1";
+		var isJObject = type.FullName == "Newtonsoft.Json.Linq.JObject";
 		var typeName = isExtended ? type.GenericTypeArguments[0].Name : type.Name;
 
 		// Create a document for writing if not already loaded or created
@@ -269,10 +270,117 @@ public class MagicSpreadsheet : IDisposable
 		var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>()
 			?? throw new InvalidOperationException("No SheetData in Worksheet.");
 
+		List<PropertyInfo> propertyList;
+		Columns columnConfigurations;
+		List<string> keyList;
+		uint totalColumnCount;
+
+		if (!isJObject)
+		{
+			AddItems(
+				items,
+				addSheetOptions,
+				type,
+				isExtended,
+				sheetData,
+				out propertyList,
+				out columnConfigurations,
+				out keyList,
+				out totalColumnCount
+			);
+		}
+		else
+		{
+			AddJObjectItems(
+				items,
+				addSheetOptions,
+				sheetData,
+				out propertyList,
+				out columnConfigurations,
+				out keyList,
+				out totalColumnCount
+			);
+		}
+
+		// Adding table style?
+		if (addSheetOptions?.TableOptions == null)
+		{
+			return;
+		}
+		// Yes - apply style
+
+		var tableColumns = new TableColumns { Count = totalColumnCount };
+		var columnIndex = 0;
+		var combinedList = propertyList
+			.Select(p => p.GetPropertyDescription() ?? p.Name)
+			.Concat(keyList)
+			.ToList();
+		foreach (var columnConfiguration in columnConfigurations)
+		{
+			tableColumns.Append(new TableColumn
+			{
+				Name = combinedList[columnIndex],
+				Id = (uint)++columnIndex,
+			});
+		}
+
+		// Create the table
+		var reference = $"A1:{ColumnLetter(columnConfigurations.Count() - 1)}{items.Count + 1}";
+		var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
+		tableDefinitionPart.Table = new Table
+		{
+			Id = (uint)_document.WorkbookPart.Workbook.Sheets.Count(),
+			Name = addSheetOptions.TableOptions.Name,
+			DisplayName = addSheetOptions.TableOptions.DisplayName,
+			Reference = reference,
+			TotalsRowShown = addSheetOptions.TableOptions.ShowTotalsRow,
+			AutoFilter = new AutoFilter { Reference = reference },
+			TableColumns = tableColumns,
+			TableStyleInfo = new TableStyleInfo
+			{
+				Name = addSheetOptions.TableOptions.CustomTableStyle ?? addSheetOptions.TableOptions.XlsxTableStyle.ToString(),
+				ShowFirstColumn = addSheetOptions.TableOptions.ShowFirstColumn,
+				ShowLastColumn = addSheetOptions.TableOptions.ShowLastColumn,
+				ShowRowStripes = addSheetOptions.TableOptions.ShowRowStripes,
+				ShowColumnStripes = addSheetOptions.TableOptions.ShowColumnStripes
+			},
+		};
+		tableDefinitionPart.Table.Save();
+
+		// Add the TableParts to the worksheet
+		var tableParts = new TableParts
+		{
+			Count = 1U
+		};
+		tableParts.Append(new TablePart { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
+		worksheetPart.Worksheet.Append(tableParts);
+	}
+
+	private void AddJObjectItems<T>(
+		List<T> items,
+		AddSheetOptions addSheetOptions,
+		SheetData sheetData,
+		out List<PropertyInfo> propertyList,
+		out Columns columnConfigurations,
+		out List<string> keyList,
+		out uint totalColumnCount)
+		=> throw new NotImplementedException("JObjects not yet supported.  Use Extended<JObject> instead.");
+
+	private void AddItems<T>(
+		List<T> items,
+		AddSheetOptions addSheetOptions,
+		Type type,
+		bool isExtended,
+		SheetData sheetData,
+		out List<PropertyInfo> propertyList,
+		out Columns columnConfigurations,
+		out List<string> keyList,
+		out uint totalColumnCount)
+	{
 		// Determine property list
-		var propertyList = new List<PropertyInfo>();
+		propertyList = new List<PropertyInfo>();
 		var keyHashSet = new HashSet<string>();
-		var columnConfigurations = new Columns();
+		columnConfigurations = new Columns();
 		Type basicType;
 		if (isExtended)
 		{
@@ -323,12 +431,12 @@ public class MagicSpreadsheet : IDisposable
 		}
 
 		// By default, apply a sort
-		var keyList = addSheetOptions.SortExtendedProperties
+		keyList = addSheetOptions.SortExtendedProperties
 			? keyHashSet.OrderBy(k => k).ToList()
 			: keyHashSet.ToList();
 
 		// Add the columns
-		var totalColumnCount = (uint)(propertyList.Count + keyList.Count);
+		totalColumnCount = (uint)(propertyList.Count + keyList.Count);
 		for (var n = 0; n < totalColumnCount; n++)
 		{
 			_ = columnConfigurations.AppendChild(new Column
@@ -422,59 +530,6 @@ public class MagicSpreadsheet : IDisposable
 				}
 			}
 		}
-
-		// Adding table style?
-		if (addSheetOptions?.TableOptions == null)
-		{
-			return;
-		}
-		// Yes - apply style
-
-		var tableColumns = new TableColumns { Count = totalColumnCount };
-		var columnIndex = 0;
-		var combinedList = propertyList
-			.Select(p => p.GetPropertyDescription() ?? p.Name)
-			.Concat(keyList)
-			.ToList();
-		foreach (var columnConfiguration in columnConfigurations)
-		{
-			tableColumns.Append(new TableColumn
-			{
-				Name = combinedList[columnIndex],
-				Id = (uint)++columnIndex,
-			});
-		}
-
-		// Create the table
-		var reference = $"A1:{ColumnLetter(columnConfigurations.Count() - 1)}{items.Count + 1}";
-		var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
-		tableDefinitionPart.Table = new Table
-		{
-			Id = (uint)_document.WorkbookPart.Workbook.Sheets.Count(),
-			Name = addSheetOptions.TableOptions.Name,
-			DisplayName = addSheetOptions.TableOptions.DisplayName,
-			Reference = reference,
-			TotalsRowShown = addSheetOptions.TableOptions.ShowTotalsRow,
-			AutoFilter = new AutoFilter { Reference = reference },
-			TableColumns = tableColumns,
-			TableStyleInfo = new TableStyleInfo
-			{
-				Name = addSheetOptions.TableOptions.CustomTableStyle ?? addSheetOptions.TableOptions.XlsxTableStyle.ToString(),
-				ShowFirstColumn = addSheetOptions.TableOptions.ShowFirstColumn,
-				ShowLastColumn = addSheetOptions.TableOptions.ShowLastColumn,
-				ShowRowStripes = addSheetOptions.TableOptions.ShowRowStripes,
-				ShowColumnStripes = addSheetOptions.TableOptions.ShowColumnStripes
-			},
-		};
-		tableDefinitionPart.Table.Save();
-
-		// Add the TableParts to the worksheet
-		var tableParts = new TableParts
-		{
-			Count = 1U
-		};
-		tableParts.Append(new TablePart { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
-		worksheetPart.Worksheet.Append(tableParts);
 	}
 
 	private static Cell? GetCell<T>(

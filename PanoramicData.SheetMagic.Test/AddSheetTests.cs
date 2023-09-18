@@ -28,7 +28,7 @@ public class AddSheetTests : Test
 	}
 
 	[Fact]
-	public void AddSheet_JObjects_Succeeds()
+	public void AddSheet_JObjects_WithExtendedObject_Succeeds()
 	{
 		var fileInfo = GetXlsxTempFileInfo();
 
@@ -52,6 +52,34 @@ public class AddSheetTests : Test
 			s.AddSheet(
 				extendedList
 			);
+
+			s.Save();
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	[Fact]
+	public void AddSheet_JObjects_Succeeds()
+	{
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			using var s = new MagicSpreadsheet(fileInfo);
+			var jObjectList = new List<JObject>
+				{
+					JObject.FromObject(new SimpleAnimal { Id = 1, Name = "alligator" }),
+					JObject.FromObject(new SimpleAnimal { Id = 2, Name = "bee" })
+				};
+
+			s.AddSheet(
+				jObjectList
+			);
+
+			s.Save();
 		}
 		finally
 		{

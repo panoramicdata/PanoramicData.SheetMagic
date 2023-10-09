@@ -1,5 +1,6 @@
 ﻿using PanoramicData.SheetMagic.Exceptions;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace PanoramicData.SheetMagic;
 

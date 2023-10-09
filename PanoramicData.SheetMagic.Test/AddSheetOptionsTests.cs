@@ -273,4 +273,22 @@ public class AddSheetOptionsTests : Test
 			fileInfo.Delete();
 		}
 	}
+
+	[Fact]
+	public void Correct_Invalid_Table_Name()
+	{
+		var options = new AddSheetOptions
+		{
+			TableOptions = new TableOptions
+			{
+				Name = "FunkyAnimals & Things",
+				DisplayName = "FunkyAnimals & Things",
+			}
+		};
+
+		options.TableOptions.Name.Should().NotContain(" ");
+		options.TableOptions.Name.Should().NotContain("&");
+		options.TableOptions.DisplayName.Should().NotContain(" ");
+		options.TableOptions.DisplayName.Should().NotContain("&");
+	}
 }

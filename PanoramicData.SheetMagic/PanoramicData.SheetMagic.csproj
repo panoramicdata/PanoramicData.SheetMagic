@@ -16,7 +16,7 @@
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReleaseNotes>
-			Numeric types now correctly output as numbers rather than strings.
+			Non-supported table name characters are now converted to underscores
 		</PackageReleaseNotes>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>

@@ -1,14 +1,34 @@
 ﻿using PanoramicData.SheetMagic.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PanoramicData.SheetMagic;
 
 public class TableOptions
 {
-	public string Name { get; set; } = "Table";
+	private string _displayName = "Table";
+	private string _name = "Table";
 
-	public string DisplayName { get; set; } = "Table";
+	public string Name
+	{
+		get => _name;
+
+		set
+		{
+			_name = Regex.Replace(value, "[^0-9a-zA-Z]+", "_").Replace(" ", string.Empty);
+		}
+	}
+
+	public string DisplayName
+	{
+		get => _displayName;
+
+		set
+		{
+			_displayName = Regex.Replace(value, "[^0-9a-zA-Z]+", "_").Replace(" ", string.Empty);
+		}
+	}
 
 	public XlsxTableStyle XlsxTableStyle { get; set; } = XlsxTableStyle.TableStyleMedium9;
 

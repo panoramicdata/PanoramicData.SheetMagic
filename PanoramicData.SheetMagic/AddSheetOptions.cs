@@ -1,6 +1,5 @@
 ﻿using PanoramicData.SheetMagic.Exceptions;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace PanoramicData.SheetMagic;
 
@@ -15,6 +14,11 @@ public class AddSheetOptions
 	/// The properties to exclude
 	/// </summary>
 	public HashSet<string>? ExcludeProperties { get; set; }
+
+	/// <summary>
+	/// The order properties should be output.
+	/// </summary>
+	public string[]? PropertyOrder { get; set; }
 
 	/// <summary>
 	/// Whether to sort the combined list of properties, and any additional extended properties. Defaults to true.

@@ -430,6 +430,29 @@ public class MagicSpreadsheet : IDisposable
 			propertyList = propertyList.Where(p => !addSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 		}
 
+		// order the properties?
+		if (addSheetOptions.PropertyOrder?.Any() ?? false)
+		{
+			// attempt to put included properties in requested order
+			var orderedPropertyList = new List<PropertyInfo>();
+			foreach (var prop in addSheetOptions.PropertyOrder)
+			{
+				var p = propertyList.FirstOrDefault(x => x.Name.Equals(prop, StringComparison.InvariantCultureIgnoreCase));
+				if (p != null)
+				{
+					orderedPropertyList.Add(p);
+					propertyList.Remove(p);
+				}
+			}
+			// place any other properties in default order at end
+			if (propertyList.Count > 0)
+			{
+				orderedPropertyList.AddRange(propertyList);
+			}
+			// use this order
+			propertyList = orderedPropertyList;
+		}
+
 		// By default, apply a sort
 		keyList = addSheetOptions.SortExtendedProperties
 			? keyHashSet.OrderBy(k => k).ToList()

@@ -430,26 +430,22 @@ public class MagicSpreadsheet : IDisposable
 			propertyList = propertyList.Where(p => !addSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
 		}
 
-		// order the properties?
+		// Order the properties?
 		if (addSheetOptions.PropertyOrder?.Any() ?? false)
 		{
-			// attempt to put included properties in requested order
+			// Attempt to put included properties in requested order
 			var orderedPropertyList = new List<PropertyInfo>();
 			foreach (var prop in addSheetOptions.PropertyOrder)
 			{
-				var p = propertyList.FirstOrDefault(x => x.Name.Equals(prop, StringComparison.InvariantCultureIgnoreCase));
+				// Support nested properties in form: x.y or x.y.z etc
+				var p = GetPropertyInfo(prop, propertyList);
 				if (p != null)
 				{
 					orderedPropertyList.Add(p);
-					propertyList.Remove(p);
 				}
 			}
-			// place any other properties in default order at end
-			if (propertyList.Count > 0)
-			{
-				orderedPropertyList.AddRange(propertyList);
-			}
-			// use this order
+
+			// Use this order
 			propertyList = orderedPropertyList;
 		}
 
@@ -499,34 +495,54 @@ public class MagicSpreadsheet : IDisposable
 			row = new Row { RowIndex = ++rowIndex };
 			_ = sheetData.AppendChild(row);
 
-			// Add cells for the properties
-			foreach (var property in propertyList)
+			// Specific ordering?
+			if (addSheetOptions?.PropertyOrder?.Any() ?? false)
 			{
-				Cell? cell = null;
-				if (isExtended)
+				foreach (var prop in addSheetOptions!.PropertyOrder!)
 				{
-					var baseItem = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item)).GetValue(item);
-					cell = GetCell(
-						enumerableCellOptions,
-						property.GetValue(baseItem),
-						cellIndex,
-						rowIndex);
+					var cell = GetCell(
+							enumerableCellOptions,
+							GetPropertyValue(prop, item),
+							cellIndex,
+							rowIndex);
+					if (cell is not null)
+					{
+						_ = row.AppendChild(cell);
+					}
+					cellIndex++;
 				}
-				else
+			}
+			else
+			{
+				// Add cells for the properties
+				foreach (var property in propertyList)
 				{
-					cell = GetCell(
-						enumerableCellOptions,
-						property.GetValue(item),
-						cellIndex,
-						rowIndex);
-				}
+					Cell? cell = null;
+					if (isExtended)
+					{
+						var baseItem = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Item)).GetValue(item);
+						cell = GetCell(
+							enumerableCellOptions,
+							property.GetValue(baseItem),
+							cellIndex,
+							rowIndex);
+					}
+					else
+					{
+						cell = GetCell(
+							enumerableCellOptions,
+							property.GetValue(item),
+							cellIndex,
+							rowIndex);
+					}
 
-				if (cell is not null)
-				{
-					_ = row.AppendChild(cell);
-				}
+					if (cell is not null)
+					{
+						_ = row.AppendChild(cell);
+					}
 
-				cellIndex++;
+					cellIndex++;
+				}
 			}
 
 			// If not extended, this list will be empty
@@ -552,6 +568,74 @@ public class MagicSpreadsheet : IDisposable
 					cellIndex++;
 				}
 			}
+		}
+	}
+
+	private PropertyInfo GetPropertyInfo(string path, IEnumerable<PropertyInfo> props)
+	{
+		if (string.IsNullOrWhiteSpace(path))
+		{
+			throw new ArgumentException("Property path must be specified", nameof(path));
+		}
+
+		// Nested path?
+		if (path.Contains('.'))
+		{
+			var parentPropertyName = path.Substring(0, path.IndexOf("."));
+			var parentProp = props.FirstOrDefault(x => x.Name.Equals(parentPropertyName, StringComparison.InvariantCultureIgnoreCase))
+				?? throw new PropertyNotFoundException(parentPropertyName);
+
+			try
+			{
+				// Recurse path
+				var parentTypeProps = parentProp.PropertyType.GetProperties();
+				return GetPropertyInfo(path.Substring(parentPropertyName.Length + 1), parentTypeProps);
+			}
+			catch (PropertyNotFoundException)
+			{
+				throw new PropertyNotFoundException(path);
+			}
+		}
+		else
+		{
+			var p = props.FirstOrDefault(x => x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+			return p is null
+				? throw new PropertyNotFoundException(path)
+				: p;
+		}
+	}
+
+	private object? GetPropertyValue(string path, object? item)
+	{
+		if (item is null)
+		{
+			return null;
+		}
+
+		var props = item.GetType().GetProperties();
+
+		// Nested path?
+		if (path.Contains('.'))
+		{
+			var parentPropertyName = path.Substring(0, path.IndexOf("."));
+			var parentProp = props.FirstOrDefault(x => x.Name.Equals(parentPropertyName, StringComparison.InvariantCultureIgnoreCase))
+				?? throw new PropertyNotFoundException(parentPropertyName);
+
+			try
+			{
+				// Recurse path
+				var parentItem = parentProp.GetValue(item);
+				return GetPropertyValue(path.Substring(parentPropertyName.Length + 1), parentItem);
+			}
+			catch (PropertyNotFoundException)
+			{
+				throw new PropertyNotFoundException(path);
+			}
+		}
+		else
+		{
+			var prop = props.FirstOrDefault(x => x.Name.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+			return prop?.GetValue(item);
 		}
 	}
 

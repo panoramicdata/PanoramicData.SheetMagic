@@ -470,7 +470,12 @@ public class MagicSpreadsheet : IDisposable
 		_ = sheetData.AppendChild(row);
 		var cellIndex = 0;
 
-		foreach (var header in propertyList.Select(p => p.GetPropertyDescription() ?? p.Name))
+		// use supplied headers, Description attribute or simply property name
+		var headers = addSheetOptions.PropertyHeaders?.Length == propertyList.Count
+						? addSheetOptions.PropertyHeaders
+						: propertyList.Select(p => p.GetPropertyDescription() ?? p.Name).ToArray();
+
+		foreach (var header in headers)
 		{
 			_ = row.AppendChild(CreateCell(
 				ColumnLetter(cellIndex++),

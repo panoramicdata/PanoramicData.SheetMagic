@@ -21,6 +21,11 @@ public class AddSheetOptions
 	public string[]? PropertyOrder { get; set; }
 
 	/// <summary>
+	/// Explicit header text for properties.
+	/// </summary>
+	public string[]? PropertyHeaders { get; set; }
+
+	/// <summary>
 	/// Whether to sort the combined list of properties, and any additional extended properties. Defaults to true.
 	/// </summary>
 	public bool SortExtendedProperties { get; set; } = true;
@@ -72,6 +77,8 @@ public class AddSheetOptions
 			IncludeProperties = IncludeProperties == null
 				? null
 				: new HashSet<string>(IncludeProperties),
+			PropertyOrder = PropertyOrder,
+			PropertyHeaders = PropertyHeaders,
 			SortExtendedProperties = SortExtendedProperties,
 			TableOptions = TableOptions == null
 				? null

@@ -25,7 +25,7 @@ public class MagicSpreadsheet : IDisposable
 	private readonly FileInfo? _fileInfo;
 	private readonly Stream? _stream;
 	private readonly Options _options;
-	private readonly HashSet<string> _uniqueTableDisplayNames = new();
+	private readonly HashSet<string> _uniqueTableDisplayNames = [];
 
 	public MagicSpreadsheet(FileInfo fileInfo, Options options)
 	{
@@ -378,7 +378,7 @@ public class MagicSpreadsheet : IDisposable
 		out uint totalColumnCount)
 	{
 		// Determine property list
-		propertyList = new List<PropertyInfo>();
+		propertyList = [];
 		var keyHashSet = new HashSet<string>();
 		columnConfigurations = new Columns();
 		Type basicType;
@@ -451,8 +451,8 @@ public class MagicSpreadsheet : IDisposable
 
 		// By default, apply a sort
 		keyList = addSheetOptions.SortExtendedProperties
-			? keyHashSet.OrderBy(k => k).ToList()
-			: keyHashSet.ToList();
+			? [.. keyHashSet.OrderBy(k => k)]
+			: [.. keyHashSet];
 
 		// Add the columns
 		totalColumnCount = (uint)(propertyList.Count + keyList.Count);
@@ -514,6 +514,7 @@ public class MagicSpreadsheet : IDisposable
 					{
 						_ = row.AppendChild(cell);
 					}
+
 					cellIndex++;
 				}
 			}
@@ -1713,7 +1714,7 @@ public class MagicSpreadsheet : IDisposable
 		var cellValues = new List<object?> { cellValue };
 		_ = typeof(T).InvokeMember(propertyName,
 			 BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
-			 Type.DefaultBinder, item, cellValues.ToArray());
+			 Type.DefaultBinder, item, [.. cellValues]);
 	}
 
 	private void SetItemProperty<T>(T item, object? cellValue, string propertyName)
@@ -1721,7 +1722,7 @@ public class MagicSpreadsheet : IDisposable
 		var cellValues = new List<object?> { cellValue };
 		_ = typeof(T).InvokeMember(propertyName,
 			 BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
-			 Type.DefaultBinder, item, cellValues.ToArray());
+			 Type.DefaultBinder, item, [.. cellValues]);
 	}
 
 	private void GenerateWorkbookStylesPart1Content(WorkbookStylesPart workbookStylesPart1)

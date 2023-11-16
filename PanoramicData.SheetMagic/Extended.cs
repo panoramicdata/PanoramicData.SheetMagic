@@ -13,7 +13,7 @@ public class Extended<T> where T : class
 	public Extended(T? item)
 	{
 		Item = item;
-		Properties = new Dictionary<string, object?>();
+		Properties = [];
 	}
 
 	public T? Item { get; }

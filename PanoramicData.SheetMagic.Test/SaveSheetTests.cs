@@ -175,7 +175,7 @@ public class SaveSheetTests : Test
 			new CarDealershipWithCars
 			{
 				Name = "Slough",
-				Cars = new List<Car?>(),
+				Cars = [],
 				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
 				UkRanking = 1,
 				EmployeeCount = 10,
@@ -183,15 +183,15 @@ public class SaveSheetTests : Test
 			new CarDealershipWithCars
 			{
 				Name = "Maidenhead",
-				Cars = new List<Car?>
-				{
+				Cars =
+				[
 					new Car
 					{
 						Name = "Ford Prefect",
 						WeightKg = 1200
 					},
 					null,
-				},
+				],
 				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
 				ClosureDate = new DateTime(2002, 1, 2, 3, 4, 5),
 				UkRanking = 2,
@@ -200,8 +200,8 @@ public class SaveSheetTests : Test
 			new CarDealershipWithCars
 			{
 				Name = "Reading",
-				Cars = new List<Car?>
-				{
+				Cars =
+				[
 					new Car
 					{
 						Name = "Ford Prefect",
@@ -212,7 +212,7 @@ public class SaveSheetTests : Test
 						Name = "Ford Focus",
 						WeightKg = 1500
 					},
-				},
+				],
 				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
 				UkRanking = 3,
 				EmployeeCount = 20,

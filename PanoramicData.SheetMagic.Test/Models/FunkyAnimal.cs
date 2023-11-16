@@ -19,5 +19,5 @@ internal class FunkyAnimal
 
 	public List<string>? Nicknames { get; set; }
 
-	public List<FunkyAnimal> Friends { get; set; } = new();
+	public List<FunkyAnimal> Friends { get; set; } = [];
 }

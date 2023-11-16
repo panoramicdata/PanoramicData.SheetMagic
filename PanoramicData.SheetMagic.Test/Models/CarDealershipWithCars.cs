@@ -4,5 +4,5 @@ namespace PanoramicData.SheetMagic.Test.Models;
 
 public class CarDealershipWithCars : CarDealership
 {
-	public List<Car?> Cars { get; init; } = new();
+	public List<Car?> Cars { get; init; } = [];
 }

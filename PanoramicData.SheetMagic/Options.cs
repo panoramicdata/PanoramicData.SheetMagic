@@ -34,7 +34,7 @@ public class Options : IValidate
 	/// <summary>
 	/// Custom table styles
 	/// </summary>
-	public List<CustomTableStyle> TableStyles { get; set; } = new List<CustomTableStyle>();
+	public List<CustomTableStyle> TableStyles { get; set; } = [];
 
 	/// <summary>
 	/// EnumerableCellOptions

@@ -235,13 +235,13 @@ public class AddSheetTests : Test
 					Name = "Old Woman",
 					WeightKg = 60,
 					Leg_Count = 2,
-					Nicknames = new() {"Woo", "Yay"},
-					Friends = new() {
+					Nicknames = ["Woo", "Yay"],
+					Friends = [
 						new() { Id = 10, Name="Houpla" },
 						new() { Id = 11, Name = "Bedoink" }
-					}
+					]
 				},
-				new FunkyAnimal{ Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4, Nicknames = new() {"Bert", "Ernie" }},
+				new FunkyAnimal{ Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4, Nicknames = ["Bert", "Ernie"]},
 				new FunkyAnimal{ Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
 				new FunkyAnimal{ Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
 				new FunkyAnimal{ Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
@@ -293,11 +293,11 @@ public class AddSheetTests : Test
 					Name = "Old Woman",
 					WeightKg = 60,
 					Leg_Count = 2,
-					Nicknames = new() {"Woo", "Yay"},
-					Friends = new() {
+					Nicknames = ["Woo", "Yay"],
+					Friends = [
 						new() { Id = 10, Name="Houpla" },
 						new() { Id = 11, Name = "Bedoink" }
-					},
+					],
 				}, new Dictionary<string, object?> { { "Extended", "Extended" } }),
 				new (
 					new FunkyAnimal
@@ -306,10 +306,9 @@ public class AddSheetTests : Test
 						Name = "Horse",
 						WeightKg = 200,
 						Leg_Count = 4,
-						Nicknames = new() {"Bert", "Ernie" }
+						Nicknames = ["Bert", "Ernie"]
 					},
-					new Dictionary<string, object?>{
-					}),
+					[]),
 				new (new FunkyAnimal{ Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4}, emptyDictionary),
 				new (new FunkyAnimal{ Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4}, emptyDictionary),
 				new (new FunkyAnimal{ Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4}, emptyDictionary),

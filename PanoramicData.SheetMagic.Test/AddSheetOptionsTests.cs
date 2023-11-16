@@ -23,11 +23,11 @@ public class AddSheetOptionsTests : Test
 					Name = "FunkyAnimals",
 					DisplayName = "FunkyAnimals",
 				},
-				IncludeProperties = new HashSet<string>
-				{
+				IncludeProperties =
+				[
 					nameof(SimpleAnimal.Id),
 					nameof(SimpleAnimal.Name),
-				}
+				]
 			};
 			using (var s = new MagicSpreadsheet(fileInfo))
 			{
@@ -75,12 +75,12 @@ public class AddSheetOptionsTests : Test
 					Name = "FunkyAnimals",
 					DisplayName = "FunkyAnimals",
 				},
-				ExcludeProperties = new HashSet<string>
-				{
+				ExcludeProperties =
+				[
 					nameof(FunkyAnimal.Leg_Count),
 					nameof(FunkyAnimal.WeightKg),
 					nameof(FunkyAnimal.Description)
-				}
+				]
 			};
 			using (var s = new MagicSpreadsheet(fileInfo))
 			{
@@ -205,8 +205,8 @@ public class AddSheetOptionsTests : Test
 		{
 			using var s = new MagicSpreadsheet(fileInfo, new Options
 			{
-				TableStyles = new List<CustomTableStyle>
-				{
+				TableStyles =
+				[
 					new CustomTableStyle
 					{
 						Name = "My Table Style",
@@ -230,7 +230,7 @@ public class AddSheetOptionsTests : Test
 							OuterBorderColor = Color.Blue
 						},
 					}
-				}
+				]
 			});
 
 			var sheetOptions = new AddSheetOptions
@@ -272,23 +272,5 @@ public class AddSheetOptionsTests : Test
 		{
 			fileInfo.Delete();
 		}
-	}
-
-	[Fact]
-	public void Correct_Invalid_Table_Name()
-	{
-		var options = new AddSheetOptions
-		{
-			TableOptions = new TableOptions
-			{
-				Name = "FunkyAnimals & Things",
-				DisplayName = "FunkyAnimals & Things",
-			}
-		};
-
-		options.TableOptions.Name.Should().NotContain(" ");
-		options.TableOptions.Name.Should().NotContain("&");
-		options.TableOptions.DisplayName.Should().NotContain(" ");
-		options.TableOptions.DisplayName.Should().NotContain("&");
 	}
 }

@@ -62,8 +62,8 @@ public class MagicSpreadsheet : IDisposable
 			.ToList();
 
 	public void Load() => _document = _fileInfo is not null
-		? SpreadsheetDocument.Open(_fileInfo.FullName, false)
-		: SpreadsheetDocument.Open(_stream!, false);
+		? SpreadsheetDocument.Open(_fileInfo.FullName, _options.IsLoadedFileEditable)
+		: SpreadsheetDocument.Open(_stream!, _options.IsLoadedFileEditable);
 
 	private static string ColumnLetter(int intCol)
 	{

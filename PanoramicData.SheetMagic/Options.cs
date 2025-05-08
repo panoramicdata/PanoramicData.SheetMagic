@@ -41,6 +41,11 @@ public class Options : IValidate
 	/// </summary>
 	public EnumerableCellOptions EnumerableCellOptions { get; set; } = new EnumerableCellOptions();
 
+	/// <summary>
+	/// Whether a loaded file can be edited
+	/// </summary>
+	public bool IsLoadedFileEditable { get; set; } = false;
+
 	public string ListSeparator { get; set; } = ", ";
 
 	public void Validate()

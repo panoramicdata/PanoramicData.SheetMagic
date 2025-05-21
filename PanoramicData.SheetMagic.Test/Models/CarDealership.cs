@@ -1,19 +1,18 @@
 ﻿using System;
 
-namespace PanoramicData.SheetMagic.Test.Models
+namespace PanoramicData.SheetMagic.Test.Models;
+
+public class CarDealership
 {
-	public class CarDealership
-	{
-		public string Name { get; init; } = "Unnamed";
+	public string Name { get; init; } = "Unnamed";
 
-		public DateTime Founded { get; init; }
+	public DateTime Founded { get; init; }
 
-		public bool IsPrivatelyOwned { get; init; }
+	public bool IsPrivatelyOwned { get; init; }
 
-		public int UkRanking { get; init; }
+	public int UkRanking { get; init; }
 
-		public int? EmployeeCount { get; init; }
+	public int? EmployeeCount { get; init; }
 
-		public DateTimeOffset? ClosureDate { get; init; }
-	}
+	public DateTimeOffset? ClosureDate { get; init; }
 }

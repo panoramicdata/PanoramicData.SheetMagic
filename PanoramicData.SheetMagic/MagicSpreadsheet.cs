@@ -52,18 +52,17 @@ public class MagicSpreadsheet : IDisposable
 	private SpreadsheetDocument? _document;
 
 	public List<string> SheetNames
-		=> ((((_document ?? throw new InvalidOperationException("No document loaded."))
+		=> [.. ((((_document ?? throw new InvalidOperationException("No document loaded."))
 			.WorkbookPart ?? throw new InvalidOperationException("WorkbookPart not created"))
 			.Workbook ?? throw new InvalidOperationException("Workbook not created"))
 			.Sheets ?? throw new InvalidOperationException("Sheets not created"))
 			.ChildElements
 			.Cast<Sheet>()
-			.Select(s => s.Name?.Value ?? string.Empty)
-			.ToList();
+			.Select(s => s.Name?.Value ?? string.Empty)];
 
 	public void Load() => _document = _fileInfo is not null
-		? SpreadsheetDocument.Open(_fileInfo.FullName, _options.IsLoadedFileEditable)
-		: SpreadsheetDocument.Open(_stream!, _options.IsLoadedFileEditable);
+		? SpreadsheetDocument.Open(_fileInfo.FullName, false)
+		: SpreadsheetDocument.Open(_stream!, false);
 
 	private static string ColumnLetter(int intCol)
 	{
@@ -400,11 +399,11 @@ public class MagicSpreadsheet : IDisposable
 				// Include/exclude as appropriate
 				if (addSheetOptions.IncludeProperties?.Any() ?? false)
 				{
-					keys = keys.Where(key => addSheetOptions.IncludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
+					keys = [.. keys.Where(key => addSheetOptions.IncludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase))];
 				}
 				else if (addSheetOptions.ExcludeProperties?.Any() ?? false)
 				{
-					keys = keys.Where(key => !addSheetOptions.ExcludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase)).ToList();
+					keys = [.. keys.Where(key => !addSheetOptions.ExcludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase))];
 				}
 
 				foreach (var key in keys)
@@ -423,11 +422,11 @@ public class MagicSpreadsheet : IDisposable
 		// Filter the propertyList according to the AddSheetOptions
 		if (addSheetOptions.IncludeProperties?.Any() ?? false)
 		{
-			propertyList = propertyList.Where(p => addSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
+			propertyList = [.. propertyList.Where(p => addSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase))];
 		}
 		else if (addSheetOptions.ExcludeProperties?.Any() ?? false)
 		{
-			propertyList = propertyList.Where(p => !addSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase)).ToList();
+			propertyList = [.. propertyList.Where(p => !addSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase))];
 		}
 
 		// Order the properties?
@@ -473,7 +472,7 @@ public class MagicSpreadsheet : IDisposable
 		// use supplied headers, Description attribute or simply property name
 		var headers = addSheetOptions.PropertyHeaders?.Length == propertyList.Count
 						? addSheetOptions.PropertyHeaders
-						: propertyList.Select(p => p.GetPropertyDescription() ?? p.Name).ToArray();
+						: [.. propertyList.Select(p => p.GetPropertyDescription() ?? p.Name)];
 
 		foreach (var header in headers)
 		{
@@ -830,7 +829,7 @@ public class MagicSpreadsheet : IDisposable
 		if (tableDefinitionParts.Count == 0)
 		{
 			// No - just use all rows and all columns
-			rows = sheetDataRows.ToList();
+			rows = [.. sheetDataRows];
 			columns = rows.FirstOrDefault()?.Descendants<Cell>().Select(c => GetCellValueString(c, stringTable)).ToList();
 		}
 		else
@@ -851,10 +850,9 @@ public class MagicSpreadsheet : IDisposable
 			var lastColumnIndex = toReferenceValue.columnIndex;
 			tableColumnOffset = firstColumnIndex;
 
-			rows = sheetDataRows
+			rows = [.. sheetDataRows
 				 .SkipWhile(r => int.Parse(r.RowIndex) < firstRowIndex + 1)
-				 .TakeWhile(r => int.Parse(r.RowIndex) <= lastRowIndex + 1)
-				 .ToList();
+				 .TakeWhile(r => int.Parse(r.RowIndex) <= lastRowIndex + 1)];
 			columns = rows
 				 .FirstOrDefault()
 				 ?.Descendants<Cell>()
@@ -1075,7 +1073,7 @@ public class MagicSpreadsheet : IDisposable
 							}
 							else
 							{
-								var stringList = text.Split(new[] { _options.ListSeparator }, StringSplitOptions.RemoveEmptyEntries).ToList();
+								var stringList = text.Split([_options.ListSeparator], StringSplitOptions.RemoveEmptyEntries).ToList();
 								SetItemProperty(item, stringList, propertyName);
 							}
 

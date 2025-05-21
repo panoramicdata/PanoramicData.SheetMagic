@@ -139,7 +139,7 @@ public class AddSheetOptionsTests : Test
 
 			s.AddSheet(new List<Extended<object>>
 				 {
-					  new Extended<object>(new object(), animals)
+					  new(new object(), animals)
 				 }, "Animals", sheetOptions);
 			s.Save();
 
@@ -178,7 +178,7 @@ public class AddSheetOptionsTests : Test
 
 			s.AddSheet(new List<Extended<object>>
 				 {
-					  new Extended<object>(new object(), animals)
+					  new(new object(), animals)
 				 }, "Animals", sheetOptions);
 			s.Save();
 
@@ -261,10 +261,10 @@ public class AddSheetOptionsTests : Test
 
 			s.AddSheet(new List<Extended<object>>
 				 {
-					  new Extended<object>(new object(), scruffy),
-					  new Extended<object>(new object(), wuffy),
-					  new Extended<object>(new object(), puffy),
-					  new Extended<object>(new object(), gruffy)
+					  new(new object(), scruffy),
+					  new(new object(), wuffy),
+					  new(new object(), puffy),
+					  new(new object(), gruffy)
 				 }, "Animals", sheetOptions);
 			s.Save();
 		}

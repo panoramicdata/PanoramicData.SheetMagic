@@ -14,7 +14,7 @@ public class AddSheetTests : Test
 	public void AddSheet_SheetNameTooLong_Fails(string badSheetName)
 	{
 		var fileInfo = GetXlsxTempFileInfo();
-		var items = new List<SimpleAnimal> { new SimpleAnimal { Id = 1, Name = "Alligator" } };
+		var items = new List<SimpleAnimal> { new() { Id = 1, Name = "Alligator" } };
 
 		try
 		{
@@ -95,7 +95,7 @@ public class AddSheetTests : Test
 		try
 		{
 			using var s = new MagicSpreadsheet(fileInfo);
-			var items = new List<SimpleAnimal> { new SimpleAnimal { Id = 1, Name = "Alligator" } };
+			var items = new List<SimpleAnimal> { new() { Id = 1, Name = "Alligator" } };
 			s.AddSheet(items, "Sheet1");
 			_ = Assert.Throws<ArgumentException>(() => s.AddSheet(items, "Sheet1"));
 		}
@@ -121,7 +121,7 @@ public class AddSheetTests : Test
 
 			s.AddSheet(new List<Extended<object>>
 				 {
-					  new Extended<object>(new object(), new Dictionary<string, object?> {
+					  new(new object(), new Dictionary<string, object?> {
 						  { "Id", 10 },
 						  { "My Name", "Ryan" }
 					  })
@@ -153,14 +153,14 @@ public class AddSheetTests : Test
 
 			s.AddSheet(new List<FunkyAnimal>
 				 {
-					new FunkyAnimal{ Id = 0, Name = "Old Woman", WeightKg = 60, Leg_Count = 2},
-					new FunkyAnimal{ Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4},
-					new FunkyAnimal{ Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
-					new FunkyAnimal{ Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
-					new FunkyAnimal{ Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
-					new FunkyAnimal{ Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
-					new FunkyAnimal{ Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
-					new FunkyAnimal{ Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
+					new() { Id = 0, Name = "Old Woman", WeightKg = 60, Leg_Count = 2},
+					new() { Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4},
+					new() { Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
+					new() { Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
+					new() { Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
+					new() { Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
+					new() { Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
+					new() { Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
 				 }, "Animals", sheetOptions);
 			s.Save();
 		}
@@ -181,14 +181,14 @@ public class AddSheetTests : Test
 
 			var funkyAnimals = new List<FunkyAnimal>
 			{
-				new FunkyAnimal{ Id = 0, Name = "Old Woman", WeightKg = 60, Leg_Count = 2},
-				new FunkyAnimal{ Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4},
-				new FunkyAnimal{ Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
-				new FunkyAnimal{ Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
-				new FunkyAnimal{ Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
-				new FunkyAnimal{ Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
-				new FunkyAnimal{ Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
-				new FunkyAnimal{ Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
+				new() { Id = 0, Name = "Old Woman", WeightKg = 60, Leg_Count = 2},
+				new() { Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4},
+				new() { Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
+				new() { Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
+				new() { Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
+				new() { Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
+				new() { Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
+				new() { Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
 			};
 
 			var sheetOptions = new AddSheetOptions
@@ -230,7 +230,7 @@ public class AddSheetTests : Test
 
 			var funkyAnimals = new List<FunkyAnimal>
 			{
-				new FunkyAnimal{
+				new() {
 					Id = 0,
 					Name = "Old Woman",
 					WeightKg = 60,
@@ -241,13 +241,13 @@ public class AddSheetTests : Test
 						new() { Id = 11, Name = "Bedoink" }
 					]
 				},
-				new FunkyAnimal{ Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4, Nicknames = ["Bert", "Ernie"]},
-				new FunkyAnimal{ Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
-				new FunkyAnimal{ Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
-				new FunkyAnimal{ Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
-				new FunkyAnimal{ Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
-				new FunkyAnimal{ Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
-				new FunkyAnimal{ Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
+				new() { Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4, Nicknames = ["Bert", "Ernie"]},
+				new() { Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
+				new() { Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
+				new() { Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
+				new() { Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
+				new() { Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
+				new() { Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
 			};
 
 			var sheetOptions = new AddSheetOptions

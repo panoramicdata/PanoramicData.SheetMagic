@@ -172,16 +172,14 @@ public class SaveSheetTests : Test
 
 		var dealerships = new List<CarDealershipWithCars>
 		{
-			new CarDealershipWithCars
-			{
+			new() {
 				Name = "Slough",
 				Cars = [],
 				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
 				UkRanking = 1,
 				EmployeeCount = 10,
 			},
-			new CarDealershipWithCars
-			{
+			new() {
 				Name = "Maidenhead",
 				Cars =
 				[
@@ -197,8 +195,7 @@ public class SaveSheetTests : Test
 				UkRanking = 2,
 				EmployeeCount = null,
 			},
-			new CarDealershipWithCars
-			{
+			new() {
 				Name = "Reading",
 				Cars =
 				[
@@ -238,24 +235,21 @@ public class SaveSheetTests : Test
 
 		var dealerships = new List<CarDealership>
 		{
-			new CarDealership
-			{
+			new() {
 				Name = "Slough",
 				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
 				IsPrivatelyOwned = true,
 				UkRanking = 1,
 				EmployeeCount = 10,
 			},
-			new CarDealership
-			{
+			new() {
 				Name = "Maidenhead",
 				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
 				ClosureDate = new DateTime(2002, 1, 2, 3, 4, 5),
 				UkRanking = 2,
 				EmployeeCount = null,
 			},
-			new CarDealership
-			{
+			new() {
 				Name = "Reading",
 				Founded = new DateTime(2000, 1, 2, 3, 4, 5),
 				UkRanking = 3,

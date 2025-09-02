@@ -91,16 +91,17 @@ public class MagicSpreadsheet : IDisposable
 			nameof(Int16) or
 			nameof(Int32) or
 			nameof(Int64) or
+			nameof(Nullable<Int16>) or
+			nameof(Nullable<Int32>) or
+			nameof(Nullable<Int64>)
+				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToInt64(@object)),
 			nameof(UInt16) or
 			nameof(UInt32) or
 			nameof(UInt64) or
-			nameof(Nullable<Int16>) or
-			nameof(Nullable<Int32>) or
-			nameof(Nullable<Int64>) or
 			nameof(Nullable<UInt16>) or
 			nameof(Nullable<UInt32>) or
 			nameof(Nullable<UInt64>)
-				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToInt64(@object)),
+				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToUInt64(@object)),
 			nameof(Single) or
 			nameof(Double) or
 			nameof(Decimal) or
@@ -951,6 +952,14 @@ public class MagicSpreadsheet : IDisposable
 					var cell = cells.SingleOrDefault(c => GetReference(c.CellReference!.Value!).columnIndex == index + tableColumnOffset);
 					if (cell == null)
 					{
+						// Handle missing cells based on whether it's a strongly-typed property or extended property
+						if (property == null)
+						{
+							// This is an extended property - add empty string to maintain consistent property counts
+							eiProperties[columns[columnIndex]] = string.Empty;
+							continue;
+						}
+						
 						if (!_options.LoadNullExtendedProperties)
 						{
 							// No such cell.  Skip.

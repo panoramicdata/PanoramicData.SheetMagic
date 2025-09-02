@@ -73,7 +73,6 @@ public class SaveSheetTests : Test
 	public void SavingWithExtendedObjectContainingInt16_Succeeds(short value)
 		=> Check(value);
 
-
 	[Theory]
 	[InlineData((ushort)0)]
 	[InlineData((ushort)1)]
@@ -269,7 +268,7 @@ public class SaveSheetTests : Test
 			_ = b.Should().NotBeNullOrEmpty();
 			var firstItem = b[0];
 			firstItem.Should().NotBeNull();
-			firstItem.Name.Should().Be("Slough");
+			firstItem!.Name.Should().Be("Slough");
 			firstItem.IsPrivatelyOwned.Should().BeTrue();
 			firstItem.Founded.Should().Be(new DateTime(2000, 1, 2, 3, 4, 5));
 			firstItem.UkRanking.Should().Be(1);

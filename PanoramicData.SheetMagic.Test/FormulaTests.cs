@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using AwesomeAssertions;
+using Xunit;
 
 namespace PanoramicData.SheetMagic.Test;
 
@@ -13,7 +14,7 @@ public class FormulaTests : Test
 
 		// Check the items
 		Assert.NotEmpty(items);
-		Assert.True(items.Count > 0);
-		Assert.Equal("6", items[0].Properties["Total"]);
+		(items.Count > 0).Should().BeTrue();
+		items[0].Properties["Total"].Should().Be("6");
 	}
 }

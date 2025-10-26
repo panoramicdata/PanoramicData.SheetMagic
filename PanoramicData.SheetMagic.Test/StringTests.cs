@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using AwesomeAssertions;
+using Xunit;
 
 namespace PanoramicData.SheetMagic.Test;
 
@@ -11,5 +12,5 @@ public class StringTests : Test
 	[InlineData("1abc", "abc")]
 	[InlineData("abc2", "abc2")]
 	public void TweakStrings(string input, string expectedOutput)
-		=> Assert.Equal(expectedOutput, MagicSpreadsheet.TweakString(input));
+		=> MagicSpreadsheet.TweakString(input).Should().Be(expectedOutput);
 }

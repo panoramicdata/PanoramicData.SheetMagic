@@ -18,7 +18,7 @@ public class SheetNameTests : Test
 		}
 
 		// Loaded
-		_ = sheetNames.Count.Should().Be(2);
+		_ = sheetNames.Should().HaveCount(2);
 		_ = sheetNames[0].Should().NotBeNull();
 		_ = sheetNames[0].Should().Be("Sites");
 		_ = sheetNames[1].Should().NotBeNull();

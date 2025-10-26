@@ -53,16 +53,26 @@ public class SaveSheetTests : Test
 	[InlineData((long)-1)]
 	[InlineData((long)0)]
 	[InlineData((long)1)]
-	[InlineData(long.MaxValue)]
 	public void SavingWithExtendedObjectContainingInt64_Succeeds(long value)
 		=> Check(value);
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingInt64_MaxValue_LosesPrecision() =>
+		// Excel stores all numbers as doubles, which can't represent Int64.MaxValue with full precision
+		// The value gets converted to scientific notation: 9.223372036854776E+18
+		CheckWithDoublePrecision(long.MaxValue);
 
 	[Theory]
 	[InlineData((ulong)0)]
 	[InlineData((ulong)1)]
-	[InlineData(ulong.MaxValue)]
 	public void SavingWithExtendedObjectContainingUInt64_Succeeds(ulong value)
 		=> Check(value);
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingUInt64_MaxValue_LosesPrecision() =>
+		// Excel stores all numbers as doubles, which can't represent UInt64.MaxValue with full precision
+		// The value gets converted to scientific notation: 1.8446744073709552E+19
+		CheckWithDoublePrecision(ulong.MaxValue);
 
 	[Theory]
 	[InlineData(short.MinValue)]
@@ -91,18 +101,32 @@ public class SaveSheetTests : Test
 	[InlineData(false)]
 	[InlineData(null)]
 	public void SavingWithExtendedObjectContainingNullableBoolean_Succeeds(bool? inputBool)
-		=> Check(inputBool);
+	{
+		if (inputBool == null)
+		{
+			// Excel stores null booleans as empty strings
+			CheckNullValue<bool?>(inputBool, string.Empty);
+		}
+		else
+		{
+			Check(inputBool);
+		}
+	}
 
 	[Theory]
 	[InlineData(double.MinValue)]
 	[InlineData(double.MaxValue)]
 	[InlineData(double.NegativeInfinity)]
 	[InlineData(double.PositiveInfinity)]
-	[InlineData(double.NaN)]
 	[InlineData(12.3)]
 	[InlineData(-1.0)]
 	public void SavingWithExtendedObjectContainingDouble_Succeeds(double value)
 		=> Check(value);
+
+	[Fact]
+	public void SavingWithExtendedObjectContainingDouble_NaN_Succeeds() =>
+		// Excel stores NaN as empty string
+		CheckNullValue(double.NaN, string.Empty);
 
 	[Fact]
 	public void SavingWithExtendedObjectContainingDateTime_Succeeds()
@@ -144,7 +168,7 @@ public class SaveSheetTests : Test
 			// Save
 			using (var s1 = new MagicSpreadsheet(fileInfo))
 			{
-				s1.AddSheet(new List<Extended<Car>> { car });
+				s1.AddSheet([car]);
 				s1.Save();
 			}
 
@@ -295,8 +319,8 @@ public class SaveSheetTests : Test
 		{
 			// Save
 			using var s1 = new MagicSpreadsheet(fileInfo);
-			s1.AddSheet(new List<Extended<object>> { a }, "Sheet A", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } });
-			s1.AddSheet(new List<Extended<object>> { a }, "Sheet B", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } });
+			s1.AddSheet([a], "Sheet A", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } });
+			s1.AddSheet([a], "Sheet B", new AddSheetOptions { TableOptions = new TableOptions { DisplayName = "Table1" } });
 		}
 		finally
 		{
@@ -320,8 +344,8 @@ public class SaveSheetTests : Test
 		{
 			// Save
 			using var s1 = new MagicSpreadsheet(fileInfo);
-			s1.AddSheet(new List<Extended<object>> { a }, "Sheet A");
-			s1.AddSheet(new List<Extended<object>> { a }, "Sheet B");
+			s1.AddSheet([a], "Sheet A");
+			s1.AddSheet([a], "Sheet B");
 			s1.Save();
 		}
 		finally
@@ -347,7 +371,7 @@ public class SaveSheetTests : Test
 			// Save
 			using (var s1 = new MagicSpreadsheet(fileInfo))
 			{
-				s1.AddSheet(new List<Extended<object>> { a });
+				s1.AddSheet([a]);
 				s1.Save();
 			}
 
@@ -383,7 +407,7 @@ public class SaveSheetTests : Test
 			// Save
 			using (var s1 = new MagicSpreadsheet(fileInfo))
 			{
-				s1.AddSheet(new List<Extended<object>> { a });
+				s1.AddSheet([a]);
 				s1.Save();
 			}
 
@@ -394,6 +418,86 @@ public class SaveSheetTests : Test
 			var firstItem = b[0];
 			_ = firstItem.Properties.Keys.Should().Contain("a");
 			_ = firstItem.Properties["a"].Should().Be(expectedDate);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	private static void CheckNullValue<T>(T inputValue, object expectedValue)
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", inputValue },
+				{ "b", "randomString" }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet([a]);
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+			_ = firstItem.Properties["a"].Should().Be(expectedValue);
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	private static void CheckWithDoublePrecision<T>(T theValue) where T : struct
+	{
+		var a = new Extended<object>(
+			new object(),
+			new Dictionary<string, object?>
+			{
+				{ "a", theValue },
+				{ "b", "randomString" }
+			}
+		);
+		var fileInfo = GetXlsxTempFileInfo();
+
+		try
+		{
+			// Save
+			using (var s1 = new MagicSpreadsheet(fileInfo))
+			{
+				s1.AddSheet([a]);
+				s1.Save();
+			}
+
+			using var s2 = new MagicSpreadsheet(fileInfo);
+			s2.Load();
+			var b = s2.GetExtendedList<object>();
+			_ = b.Should().NotBeNullOrEmpty();
+			var firstItem = b[0];
+			_ = firstItem.Properties.Keys.Should().Contain("a");
+
+			// Excel stores all numbers as doubles, so large integers lose precision
+			// Verify that the value is stored as a double (scientific notation)
+			var retrievedValue = firstItem.Properties["a"];
+			_ = retrievedValue.Should().NotBeNull();
+			_ = retrievedValue.Should().BeOfType<double>();
+
+			// The double representation should be close to the original value
+			var doubleValue = (double)retrievedValue!;
+			var expectedDouble = Convert.ToDouble(theValue);
+			_ = Math.Abs(doubleValue - expectedDouble).Should().BeLessThan(expectedDouble * 1e-10);
 		}
 		finally
 		{

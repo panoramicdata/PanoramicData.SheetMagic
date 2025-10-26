@@ -21,8 +21,8 @@ public class StreamTests
 
 		// Save
 		using var s1 = new MagicSpreadsheet(stream);
-		s1.AddSheet(new List<Extended<object>> { a }, "Sheet A");
-		s1.AddSheet(new List<Extended<object>> { a }, "Sheet B");
+		s1.AddSheet([a], "Sheet A");
+		s1.AddSheet([a], "Sheet B");
 		s1.Save();
 
 		var bytes = stream.ToArray();

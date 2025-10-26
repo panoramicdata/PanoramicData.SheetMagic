@@ -58,7 +58,7 @@ public class MagicSpreadsheet : IDisposable
 			.Sheets ?? throw new InvalidOperationException("Sheets not created"))
 			.ChildElements
 			.Cast<Sheet>()
-			.Select(s => s.Name?.Value ?? string.Empty)];
+			.Select(static s => s.Name?.Value ?? string.Empty)];
 
 	public void Load() => _document = _fileInfo is not null
 		? SpreadsheetDocument.Open(_fileInfo.FullName, false)
@@ -165,10 +165,7 @@ public class MagicSpreadsheet : IDisposable
 		string? sheetName,
 		AddSheetOptions addSheetOptions)
 	{
-		if (items is null)
-		{
-			throw new ArgumentNullException(nameof(items));
-		}
+		ArgumentNullException.ThrowIfNull(items);
 
 		// Were any items provided?
 		if (items.Count == 0)
@@ -246,7 +243,7 @@ public class MagicSpreadsheet : IDisposable
 			{
 				// Get the length and leave space for an "s" on the end
 				var length = Math.Min(typeName.Length, SheetNameCharacterLimit - 1);
-				sheetName = $"{typeName.Substring(0, length)}s";
+				sheetName = $"{typeName[..length]}s";
 			}
 			catch (Exception)
 			{
@@ -577,7 +574,7 @@ public class MagicSpreadsheet : IDisposable
 		}
 	}
 
-	private PropertyInfo GetPropertyInfo(string path, IEnumerable<PropertyInfo> props)
+	private static PropertyInfo GetPropertyInfo(string path, IEnumerable<PropertyInfo> props)
 	{
 		if (string.IsNullOrWhiteSpace(path))
 		{
@@ -587,7 +584,7 @@ public class MagicSpreadsheet : IDisposable
 		// Nested path?
 		if (path.Contains('.'))
 		{
-			var parentPropertyName = path.Substring(0, path.IndexOf("."));
+			var parentPropertyName = path[..path.IndexOf('.')];
 			var parentProp = props.FirstOrDefault(x => x.Name.Equals(parentPropertyName, StringComparison.InvariantCultureIgnoreCase))
 				?? throw new PropertyNotFoundException(parentPropertyName);
 
@@ -595,7 +592,7 @@ public class MagicSpreadsheet : IDisposable
 			{
 				// Recurse path
 				var parentTypeProps = parentProp.PropertyType.GetProperties();
-				return GetPropertyInfo(path.Substring(parentPropertyName.Length + 1), parentTypeProps);
+				return GetPropertyInfo(path[(parentPropertyName.Length + 1)..], parentTypeProps);
 			}
 			catch (PropertyNotFoundException)
 			{
@@ -611,7 +608,7 @@ public class MagicSpreadsheet : IDisposable
 		}
 	}
 
-	private object? GetPropertyValue(string path, object? item)
+	private static object? GetPropertyValue(string path, object? item)
 	{
 		if (item is null)
 		{
@@ -623,7 +620,7 @@ public class MagicSpreadsheet : IDisposable
 		// Nested path?
 		if (path.Contains('.'))
 		{
-			var parentPropertyName = path.Substring(0, path.IndexOf("."));
+			var parentPropertyName = path[..path.IndexOf('.')];
 			var parentProp = props.FirstOrDefault(x => x.Name.Equals(parentPropertyName, StringComparison.InvariantCultureIgnoreCase))
 				?? throw new PropertyNotFoundException(parentPropertyName);
 
@@ -631,7 +628,7 @@ public class MagicSpreadsheet : IDisposable
 			{
 				// Recurse path
 				var parentItem = parentProp.GetValue(item);
-				return GetPropertyValue(path.Substring(parentPropertyName.Length + 1), parentItem);
+				return GetPropertyValue(path[(parentPropertyName.Length + 1)..], parentItem);
 			}
 			catch (PropertyNotFoundException)
 			{
@@ -745,7 +742,7 @@ public class MagicSpreadsheet : IDisposable
 		=> GetList<T>(null);
 
 	public List<T?> GetList<T>(string? sheetName) where T : class, new()
-		 => GetExtendedList<T>(sheetName).ConvertAll(e => e.Item);
+		 => GetExtendedList<T>(sheetName).ConvertAll(static e => e.Item);
 
 	public List<Extended<T>> GetExtendedList<T>() where T : class, new()
 		=> GetExtendedList<T>(null);
@@ -959,7 +956,7 @@ public class MagicSpreadsheet : IDisposable
 							eiProperties[columns[columnIndex]] = string.Empty;
 							continue;
 						}
-						
+
 						if (!_options.LoadNullExtendedProperties)
 						{
 							// No such cell.  Skip.
@@ -1365,16 +1362,16 @@ public class MagicSpreadsheet : IDisposable
 		// Chop numbers from the beginning
 		while (tweakString.Length > 0 && Numbers.Contains(tweakString[0]))
 		{
-			tweakString = tweakString.Substring(1);
+			tweakString = tweakString[1..];
 		}
 
 		// Remove plurals
-		return tweakString.EndsWith("s") && !tweakString.EndsWith("ss")
-			 ? tweakString.Substring(0, tweakString.Length - 1)
+		return tweakString.EndsWith('s') && !tweakString.EndsWith("ss")
+			 ? tweakString[..^1]
 			 : tweakString;
 	}
 
-	private string GetCellValueString(Cell cell, SharedStringTablePart stringTable)
+	private static string GetCellValueString(Cell cell, SharedStringTablePart stringTable)
 	{
 		var cellValueText = cell.CellValue?.Text;
 
@@ -1383,7 +1380,7 @@ public class MagicSpreadsheet : IDisposable
 			: cellValueText ?? cell.InnerText;
 	}
 
-	private string? FormatCellAsNumber(Cell cell, string formatString)
+	private static string? FormatCellAsNumber(Cell cell, string formatString)
 		// Check if it's a number
 		=> double.TryParse(
 			string.IsNullOrEmpty(cell.CellValue?.Text)
@@ -1394,7 +1391,7 @@ public class MagicSpreadsheet : IDisposable
 				? number.ToString(formatString)
 				: null;
 
-	private string? FormatCellAsDateTime(Cell cell, string formatString)
+	private static string? FormatCellAsDateTime(Cell cell, string formatString)
 	{
 		// Excel stores dates as a number (number of days since January 1, 1900),
 		//so "44166" text is 03/12/2020
@@ -1433,10 +1430,10 @@ public class MagicSpreadsheet : IDisposable
 	/// </summary>
 	/// <param name="formatString"></param>
 	/// <returns></returns>
-	private bool IsFormatStringADate(string formatString) =>
-		formatString.IndexOf("d", StringComparison.OrdinalIgnoreCase) >= 0 ||
-		formatString.IndexOf("m", StringComparison.OrdinalIgnoreCase) >= 0 ||
-		formatString.IndexOf("y", StringComparison.OrdinalIgnoreCase) >= 0;
+	private static bool IsFormatStringADate(string formatString) =>
+		formatString.Contains('d', StringComparison.OrdinalIgnoreCase) ||
+		formatString.Contains('m', StringComparison.OrdinalIgnoreCase) ||
+		formatString.Contains('y', StringComparison.OrdinalIgnoreCase);
 
 	private string? GetCellFormatFromStyle(Cell cell)
 	{
@@ -1589,7 +1586,7 @@ public class MagicSpreadsheet : IDisposable
 
 	}
 
-	private object? GetCellValue<T>(Cell cell, SharedStringTablePart stringTable)
+	private static object? GetCellValue<T>(Cell cell, SharedStringTablePart stringTable)
 	{
 		var cellValueText = cell.CellValue?.Text;
 		if (cell.DataType == null)
@@ -1688,7 +1685,7 @@ public class MagicSpreadsheet : IDisposable
 		}
 	}
 
-	private (int columnIndex, int rowIndex) GetReference(string cellReference)
+	private static (int columnIndex, int rowIndex) GetReference(string cellReference)
 	{
 		var match = CellReferenceRegex.Match(cellReference)
 			?? throw new ArgumentException($"Invalid cell reference {cellReference}", nameof(cellReference));
@@ -1716,7 +1713,7 @@ public class MagicSpreadsheet : IDisposable
 		return sum;
 	}
 
-	private void SetItemProperty<T, T1>(T item, T1 cellValue, string propertyName)
+	private static void SetItemProperty<T, T1>(T item, T1 cellValue, string propertyName)
 	{
 		var cellValues = new List<object?> { cellValue };
 		_ = typeof(T).InvokeMember(propertyName,
@@ -1724,7 +1721,7 @@ public class MagicSpreadsheet : IDisposable
 			 Type.DefaultBinder, item, [.. cellValues]);
 	}
 
-	private void SetItemProperty<T>(T item, object? cellValue, string propertyName)
+	private static void SetItemProperty<T>(T item, object? cellValue, string propertyName)
 	{
 		var cellValues = new List<object?> { cellValue };
 		_ = typeof(T).InvokeMember(propertyName,
@@ -1928,7 +1925,7 @@ public class MagicSpreadsheet : IDisposable
 		tableStyle1.Append(new TableStyleElement { Type = tableStyleValues, FormatId = tableStyleIndex });
 	}
 
-	private Color GetColor(System.Drawing.Color color)
+	private static Color GetColor(System.Drawing.Color color)
 		=> Equals(color, System.Drawing.Color.White)
 			? new Color { Theme = 0U }
 			: new Color { Rgb = GetHexBinaryValue(color) };

@@ -41,17 +41,17 @@ public class AddSheetOptionsTests : Test
 				s.Load();
 
 				var reloadedAnimals = s.GetExtendedList<SimpleAnimal>("Sheet1");
-				_ = reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
+				_ = reloadedAnimals.Should().HaveCount(funkyAnimals.Count);
 
 				// Make sure there are no extra properties
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.Empty(extendedAnimal.Properties));
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Properties.Should().BeEmpty());
 
 				// Make sure items exist for every row
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Item.Should().NotBeNull());
 
 				// Make sure that there are no "default" values we know are NOT in the test data
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(string.Empty, extendedAnimal.Item!.Name));
+				Assert.All(reloadedAnimals, static extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Item!.Name.Should().NotBe(string.Empty));
 			}
 		}
 		finally
@@ -105,11 +105,11 @@ public class AddSheetOptionsTests : Test
 				Assert.All(reloadedAnimals, extendedAnimal => extendedAnimal.Properties.Should().BeEquivalentTo(expectedProperties));
 
 				// Make sure items exist for every row
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
+				Assert.All(reloadedAnimals, extendedAnimal => extendedAnimal.Item.Should().NotBeNull());
 
 				// Make sure that there are no "default" values we know are NOT in the test data
 				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(string.Empty, extendedAnimal.Item!.Name));
+				Assert.All(reloadedAnimals, extendedAnimal => extendedAnimal.Item!.Name.Should().NotBe(string.Empty));
 			}
 		}
 		finally

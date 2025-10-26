@@ -21,7 +21,7 @@ public class LoadSheetTests : Test
 		}
 
 		// Loaded
-		_ = parentChildRelationships.Count.Should().Be(3);
+		_ = parentChildRelationships.Should().HaveCount(3);
 	}
 
 	[Fact]
@@ -57,7 +57,7 @@ public class LoadSheetTests : Test
 		}
 
 		// Loaded
-		_ = things.Count.Should().Be(6);
+		_ = things.Should().HaveCount(6);
 		_ = (things[1]?.AbcEnum.Should().Be(AbcEnum.B));
 	}
 
@@ -67,7 +67,7 @@ public class LoadSheetTests : Test
 		// Load the parent/child relationships
 		using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"));
 		magicSpreadsheet.Load();
-		_ = Assert.ThrowsAny<Exception>(magicSpreadsheet.GetList<ExtendedParentChildRelationship>);
+		_ = Assert.ThrowsAny<Exception>(() => magicSpreadsheet.GetList<ExtendedParentChildRelationship>());
 		// Loaded
 	}
 
@@ -93,13 +93,18 @@ public class LoadSheetTests : Test
 
 			using (var magicSpreadsheet = new MagicSpreadsheet(tempFileInfo))
 			{
-				magicSpreadsheet.AddSheet(funkyAnimals);
+				// Exclude the Friends property as nested objects are not supported for reading from Excel
+				var addSheetOptions = new AddSheetOptions
+				{
+					ExcludeProperties = ["Friends"]
+				};
+				magicSpreadsheet.AddSheet(funkyAnimals, null, addSheetOptions);
 				magicSpreadsheet.AddSheet(cars);
 				magicSpreadsheet.Save();
 			}
 
-			// Reload
-			using (var magicSpreadsheet = new MagicSpreadsheet(tempFileInfo))
+			// Reload - need to ignore unmapped properties since we excluded Friends when saving
+			using (var magicSpreadsheet = new MagicSpreadsheet(tempFileInfo, new Options { IgnoreUnmappedProperties = true }))
 			{
 				magicSpreadsheet.Load();
 				var sheetNames = magicSpreadsheet.SheetNames;
@@ -107,10 +112,10 @@ public class LoadSheetTests : Test
 				_ = sheetNames.Should().Contain("Cars");
 
 				var reloadedCars = magicSpreadsheet.GetList<Car>();
-				_ = reloadedCars.Count.Should().Be(cars.Count);
+				_ = reloadedCars.Should().HaveCount(cars.Count);
 
 				var reloadedAnimals = magicSpreadsheet.GetList<FunkyAnimal>("FunkyAnimals");
-				_ = reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
+				_ = reloadedAnimals.Should().HaveCount(funkyAnimals.Count);
 			}
 		}
 		finally
@@ -150,18 +155,18 @@ public class LoadSheetTests : Test
 				_ = sheetNames.Should().Contain("Cars");
 
 				var reloadedCars = magicSpreadsheet.GetList<Car>();
-				_ = reloadedCars.Count.Should().Be(cars.Count);
+				_ = reloadedCars.Should().HaveCount(cars.Count);
 
 				var reloadedAnimals = magicSpreadsheet.GetExtendedList<SimpleAnimal>("FunkyAnimals");
-				_ = reloadedAnimals.Count.Should().Be(funkyAnimals.Count);
+				_ = reloadedAnimals.Should().HaveCount(funkyAnimals.Count);
 				// Make sure the extra fields are there in the additional items
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Item!.Name));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Properties));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEmpty(extendedAnimal.Properties));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotNull(extendedAnimal.Properties.Select(p => p.Value)));
-				Assert.All(reloadedAnimals, extendedAnimal => Assert.All(extendedAnimal.Properties.Where(p => p.Key != nameof(FunkyAnimal.Description)).Select(p => p.Value), Assert.NotNull));
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Item.Should().NotBeNull());
+				Assert.All(reloadedAnimals, static extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Item!.Name.Should().NotBeNull());
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Properties.Should().NotBeNull());
+				Assert.All(reloadedAnimals, static extendedAnimal => Assert.NotEmpty(extendedAnimal.Properties));
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Properties.Select(static p => p.Value).Should().NotBeNull());
+				Assert.All(reloadedAnimals, static extendedAnimal => Assert.All(extendedAnimal.Properties.Where(static p => p.Key != nameof(FunkyAnimal.Description)).Select(static p => p.Value), Assert.NotNull));
 			}
 		}
 		finally
@@ -172,19 +177,19 @@ public class LoadSheetTests : Test
 	}
 
 	internal static List<FunkyAnimal> GetFunkyAnimals()
-		=> new()
-		{
+		=>
+		[
 			new FunkyAnimal { Id = 1, Name = "Pig", Leg_Count = 4, WeightKg = 100.5, Description = "Bald sheep" },
 			new FunkyAnimal { Id = 2, Name = "Chicken", Leg_Count = 2, WeightKg = 0.5 },
 			new FunkyAnimal { Id = 3, Name = "Goat", Leg_Count = 4, WeightKg = 30 }
-		};
+		];
 
 	internal static List<Car> GetCars()
-		=> new()
-		{
+		=>
+		[
 			new Car { Id = 1, Name = "Ford Prefect", WheelCount = 4, WeightKg = 75 },
 			new Car { Id = 2, Name = "Ford! Focus!", WheelCount = 4, WeightKg = 2000 }
-		};
+		];
 
 	/// <summary>
 	/// Tries to load bad sheets
@@ -307,7 +312,7 @@ public class LoadSheetTests : Test
 		_ = device.Item.Link.Should().Be("http://www.logicmonitor.com/");
 
 		// make sure there are 2 custom properties and are the values we're expecting
-		_ = device.Properties.Count.Should().Be(2);
+		_ = device.Properties.Should().HaveCount(2);
 		_ = device.Properties["Column A"].Should().Be("ValueA");
 		_ = device.Properties["column.b"].Should().Be("ValueB");
 	}

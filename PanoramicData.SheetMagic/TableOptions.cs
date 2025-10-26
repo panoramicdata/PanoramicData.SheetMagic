@@ -46,7 +46,7 @@ public class TableOptions
 
 	internal void Validate(List<CustomTableStyle> tableStyles)
 	{
-		if (DisplayName.Contains(" "))
+		if (DisplayName.Contains(' '))
 		{
 			throw new ValidationException($"TableOptions display name cannot contain spaces. Found '{DisplayName}'.");
 		}

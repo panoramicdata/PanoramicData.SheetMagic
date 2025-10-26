@@ -24,7 +24,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.8.118">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

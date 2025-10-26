@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using PanoramicData.SheetMagic.Test.Models;
 using System.Collections.Generic;
 using System.Drawing;

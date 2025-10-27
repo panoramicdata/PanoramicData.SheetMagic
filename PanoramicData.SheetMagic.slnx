@@ -1,0 +1,16 @@
+<Solution>
+	<Folder Name="/Solution Items/">
+		<File Path=".editorconfig" />
+		<File Path=".gitignore" />
+		<File Path="global.json" />
+		<File Path="LICENSE" />
+		<File Path="nuget-key.txt" />
+		<File Path="Publish.ps1" />
+		<File Path="PUBLISHING.md" />
+		<File Path="README.md" />
+		<File Path="SheetMagic.png" />
+		<File Path="version.json" />
+	</Folder>
+	<Project Path="PanoramicData.SheetMagic.Test/PanoramicData.SheetMagic.Test.csproj" />
+	<Project Path="PanoramicData.SheetMagic/PanoramicData.SheetMagic.csproj" />
+</Solution>

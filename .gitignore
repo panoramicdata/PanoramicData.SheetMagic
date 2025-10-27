@@ -303,4 +303,8 @@ __pycache__/
 
 # OpenCover UI analysis results
 OpenCover/
+
+# NuGet API Keys (IMPORTANT: Keep these secret!)
+nuget-key.txt
+nuget-api-key.txt
 /PanoramicData.SheetMagic/nuget-api-key.txt

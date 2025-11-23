@@ -25,17 +25,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AwesomeAssertions" Version="9.2.1" />
+		<PackageReference Include="AwesomeAssertions" Version="9.3.0" />
 		<PackageReference Include="AwesomeAssertions.Analyzers" Version="9.0.8">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.8.118">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="xunit.v3" Version="3.1.0" />
+		<PackageReference Include="xunit.v3" Version="3.2.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

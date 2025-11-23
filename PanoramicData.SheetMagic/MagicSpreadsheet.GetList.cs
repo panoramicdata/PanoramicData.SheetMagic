@@ -108,7 +108,7 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private (List<Row> rows, List<string>? columns, int tableColumnOffset) GetRowsAndColumns(
+	private static (List<Row> rows, List<string>? columns, int tableColumnOffset) GetRowsAndColumns(
 		WorksheetPart worksheetPart,
 		SheetData sheetData,
 		SharedStringTablePart? stringTable)
@@ -223,7 +223,7 @@ public partial class MagicSpreadsheet
 		List<System.Reflection.PropertyInfo> matchingProperties)
 	{
 		var completelyMatchingProperty = properties.SingleOrDefault(p => string.Equals(p.Name, column, StringComparison.InvariantCultureIgnoreCase));
-		
+
 		if (completelyMatchingProperty != null)
 		{
 			tMappings[columnIndex] = completelyMatchingProperty.Name;
@@ -238,7 +238,7 @@ public partial class MagicSpreadsheet
 	private void ValidatePropertyMappings<T>(Dictionary<int, string> tMappings)
 	{
 		var properties = typeof(T).GetProperties().ToList();
-		
+
 		if (tMappings.Count != properties.Count && !_options.IgnoreUnmappedProperties)
 		{
 			var missingProperties = string.Join(", ", properties.Where(p => tMappings.Values.All(k => k != p.Name)));

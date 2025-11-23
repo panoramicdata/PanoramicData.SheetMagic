@@ -62,7 +62,7 @@ public partial class MagicSpreadsheet : IDisposable
 	public void Save()
 	{
 		// Ensure that at least one sheet has been added
-		if (_document?.WorkbookPart?.Workbook?.Sheets == null || _document.WorkbookPart.Workbook.Sheets.Count() == 0)
+		if (_document?.WorkbookPart?.Workbook?.Sheets == null || !_document.WorkbookPart.Workbook.Sheets.Any())
 		{
 			// This has to contain some data to prevent file corruption.
 			AddSheet(new[] { new { Error = "No data was output." } }.ToList(), "Sheet1");

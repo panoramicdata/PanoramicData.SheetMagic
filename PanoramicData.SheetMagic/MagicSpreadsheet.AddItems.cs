@@ -26,10 +26,10 @@ public partial class MagicSpreadsheet
 		out uint totalColumnCount)
 	{
 		var (basicType, keyHashSet) = DetermineTypeAndCollectKeys(items, addSheetOptions, type, isExtended);
-		
+
 		propertyList = GetFilteredAndOrderedProperties(basicType, addSheetOptions);
 		keyList = SortKeyList(keyHashSet, addSheetOptions);
-		
+
 		totalColumnCount = (uint)(propertyList.Count + keyList.Count);
 		columnConfigurations = CreateColumns(totalColumnCount);
 
@@ -66,7 +66,7 @@ public partial class MagicSpreadsheet
 		HashSet<string> keyHashSet)
 	{
 		var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
-		
+
 		foreach (var item in items)
 		{
 			if (item is null)
@@ -95,7 +95,7 @@ public partial class MagicSpreadsheet
 		{
 			return [.. keys.Where(key => addSheetOptions.IncludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase))];
 		}
-		
+
 		if (addSheetOptions.ExcludeProperties?.Count > 0)
 		{
 			return [.. keys.Where(key => !addSheetOptions.ExcludeProperties.Contains(key, StringComparer.InvariantCultureIgnoreCase))];
@@ -110,7 +110,7 @@ public partial class MagicSpreadsheet
 		propertyList.AddRange(basicType.GetProperties());
 
 		propertyList = FilterProperties(propertyList, addSheetOptions);
-		
+
 		if (addSheetOptions.PropertyOrder?.Length > 0)
 		{
 			propertyList = OrderProperties(propertyList, addSheetOptions.PropertyOrder);
@@ -125,7 +125,7 @@ public partial class MagicSpreadsheet
 		{
 			return [.. propertyList.Where(p => addSheetOptions.IncludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase))];
 		}
-		
+
 		if (addSheetOptions.ExcludeProperties?.Count > 0)
 		{
 			return [.. propertyList.Where(p => !addSheetOptions.ExcludeProperties.Contains(p.Name, StringComparer.InvariantCultureIgnoreCase))];
@@ -165,7 +165,7 @@ public partial class MagicSpreadsheet
 		return columnConfigurations;
 	}
 
-	private void AddHeaderRow(
+	private static void AddHeaderRow(
 		SheetData sheetData,
 		List<PropertyInfo> propertyList,
 		List<string> keyList,
@@ -186,7 +186,7 @@ public partial class MagicSpreadsheet
 			? addSheetOptions.PropertyHeaders
 			: [.. propertyList.Select(p => p.GetPropertyDescription() ?? p.Name)];
 
-	private void AddHeaderCells(Row row, IEnumerable<string> headers, ref int cellIndex, uint rowIndex)
+	private static void AddHeaderCells(Row row, IEnumerable<string> headers, ref int cellIndex, uint rowIndex)
 	{
 		foreach (var header in headers)
 		{
@@ -216,7 +216,7 @@ public partial class MagicSpreadsheet
 			var cellIndex = 0;
 
 			AddItemCells(item, addSheetOptions!, type, isExtended, propertyList, enumerableCellOptions, row, ref cellIndex, rowIndex);
-			
+
 			if (isExtended)
 			{
 				AddExtendedPropertyCells(item, type, keyList, row, ref cellIndex, rowIndex);
@@ -224,7 +224,7 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private void AddItemCells<T>(
+	private static void AddItemCells<T>(
 		T item,
 		AddSheetOptions addSheetOptions,
 		Type type,
@@ -245,7 +245,7 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private void AddOrderedPropertyCells<T>(
+	private static void AddOrderedPropertyCells<T>(
 		T item,
 		AddSheetOptions addSheetOptions,
 		EnumerableCellOptions enumerableCellOptions,
@@ -260,7 +260,7 @@ public partial class MagicSpreadsheet
 				GetPropertyValue(prop, item),
 				cellIndex,
 				rowIndex);
-			
+
 			if (cell is not null)
 			{
 				_ = row.AppendChild(cell);
@@ -270,7 +270,7 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private void AddStandardPropertyCells<T>(
+	private static void AddStandardPropertyCells<T>(
 		T item,
 		Type type,
 		bool isExtended,
@@ -307,7 +307,7 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private void AddExtendedPropertyCells<T>(
+	private static void AddExtendedPropertyCells<T>(
 		T item,
 		Type type,
 		List<string> keyList,
@@ -317,7 +317,7 @@ public partial class MagicSpreadsheet
 	{
 		var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
 		var dictionary = (Dictionary<string, object>?)propertyInfo.GetValue(item);
-		
+
 		if (dictionary == null)
 		{
 			return;
@@ -357,7 +357,7 @@ public partial class MagicSpreadsheet
 		{
 			return ExpandEnumerableToString(iEnumerable, enumerableCellOptions.CellDelimiter ?? ", ");
 		}
-		
+
 		return v is not null ? v is string ? v.ToString() : v : string.Empty;
 	}
 
@@ -365,7 +365,7 @@ public partial class MagicSpreadsheet
 	{
 		var stringBuilder = new StringBuilder();
 		var isFirst = true;
-		
+
 		foreach (var il in iEnumerable)
 		{
 			if (!isFirst)

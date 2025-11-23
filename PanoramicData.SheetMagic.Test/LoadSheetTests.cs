@@ -67,7 +67,8 @@ public class LoadSheetTests : Test
 		// Load the parent/child relationships
 		using var magicSpreadsheet = new MagicSpreadsheet(GetSheetFileInfo("ParentChild"));
 		magicSpreadsheet.Load();
-		_ = Assert.ThrowsAny<Exception>(() => magicSpreadsheet.GetList<ExtendedParentChildRelationship>());
+		var act = () => magicSpreadsheet.GetList<ExtendedParentChildRelationship>();
+		_ = act.Should().Throw<Exception>();
 		// Loaded
 	}
 
@@ -212,7 +213,8 @@ public class LoadSheetTests : Test
 			using var loadMagicSpreadsheet = new MagicSpreadsheet(tempFileInfo);
 			loadMagicSpreadsheet.Load();
 
-			_ = Assert.Throws<InvalidOperationException>(() => loadMagicSpreadsheet.GetList<Car>("Animals"));
+			var act = () => loadMagicSpreadsheet.GetList<Car>("Animals");
+			_ = act.Should().ThrowExactly<InvalidOperationException>();
 
 			// Try to load FunkyAnimals into a list of Animals (should succeed)
 			_ = loadMagicSpreadsheet.GetList<Animal>("Animals");
@@ -286,7 +288,8 @@ public class LoadSheetTests : Test
 		);
 		sheet.Load();
 
-		_ = Assert.ThrowsAny<Exception>(() => sheet.GetExtendedList<ImportedDevice>("XXX"));
+		var act = () => sheet.GetExtendedList<ImportedDevice>("XXX");
+		_ = act.Should().Throw<Exception>();
 	}
 
 	[Fact]

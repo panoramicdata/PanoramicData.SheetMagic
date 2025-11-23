@@ -5,6 +5,9 @@ namespace PanoramicData.SheetMagic.Test;
 
 public class CellFormatTests : Test
 {
+	private const int ExpectedPropertyCount = 9;
+	private const int ExpectedItemCount = 5;
+
 	[Fact]
 	public void CheckFormats_Succeeds()
 	{
@@ -13,16 +16,16 @@ public class CellFormatTests : Test
 		var items = magicSpreadsheet.GetExtendedList<object>("Sheet1");
 
 		// Check the items
-		Assert.NotEmpty(items);
+		items.Should().NotBeNullOrEmpty();
 		(items.Count > 0).Should().BeTrue();
 		items[0].Properties["General"].Should().Be("Happy Christmas!");
-		Assert.Equal("99.00", items[0].Properties["Number (N2)"]);
-		Assert.Equal("99.0", items[0].Properties["Number (N1)"]);
-		Assert.Equal("99", items[0].Properties["Number (N0)"]);
-		Assert.Equal("25/05/1975", items[0].Properties["Date"]);
-		Assert.Equal("50.0%", items[0].Properties["Percentage N1"]);
-		Assert.Equal("50.00%", items[0].Properties["Percentage N2"]);
-		Assert.Equal("Here is some text", items[0].Properties["Text"]);
+		items[0].Properties["Number (N2)"].Should().Be("99.00");
+		items[0].Properties["Number (N1)"].Should().Be("99.0");
+		items[0].Properties["Number (N0)"].Should().Be("99");
+		items[0].Properties["Date"].Should().Be("25/05/1975");
+		items[0].Properties["Percentage N1"].Should().Be("50.0%");
+		items[0].Properties["Percentage N2"].Should().Be("50.00%");
+		items[0].Properties["Text"].Should().Be("Here is some text");
 	}
 
 	[Fact]
@@ -45,12 +48,14 @@ public class CellFormatTests : Test
 		var items = magicSpreadsheet.GetExtendedList<object>("Sheet1");
 
 		// Check the items
-		Assert.NotEmpty(items);
-		Assert.True(items.Count == 5);
-		Assert.Equal(items[0].Properties.Count, 9);
-		Assert.Equal(items[1].Properties.Count, 9);
-		Assert.Equal(items[2].Properties.Count, 9);
-		Assert.Equal(items[3].Properties.Count, 9);
-		Assert.Equal(items[4].Properties.Count, 9);
+		items.Should().NotBeNullOrEmpty();
+
+		items.Should().HaveCount(ExpectedItemCount);
+
+		items[0].Properties.Should().HaveCount(ExpectedPropertyCount);
+		items[1].Properties.Should().HaveCount(ExpectedPropertyCount);
+		items[2].Properties.Should().HaveCount(ExpectedPropertyCount);
+		items[3].Properties.Should().HaveCount(ExpectedPropertyCount);
+		items[4].Properties.Should().HaveCount(ExpectedPropertyCount);
 	}
 }

@@ -44,7 +44,7 @@ public class Options : IValidate
 	/// <summary>
 	/// Whether a loaded file can be edited
 	/// </summary>
-	public bool IsLoadedFileEditable { get; set; } = false;
+	public bool IsLoadedFileEditable { get; set; }
 
 	public string ListSeparator { get; set; } = ", ";
 

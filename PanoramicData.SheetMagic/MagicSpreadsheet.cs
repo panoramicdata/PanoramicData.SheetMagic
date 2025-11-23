@@ -108,7 +108,13 @@ public partial class MagicSpreadsheet : IDisposable
 			"Nullable`1<Single>" or
 			"Nullable`1<Double>" or
 			"Nullable`1<Decimal>"
-				=> @object == null || double.IsNaN(Convert.ToDouble(@object)) ? CreateTextCell(header, index, string.Empty) : CreateNumericCell(header, index, Convert.ToDouble(@object)),
+				=> @object == null || double.IsNaN(Convert.ToDouble(@object)) 
+					? CreateTextCell(header, index, string.Empty) 
+					: double.IsPositiveInfinity(Convert.ToDouble(@object))
+						? CreateTextCell(header, index, "Infinity")
+						: double.IsNegativeInfinity(Convert.ToDouble(@object))
+							? CreateTextCell(header, index, "-Infinity")
+							: CreateNumericCell(header, index, Convert.ToDouble(@object)),
 			nameof(Boolean) or
 			"Nullable`1<Boolean>"
 				=> @object == null ? CreateTextCell(header, index, string.Empty) : CreateBooleanCell(header, index, (bool)@object),
@@ -1576,13 +1582,45 @@ public partial class MagicSpreadsheet : IDisposable
 					_ => null,
 				};
 			case CellValues.Number:
-				return double.Parse(cellValueText!);
+				if (cellValueText == null)
+				{
+					return null;
+				}
+
+				// Handle special double values that cannot be parsed normally
+				if (cellValueText == "Infinity")
+				{
+					return double.PositiveInfinity;
+				}
+
+				if (cellValueText == "-Infinity")
+				{
+					return double.NegativeInfinity;
+				}
+
+				if (cellValueText == "NaN")
+				{
+					return double.NaN;
+				}
+
+				return double.Parse(cellValueText);
 			case CellValues.Date:
 				return DateTime.Parse(cellValueText!);
 
 			case CellValues.Error:
 			case CellValues.String:
 			case CellValues.InlineString:
+				// Handle special values for string cells as well (since Infinity values are stored as text)
+				if (cellValueText == "Infinity")
+				{
+					return double.PositiveInfinity;
+				}
+
+				if (cellValueText == "-Infinity")
+				{
+					return double.NegativeInfinity;
+				}
+
 				return cellValueText ?? cell.InnerText;
 
 			default:
@@ -1613,6 +1651,17 @@ public partial class MagicSpreadsheet : IDisposable
 
 					throw new FormatException($"Could not convert cell {cell.CellReference} to an integer.");
 				case "Double":
+					// Handle special Infinity values
+					if (cellValueText == "Infinity")
+					{
+						return double.PositiveInfinity;
+					}
+
+					if (cellValueText == "-Infinity")
+					{
+						return double.NegativeInfinity;
+					}
+
 					if (int.TryParse(cellValueText, out var doubleValue))
 					{
 						return doubleValue;
@@ -1620,6 +1669,17 @@ public partial class MagicSpreadsheet : IDisposable
 
 					throw new FormatException($"Could not convert cell {cell.CellReference} to a double.");
 				case "Single":
+					// Handle special Infinity values
+					if (cellValueText == "Infinity")
+					{
+						return float.PositiveInfinity;
+					}
+
+					if (cellValueText == "-Infinity")
+					{
+						return float.NegativeInfinity;
+					}
+
 					if (float.TryParse(cellValueText, out var floatValue))
 					{
 						return floatValue;
@@ -1664,7 +1724,23 @@ public partial class MagicSpreadsheet : IDisposable
 				}
 				var stringTableIndex = int.Parse(cellValueText);
 				var sharedStringElement = stringTable.SharedStringTable.ElementAt(stringTableIndex);
-				return sharedStringElement.InnerText;
+				var sharedStringValue = sharedStringElement.InnerText;
+				
+				// Handle special Infinity values for string-typed cells
+				if (typeof(T).Name == "Object")
+				{
+					if (sharedStringValue == "Infinity")
+					{
+						return double.PositiveInfinity;
+					}
+
+					if (sharedStringValue == "-Infinity")
+					{
+						return double.NegativeInfinity;
+					}
+				}
+
+				return sharedStringValue;
 			case CellValues.Boolean:
 				return cellValueText switch
 				{
@@ -1689,9 +1765,25 @@ public partial class MagicSpreadsheet : IDisposable
 			case CellValues.Error:
 			case CellValues.String:
 			case CellValues.InlineString:
+				var textValue = cellValueText ?? cell.InnerText;
+				
+				// Handle special Infinity values for object type
+				if (typeof(T).Name == "Object")
+				{
+					if (textValue == "Infinity")
+					{
+						return double.PositiveInfinity;
+					}
+
+					if (textValue == "-Infinity")
+					{
+						return double.NegativeInfinity;
+					}
+				}
+
 				try
 				{
-					return (T)Convert.ChangeType(cellValueText ?? cell.InnerText, typeof(T));
+					return (T)Convert.ChangeType(textValue, typeof(T));
 				}
 				catch (FormatException)
 				{

@@ -18,7 +18,7 @@ public class EmptyRowHandlingTests : Test
 		// Act & Assert
 		var action = () => magicSpreadsheet.GetList<ParentChildRelationship>();
 		_ = action.Should().Throw<EmptyRowException>()
-			.Which.RowIndex.Should().BeGreaterThan(0);
+			.Which.RowIndex.Should().BePositive();
 	}
 
 	[Fact]
@@ -103,7 +103,7 @@ public class EmptyRowHandlingTests : Test
 		}
 		catch (EmptyRowException ex)
 		{
-			_ = ex.RowIndex.Should().BeGreaterThan(0);
+			_ = ex.RowIndex.Should().BePositive();
 			_ = ex.Message.Should().Contain("empty");
 			_ = ex.Message.Should().Contain("EmptyRowInterpretedAsNull");
 		}

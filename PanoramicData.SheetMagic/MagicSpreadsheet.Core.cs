@@ -3,7 +3,8 @@ using Sheet = DocumentFormat.OpenXml.Spreadsheet.Sheet;
 namespace PanoramicData.SheetMagic;
 
 /// <summary>
-/// Core functionality for MagicSpreadsheet - constructors, fields, properties, and lifecycle methods
+/// Core functionality for MagicSpreadsheet - constructors, fields, properties, and lifecycle methods.
+/// Provides easy saving and loading of generic lists to/from XLSX workbooks.
 /// </summary>
 public partial class MagicSpreadsheet : IDisposable
 {
@@ -18,28 +19,50 @@ public partial class MagicSpreadsheet : IDisposable
 
 	private SpreadsheetDocument? _document;
 
+	/// <summary>
+	/// Creates a new MagicSpreadsheet instance for the specified file with options.
+	/// </summary>
+	/// <param name="fileInfo">The file to read from or write to.</param>
+	/// <param name="options">Configuration options.</param>
 	public MagicSpreadsheet(FileInfo fileInfo, Options options)
 	{
 		_fileInfo = fileInfo;
 		_options = options;
 	}
 
+	/// <summary>
+	/// Creates a new MagicSpreadsheet instance for the specified file with default options.
+	/// </summary>
+	/// <param name="fileInfo">The file to read from or write to.</param>
 	public MagicSpreadsheet(FileInfo fileInfo)
 		: this(fileInfo, new Options())
 	{
 	}
 
+	/// <summary>
+	/// Creates a new MagicSpreadsheet instance for the specified stream with options.
+	/// </summary>
+	/// <param name="stream">The stream to read from or write to.</param>
+	/// <param name="options">Configuration options.</param>
 	public MagicSpreadsheet(Stream stream, Options options)
 	{
 		_stream = stream;
 		_options = options;
 	}
 
+	/// <summary>
+	/// Creates a new MagicSpreadsheet instance for the specified stream with default options.
+	/// </summary>
+	/// <param name="stream">The stream to read from or write to.</param>
 	public MagicSpreadsheet(Stream stream)
 		: this(stream, new Options())
 	{
 	}
 
+	/// <summary>
+	/// Gets the names of all sheets in the loaded workbook.
+	/// </summary>
+	/// <exception cref="InvalidOperationException">Thrown if no document is loaded.</exception>
 	public List<string> SheetNames
 		=> [.. ((((_document ?? throw new InvalidOperationException("No document loaded."))
 			.WorkbookPart ?? throw new InvalidOperationException("WorkbookPart not created"))
@@ -49,10 +72,17 @@ public partial class MagicSpreadsheet : IDisposable
 			.Cast<Sheet>()
 			.Select(static s => s.Name?.Value ?? string.Empty)];
 
+	/// <summary>
+	/// Loads the spreadsheet document for reading.
+	/// </summary>
 	public void Load() => _document = _fileInfo is not null
 		? SpreadsheetDocument.Open(_fileInfo.FullName, false)
 		: SpreadsheetDocument.Open(_stream!, false);
 
+	/// <summary>
+	/// Saves the spreadsheet document to the file or stream.
+	/// </summary>
+	/// <exception cref="InvalidOperationException">Thrown if the document was not created correctly.</exception>
 	public void Save()
 	{
 		// Ensure that at least one sheet has been added
@@ -81,12 +111,18 @@ public partial class MagicSpreadsheet : IDisposable
 
 	private void ReleaseUnmanagedResources() => _document?.Dispose();
 
+	/// <summary>
+	/// Disposes of the spreadsheet resources.
+	/// </summary>
 	public void Dispose()
 	{
 		ReleaseUnmanagedResources();
 		GC.SuppressFinalize(this);
 	}
 
+	/// <summary>
+	/// Finalizer to ensure resources are released.
+	/// </summary>
 	~MagicSpreadsheet()
 	{
 		ReleaseUnmanagedResources();

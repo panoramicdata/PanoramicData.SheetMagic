@@ -1,5 +1,8 @@
 ﻿namespace PanoramicData.SheetMagic;
 
+/// <summary>
+/// Options for configuring how a sheet is added to a spreadsheet.
+/// </summary>
 public class AddSheetOptions
 {
 	/// <summary>
@@ -48,6 +51,11 @@ public class AddSheetOptions
 	/// </summary>
 	public bool ThrowExceptionOnEmptyList { get; set; } = true;
 
+	/// <summary>
+	/// Validates the options configuration.
+	/// </summary>
+	/// <param name="tableStyles">The list of custom table styles to validate against.</param>
+	/// <exception cref="ValidationException">Thrown when validation fails.</exception>
 	public void Validate(List<CustomTableStyle> tableStyles)
 	{
 		if (IncludeProperties != null && ExcludeProperties != null)
@@ -70,10 +78,10 @@ public class AddSheetOptions
 				},
 			ExcludeProperties = ExcludeProperties == null
 				? null
-				: new HashSet<string>(ExcludeProperties),
+				: [.. ExcludeProperties],
 			IncludeProperties = IncludeProperties == null
 				? null
-				: new HashSet<string>(IncludeProperties),
+				: [.. IncludeProperties],
 			PropertyOrder = PropertyOrder,
 			PropertyHeaders = PropertyHeaders,
 			SortExtendedProperties = SortExtendedProperties,

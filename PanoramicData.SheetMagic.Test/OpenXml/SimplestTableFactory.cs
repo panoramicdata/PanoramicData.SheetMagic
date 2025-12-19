@@ -9,7 +9,7 @@ using X14 = DocumentFormat.OpenXml.Office2010.Excel;
 using X15 = DocumentFormat.OpenXml.Office2013.Excel;
 using X15ac = DocumentFormat.OpenXml.Office2013.ExcelAc;
 
-namespace GeneratedCode;
+namespace PanoramicData.SheetMagic.Test.OpenXml;
 
 static internal class SimplestTableFactory
 {

@@ -2,6 +2,9 @@
 
 namespace PanoramicData.SheetMagic;
 
+/// <summary>
+/// Global options for configuring MagicSpreadsheet behavior.
+/// </summary>
 public class Options : IValidate
 {
 	/// <summary>
@@ -45,8 +48,15 @@ public class Options : IValidate
 	/// </summary>
 	public bool IsLoadedFileEditable { get; set; }
 
+	/// <summary>
+	/// The separator to use when joining list items into a single cell value.
+	/// </summary>
 	public string ListSeparator { get; set; } = ", ";
 
+	/// <summary>
+	/// Validates all configured options including custom table styles.
+	/// </summary>
+	/// <exception cref="Exceptions.ValidationException">Thrown when validation fails.</exception>
 	public void Validate()
 	{
 		foreach (var tableStyle in TableStyles)

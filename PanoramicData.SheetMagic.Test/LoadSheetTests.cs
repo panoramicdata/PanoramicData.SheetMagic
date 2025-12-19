@@ -51,7 +51,9 @@ public class LoadSheetTests : Test
 
 		// Loaded
 		_ = things.Should().HaveCount(6);
-		_ = (things[1]?.AbcEnum.Should().Be(AbcEnum.B));
+		var thing1 = things[1];
+		thing1.Should().NotBeNull();
+		_ = thing1.AbcEnum.Should().Be(AbcEnum.B);
 	}
 
 	[Fact]

@@ -1,11 +1,19 @@
 ﻿namespace PanoramicData.SheetMagic;
 
+/// <summary>
+/// Specifies the type of cell format.
+/// </summary>
 public enum CellFormatType
 {
+	/// <summary>Unknown or unrecognized format.</summary>
 	Unknown = 0,
+	/// <summary>General format.</summary>
 	General,
+	/// <summary>Text format.</summary>
 	Text,
+	/// <summary>Numeric format.</summary>
 	Number,
+	/// <summary>Date and/or time format.</summary>
 	DateTime
 }
 
@@ -52,8 +60,13 @@ public static class BuiltInCellFormats
 		{ 49, ("@", CellFormatType.Text) }
 	};
 
+	/// <summary>
+	/// Gets the built-in cell format information by its index.
+	/// </summary>
+	/// <param name="styleIndex">The style index to look up.</param>
+	/// <returns>A tuple containing the format string and format type, or null if not found.</returns>
 	public static (string formatString, CellFormatType formatType)? GetBuiltInCellFormatByIndex(int styleIndex)
-		=> _cellFormatsDictionary.ContainsKey(styleIndex)
-			? _cellFormatsDictionary[styleIndex]
+		=> _cellFormatsDictionary.TryGetValue(styleIndex, out var value)
+			? value
 			: null;
 }

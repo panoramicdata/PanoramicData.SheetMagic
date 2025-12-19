@@ -7,20 +7,37 @@ namespace PanoramicData.SheetMagic;
 /// </summary>
 public partial class MagicSpreadsheet
 {
+	/// <summary>
+	/// Gets a list of items of type T from the first matching sheet.
+	/// </summary>
+	/// <typeparam name="T">The type of object to load.</typeparam>
+	/// <returns>A list of items loaded from the sheet.</returns>
 	public List<T?> GetList<T>() where T : class, new()
 		=> GetList<T>(null);
 
+	/// <summary>
+	/// Gets a list of items of type T from the specified sheet.
+	/// </summary>
+	/// <typeparam name="T">The type of object to load.</typeparam>
+	/// <param name="sheetName">The sheet name, or null to use the first matching sheet.</param>
+	/// <returns>A list of items loaded from the sheet.</returns>
 	public List<T?> GetList<T>(string? sheetName) where T : class, new()
 		 => GetExtendedList<T>(sheetName).ConvertAll(static e => e.Item);
 
+	/// <summary>
+	/// Gets an extended list with additional properties from the first matching sheet.
+	/// </summary>
+	/// <typeparam name="T">The type of object to load.</typeparam>
+	/// <returns>A list of Extended items with properties not mapped to T.</returns>
 	public List<Extended<T>> GetExtendedList<T>() where T : class, new()
 		=> GetExtendedList<T>(null);
 
 	/// <summary>
-	/// Get sheet data
+	/// Gets an extended list with additional properties from the specified sheet.
 	/// </summary>
-	/// <typeparam name="T">The type of object to load</typeparam>
-	/// <param name="sheetName">The sheet name (if null, uses the first sheet in the workbook)</param>
+	/// <typeparam name="T">The type of object to load.</typeparam>
+	/// <param name="sheetName">The sheet name, or null to use the first matching sheet.</param>
+	/// <returns>A list of Extended items with properties not mapped to T.</returns>
 	public List<Extended<T>> GetExtendedList<T>(string? sheetName) where T : class, new()
 	{
 		ValidateDocumentLoaded();

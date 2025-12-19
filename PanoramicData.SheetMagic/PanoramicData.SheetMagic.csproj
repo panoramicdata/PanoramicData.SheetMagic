@@ -8,6 +8,7 @@
 		<RepositoryUrl>https://github.com/panoramicdata/PanoramicData.SheetMagic</RepositoryUrl>
 		<RepositoryType>GIT</RepositoryType>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Description>A library for easily saving/loading generic lists to/from XLSX workbooks.</Description>
 		<PackageIcon>Icon.png</PackageIcon>
 		<PackageId>PanoramicData.SheetMagic</PackageId>
@@ -30,7 +31,6 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<!--<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />-->
 	</ItemGroup>
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

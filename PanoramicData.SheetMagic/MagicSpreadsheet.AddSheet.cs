@@ -11,14 +11,32 @@ public partial class MagicSpreadsheet
 {
 	private const int SheetNameCharacterLimit = 31;
 
+	/// <summary>
+	/// Adds a sheet with the specified items using default options.
+	/// </summary>
+	/// <typeparam name="T">The type of items to add.</typeparam>
+	/// <param name="items">The list of items to write to the sheet.</param>
 	public void AddSheet<T>(List<T> items)
 		=> AddSheet(items, null);
 
+	/// <summary>
+	/// Adds a sheet with the specified items and sheet name.
+	/// </summary>
+	/// <typeparam name="T">The type of items to add.</typeparam>
+	/// <param name="items">The list of items to write to the sheet.</param>
+	/// <param name="sheetName">The name of the sheet, or null to auto-generate.</param>
 	public void AddSheet<T>(
 		List<T> items,
 		string? sheetName)
 		=> AddSheet(items, sheetName, _options.DefaultAddSheetOptions.Clone());
 
+	/// <summary>
+	/// Adds a sheet with the specified items, sheet name, and options.
+	/// </summary>
+	/// <typeparam name="T">The type of items to add.</typeparam>
+	/// <param name="items">The list of items to write to the sheet.</param>
+	/// <param name="sheetName">The name of the sheet, or null to auto-generate.</param>
+	/// <param name="addSheetOptions">Options for configuring how the sheet is added.</param>
 	public void AddSheet<T>(
 		List<T> items,
 		string? sheetName,

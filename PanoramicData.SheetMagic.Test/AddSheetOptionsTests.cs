@@ -1,8 +1,4 @@
-﻿using AwesomeAssertions;
-using PanoramicData.SheetMagic.Test.Models;
-using System.Collections.Generic;
-using System.Drawing;
-using Xunit;
+﻿using System.Drawing;
 
 namespace PanoramicData.SheetMagic.Test;
 
@@ -109,7 +105,7 @@ public class AddSheetOptionsTests : Test
 
 				// Make sure that there are no "default" values we know are NOT in the test data
 				Assert.All(reloadedAnimals, extendedAnimal => Assert.NotEqual(0, extendedAnimal.Item!.Id));
-				Assert.All(reloadedAnimals, extendedAnimal => extendedAnimal.Item!.Name.Should().NotBe(string.Empty));
+				Assert.All(reloadedAnimals, static extendedAnimal => extendedAnimal.Item!.Name.Should().NotBe(string.Empty));
 			}
 		}
 		finally

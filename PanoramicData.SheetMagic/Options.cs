@@ -1,5 +1,4 @@
 ﻿using PanoramicData.SheetMagic.Interfaces;
-using System.Collections.Generic;
 
 namespace PanoramicData.SheetMagic;
 

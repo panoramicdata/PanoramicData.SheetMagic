@@ -1,7 +1,4 @@
-﻿using PanoramicData.SheetMagic.Exceptions;
-using System.Collections.Generic;
-
-namespace PanoramicData.SheetMagic;
+﻿namespace PanoramicData.SheetMagic;
 
 public class AddSheetOptions
 {

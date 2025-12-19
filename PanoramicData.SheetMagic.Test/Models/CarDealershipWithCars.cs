@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PanoramicData.SheetMagic.Test.Models;
+﻿namespace PanoramicData.SheetMagic.Test.Models;
 
 public class CarDealershipWithCars : CarDealership
 {

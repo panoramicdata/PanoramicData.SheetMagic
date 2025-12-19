@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PanoramicData.SheetMagic;
+﻿namespace PanoramicData.SheetMagic;
 
 public class Extended<T> where T : class
 {

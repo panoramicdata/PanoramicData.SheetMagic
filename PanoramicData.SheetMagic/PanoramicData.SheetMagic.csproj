@@ -20,6 +20,7 @@
 		</PackageReleaseNotes>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	</PropertyGroup>
 
@@ -36,6 +37,7 @@
 			<_Parameter1>$(MSBuildProjectName).Test</_Parameter1>
 		</AssemblyAttribute>
 		<None Include="Icon.png" Pack="true" PackagePath="" />
+		<None Include="..\README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 </Project>

@@ -1,0 +1,9 @@
+﻿global using DocumentFormat.OpenXml.Packaging;
+global using DocumentFormat.OpenXml.Spreadsheet;
+global using PanoramicData.SheetMagic.Exceptions;
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Reflection;
+global using System.Text.RegularExpressions;

@@ -1,8 +1,4 @@
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using System;
 using System.Globalization;
-using System.Linq;
 
 namespace PanoramicData.SheetMagic;
 
@@ -117,8 +113,8 @@ public partial class MagicSpreadsheet
 	private static Cell CreateBooleanCell(string header, uint index, bool booleanValue) =>
 		new(new CellValue(booleanValue))
 		{
-		 DataType = CellValues.Boolean,
-		 CellReference = header + index
+			DataType = CellValues.Boolean,
+			CellReference = header + index
 		};
 
 	private static string GetCellValueString(Cell cell, SharedStringTablePart? stringTable)
@@ -209,7 +205,7 @@ public partial class MagicSpreadsheet
 			var inlineString = cell.Elements<InlineString>().FirstOrDefault();
 			textValue = inlineString?.Text?.Text;
 		}
-		
+
 		textValue ??= cell.InnerText;
 
 		// Handle special values for string cells as well (since Infinity values are stored as text)
@@ -375,7 +371,7 @@ public partial class MagicSpreadsheet
 			var inlineString = cell.Elements<InlineString>().FirstOrDefault();
 			textValue = inlineString?.Text?.Text;
 		}
-		
+
 		textValue ??= cell.InnerText;
 
 		// Handle special Infinity values for object type

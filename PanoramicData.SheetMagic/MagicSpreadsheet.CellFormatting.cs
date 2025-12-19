@@ -1,7 +1,3 @@
-using DocumentFormat.OpenXml.Spreadsheet;
-using System;
-using System.Linq;
-
 namespace PanoramicData.SheetMagic;
 
 /// <summary>
@@ -82,14 +78,14 @@ public partial class MagicSpreadsheet
 			}
 
 			var cellFormat = (CellFormat)cellFormats.ElementAt(styleIndex);
-			
+
 			if (cellFormat.NumberFormatId?.HasValue != true)
 			{
 				return null;
 			}
 
 			var formatString = GetFormatString(cellFormat.NumberFormatId.Value, numberingFormats);
-			
+
 			if (string.IsNullOrEmpty(formatString))
 			{
 				return null;

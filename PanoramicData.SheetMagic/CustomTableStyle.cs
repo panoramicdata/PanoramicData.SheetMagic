@@ -1,5 +1,4 @@
-﻿using PanoramicData.SheetMagic.Exceptions;
-using PanoramicData.SheetMagic.Interfaces;
+﻿using PanoramicData.SheetMagic.Interfaces;
 
 namespace PanoramicData.SheetMagic;
 

@@ -1,5 +1,3 @@
-using System;
-
 namespace PanoramicData.SheetMagic.Exceptions;
 
 public abstract class SheetMagicException : Exception

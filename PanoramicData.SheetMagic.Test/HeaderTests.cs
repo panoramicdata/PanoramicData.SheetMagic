@@ -1,9 +1,4 @@
-﻿using AwesomeAssertions;
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
-
-namespace PanoramicData.SheetMagic.Test;
+﻿namespace PanoramicData.SheetMagic.Test;
 
 public class HeaderTests : Test
 {

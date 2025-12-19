@@ -1,9 +1,3 @@
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace PanoramicData.SheetMagic;
 
 /// <summary>
@@ -381,7 +375,7 @@ public partial class MagicSpreadsheet
 				SetItemProperty(item, (int?)typedValue2, propertyName);
 				break;
 			case null:
-			 SetItemProperty(item, null, propertyName);
+				SetItemProperty(item, null, propertyName);
 				break;
 			default:
 				throw new InvalidOperationException($"Invalid {propertyTypeName} value type for {cellValue}: {cellValue.GetType().Name}");

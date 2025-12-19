@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PanoramicData.SheetMagic.Test.Models;
+﻿namespace PanoramicData.SheetMagic.Test.Models;
 
 public class CarDealership
 {

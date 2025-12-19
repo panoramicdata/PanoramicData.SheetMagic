@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PanoramicData.SheetMagic.Exceptions;
+﻿namespace PanoramicData.SheetMagic.Exceptions;
 
 public class ValidationException : SheetMagicException
 {

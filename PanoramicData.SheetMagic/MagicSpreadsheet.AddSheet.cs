@@ -1,11 +1,5 @@
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using PanoramicData.SheetMagic.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Table = DocumentFormat.OpenXml.Spreadsheet.Table;
 
 namespace PanoramicData.SheetMagic;
@@ -47,7 +41,7 @@ public partial class MagicSpreadsheet
 		var worksheetPart = CreateWorksheetPart(_document!, sheetName);
 		var sheetData = GetSheetData(worksheetPart);
 
-		var (propertyList, columnConfigurations, keyList, totalColumnCount) = 
+		var (propertyList, columnConfigurations, keyList, totalColumnCount) =
 			PopulateSheetData(items, addSheetOptions, type, isExtended, isJObject, sheetData);
 
 		ApplyTableStyleIfRequested(items, addSheetOptions, worksheetPart, propertyList, columnConfigurations, keyList, totalColumnCount);
@@ -63,7 +57,7 @@ public partial class MagicSpreadsheet
 					"It is not permitted to add a sheet containing no items, as this would result in a corrupted XLSX file.  " +
 					"To avoid this error, send an AddSheetOptions to the AddSheet call with ThrowExceptionOnEmptyList set to false.");
 			}
-			
+
 			return false; // Silently fail
 		}
 

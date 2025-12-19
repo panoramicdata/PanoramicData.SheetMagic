@@ -1,7 +1,4 @@
-﻿using AwesomeAssertions;
-using Xunit;
-
-namespace PanoramicData.SheetMagic.Test;
+﻿namespace PanoramicData.SheetMagic.Test;
 
 public class StringTests : Test
 {

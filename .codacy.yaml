@@ -1,0 +1,35 @@
+---
+engines:
+  duplication:
+    enabled: true
+    exclude_paths:
+      - "**/*Tests.cs"
+      - "**/obj/**"
+      - "**/bin/**"
+  metrics:
+    enabled: true
+  complexity:
+    enabled: true
+  eslint:
+    enabled: false
+  csslint:
+    enabled: false
+  pylint:
+    enabled: false
+  rubocop:
+    enabled: false
+  phpcs:
+    enabled: false
+  csharp:
+    enabled: true
+
+languages:
+  csharp:
+    enabled: true
+
+exclude_paths:
+  - "**/obj/**"
+  - "**/bin/**"
+  - "**/TestResults/**"
+  - "**/*.Designer.cs"
+  - "**/Migrations/**"

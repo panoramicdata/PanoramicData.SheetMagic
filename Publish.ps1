@@ -31,23 +31,21 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$InformationPreference = "Continue"
 
-# Helper functions for colored output using Write-Information
+# Helper functions for colored output
 function Write-Success { 
     param($Message) 
-    Write-Information "? $Message" -InformationAction Continue
-    Write-Verbose "? $Message" -Verbose
+    Write-Host "[OK] $Message" -ForegroundColor Green
 }
 
 function Write-ErrorMessage { 
     param($Message) 
-    Write-Error "? $Message" -ErrorAction Continue
+    Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
 
 function Write-Step { 
     param($Message) 
-    Write-Information "`n==> $Message" -InformationAction Continue
+    Write-Host "`n==> $Message" -ForegroundColor Cyan
 }
 
 # Script variables
@@ -61,9 +59,9 @@ $NuGetSource = "https://api.nuget.org/v3/index.json"
 Set-Location $ScriptRoot
 
 try {
-    Write-Information "`n??????????????????????????????????????????????????????" -InformationAction Continue
-    Write-Information "?  PanoramicData.SheetMagic - NuGet Publish Script     ?" -InformationAction Continue
-    Write-Information "??????????????????????????????????????????????????????`n" -InformationAction Continue
+    Write-Host "`n=============================================" -ForegroundColor Cyan
+    Write-Host "  PanoramicData.SheetMagic - NuGet Publish  " -ForegroundColor Cyan
+    Write-Host "=============================================`n" -ForegroundColor Cyan
 
     # Step 1: Check Git status
     Write-Step "Checking Git working directory status..."
@@ -85,7 +83,7 @@ try {
     # Get current branch and latest commit
     $currentBranch = git rev-parse --abbrev-ref HEAD
     $latestCommit = git rev-parse --short HEAD
-    Write-Information "Branch: $currentBranch | Commit: $latestCommit"
+    Write-Host "Branch: $currentBranch | Commit: $latestCommit" -ForegroundColor Gray
 
     # Step 2: Run unit tests (unless skipped)
     if (-not $SkipTests) {
@@ -101,7 +99,7 @@ try {
         Write-Success "All unit tests passed"
     }
     else {
-        Write-Warning "? Skipping unit tests (not recommended)"
+        Write-Warning "[SKIP] Skipping unit tests (not recommended)"
     }
 
     # Step 3: Build and pack the project
@@ -131,7 +129,7 @@ try {
 
     $packageName = $packagePath.Name
     Write-Success "Found package: $packageName"
-    Write-Information "Package path: $($packagePath.FullName)"
+    Write-Host "Package path: $($packagePath.FullName)" -ForegroundColor Gray
 
     # Step 5: Check for NuGet API key
     Write-Step "Checking NuGet API key..."
@@ -139,7 +137,7 @@ try {
     if (-not (Test-Path $NuGetKeyFile)) {
         Write-ErrorMessage "NuGet API key file not found: $NuGetKeyFile"
         Write-Warning "`nPlease create the file and add your NuGet API key to it."
-        Write-Information "You can get an API key from: https://www.nuget.org/account/apikeys"
+        Write-Host "You can get an API key from: https://www.nuget.org/account/apikeys"
         exit 1
     }
 
@@ -148,7 +146,7 @@ try {
     if ([string]::IsNullOrWhiteSpace($apiKey)) {
         Write-ErrorMessage "NuGet API key file is empty: $NuGetKeyFile"
         Write-Warning "`nPlease add your NuGet API key to the file."
-        Write-Information "You can get an API key from: https://www.nuget.org/account/apikeys"
+        Write-Host "You can get an API key from: https://www.nuget.org/account/apikeys"
         exit 1
     }
 
@@ -156,26 +154,16 @@ try {
 
     # Step 6: Publish to NuGet (or dry run)
     if ($DryRun) {
-        Write-Warning "`n? DRY RUN MODE - Package will NOT be published"
-        Write-Information "`nWould publish:" -InformationAction Continue
-        Write-Information "  Package: $packageName" -InformationAction Continue
-        Write-Information "  Source:  $NuGetSource" -InformationAction Continue
+        Write-Host "`n[DRY RUN] Package will NOT be published" -ForegroundColor Yellow
+        Write-Host "`nWould publish:"
+        Write-Host "  Package: $packageName"
+        Write-Host "  Source:  $NuGetSource"
         Write-Success "Dry run completed successfully"
     }
     else {
         Write-Step "Publishing to NuGet.org..."
-        
-        # Confirm before publishing
-        Write-Warning "`nAbout to publish:"
-        Write-Information "  Package: $packageName" -InformationAction Continue
-        Write-Information "  Source:  $NuGetSource" -InformationAction Continue
-        
-        $confirmation = Read-Host "`nDo you want to continue? (yes/no)"
-        
-        if ($confirmation -ne "yes") {
-            Write-Warning "`n? Publish cancelled by user"
-            exit 0
-        }
+        Write-Host "  Package: $packageName"
+        Write-Host "  Source:  $NuGetSource"
 
         dotnet nuget push $packagePath.FullName --api-key $apiKey --source $NuGetSource --skip-duplicate
         
@@ -185,14 +173,14 @@ try {
         }
 
         Write-Success "Package published successfully to NuGet.org!"
-        Write-Information "`n?? Package $packageName is now available on NuGet.org" -InformationAction Continue
-        Write-Verbose "   It may take a few minutes to appear in search results.`n" -Verbose
+        Write-Host "`nPackage $packageName is now available on NuGet.org" -ForegroundColor Green
+        Write-Host "It may take a few minutes to appear in search results.`n" -ForegroundColor Gray
     }
 
 }
 catch {
-    Write-Error "`n? Error: $_"
-    Write-Verbose $_.ScriptStackTrace -Verbose
+    Write-Host "`n[ERROR] $_" -ForegroundColor Red
+    Write-Verbose $_.ScriptStackTrace
     exit 1
 }
 finally {

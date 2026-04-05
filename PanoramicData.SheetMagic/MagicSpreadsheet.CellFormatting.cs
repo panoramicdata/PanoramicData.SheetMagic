@@ -37,12 +37,14 @@ public partial class MagicSpreadsheet
 			// Return the date - we have to replace lower-case 'm' with upper-case as
 			// required by C# else we get minutes
 			// Some custom formats used by customers also have @ and ; in them.
+			// Use InvariantCulture so the '/' date separator is always a literal slash.
 			return actualDate.Value.ToString(
 				formatString
 					.Replace("\\", string.Empty)
 					.Replace(";", string.Empty)
 					.Replace("@", string.Empty)
-					.Replace("m", "M"))
+					.Replace("m", "M"),
+				System.Globalization.CultureInfo.InvariantCulture)
 				.Trim();
 		}
 

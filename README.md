@@ -124,6 +124,123 @@ var options = new AddSheetOptions
 workbook.AddSheet(data, "StyledSheet", options);
 ```
 
+### Conditional Formatting
+
+Conditional formatting is configured through `AddSheetOptions.ConditionalFormats`.
+The object model is intentionally close to Excel's own configuration model:
+
+- `ConditionalFormat` selects one or more output columns, or all columns when `ColumnNames` is omitted.
+- `ConditionalFormatRule` describes one Excel rule such as `CellIs`, `ContainsBlanks`, or `ContainsErrors`.
+- `ConditionalFormatStyle` defines the differential format Excel applies when the rule matches.
+
+`ColumnNames` must match the final header text written to Excel.
+If `PropertyHeaders` is set, use those values.
+Otherwise use the `Description` attribute value or the property name.
+
+```csharp
+using System.Drawing;
+using PanoramicData.SheetMagic;
+
+var rows = new[]
+{
+    new ReportRow { Name = null, Description = "Missing name", Score = null },
+    new ReportRow { Name = "Bravo", Description = "High score", Score = 9 },
+    new ReportRow { Name = "Charlie", Description = null, Score = 4 }
+}.ToList();
+
+var options = new AddSheetOptions
+{
+    ConditionalFormats =
+    [
+        new ConditionalFormat
+        {
+            ColumnNames = ["Name", "Description"],
+            Rules =
+            [
+                new ConditionalFormatRule
+                {
+                    RuleType = ConditionalFormatRuleType.ContainsBlanks,
+                    Style = new ConditionalFormatStyle
+                    {
+                        BackgroundColor = Color.Red
+                    }
+                }
+            ]
+        },
+        new ConditionalFormat
+        {
+            ColumnNames = ["Score"],
+            Rules =
+            [
+                new ConditionalFormatRule
+                {
+                    RuleType = ConditionalFormatRuleType.ContainsBlanks,
+                    Style = new ConditionalFormatStyle
+                    {
+                        BackgroundColor = Color.Red
+                    }
+                },
+                new ConditionalFormatRule
+                {
+                    RuleType = ConditionalFormatRuleType.CellIs,
+                    Operator = ConditionalFormatOperator.GreaterThan,
+                    Formula = "5",
+                    Style = new ConditionalFormatStyle
+                    {
+                        FontColor = Color.Green,
+                        FontWeight = FontWeight.Bold
+                    }
+                }
+            ]
+        },
+        new ConditionalFormat
+        {
+            Rules =
+            [
+                new ConditionalFormatRule
+                {
+                    RuleType = ConditionalFormatRuleType.ContainsErrors,
+                    Style = new ConditionalFormatStyle
+                    {
+                        FontWeight = FontWeight.Bold
+                    }
+                }
+            ]
+        }
+    ]
+};
+
+using var workbook = new MagicSpreadsheet(new FileInfo("ConditionalFormatting.xlsx"));
+workbook.AddSheet(rows, "Report", options);
+workbook.Save();
+
+public sealed class ReportRow
+{
+    public string? Name { get; set; }
+
+    public string? Description { get; set; }
+
+    public int? Score { get; set; }
+}
+```
+
+Supported rule types currently include:
+
+- `CellIs`
+- `Expression`
+- `ContainsBlanks`
+- `NotContainsBlanks`
+- `ContainsErrors`
+- `NotContainsErrors`
+- `ContainsText`
+- `NotContainsText`
+- `BeginsWith`
+- `EndsWith`
+- `DuplicateValues`
+- `UniqueValues`
+- `Top10`
+- `AboveAverage`
+
 ### Custom Property Headers
 
 Use the `Description` attribute to customize column headers:

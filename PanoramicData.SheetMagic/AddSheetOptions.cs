@@ -3,6 +3,42 @@
 /// <summary>
 /// Options for configuring how a sheet is added to a spreadsheet.
 /// </summary>
+/// <example>
+/// <code>
+/// var options = new AddSheetOptions
+/// {
+///     ConditionalFormats =
+///     [
+///         new ConditionalFormat
+///         {
+///             ColumnNames = ["Score"],
+///             Rules =
+///             [
+///                 new ConditionalFormatRule
+///                 {
+///                     RuleType = ConditionalFormatRuleType.ContainsBlanks,
+///                     Style = new ConditionalFormatStyle
+///                     {
+///                         BackgroundColor = System.Drawing.Color.Red
+///                     }
+///                 },
+///                 new ConditionalFormatRule
+///                 {
+///                     RuleType = ConditionalFormatRuleType.CellIs,
+///                     Operator = ConditionalFormatOperator.GreaterThan,
+///                     Formula = "5",
+///                     Style = new ConditionalFormatStyle
+///                     {
+///                         FontColor = System.Drawing.Color.Green,
+///                         FontWeight = FontWeight.Bold
+///                     }
+///                 }
+///             ]
+///         }
+///     ]
+/// };
+/// </code>
+/// </example>
 public class AddSheetOptions
 {
 	/// <summary>
@@ -52,6 +88,44 @@ public class AddSheetOptions
 	public bool ThrowExceptionOnEmptyList { get; set; } = true;
 
 	/// <summary>
+	/// Optional list of conditional formatting specifications to apply to the sheet.
+	/// Each ConditionalFormat can target specific columns and contain multiple rules.
+	/// </summary>
+	/// <remarks>
+	/// Column names must match the final header text written to Excel.
+	/// If <see cref="PropertyHeaders"/> is set, use those values.
+	/// Otherwise use the property's <c>Description</c> attribute value, or the property name when no description is present.
+	/// Leave <see cref="ConditionalFormat.ColumnNames"/> empty to apply a conditional format to every exported column.
+	/// </remarks>
+	/// <example>
+	/// <code>
+	/// var options = new AddSheetOptions
+	/// {
+	///     PropertyHeaders = ["Name", "Description", "Score"],
+	///     ConditionalFormats =
+	///     [
+	///         new ConditionalFormat
+	///         {
+	///             ColumnNames = ["Name", "Description"],
+	///             Rules =
+	///             [
+	///                 new ConditionalFormatRule
+	///                 {
+	///                     RuleType = ConditionalFormatRuleType.ContainsBlanks,
+	///                     Style = new ConditionalFormatStyle
+	///                     {
+	///                         BackgroundColor = System.Drawing.Color.Red
+	///                     }
+	///                 }
+	///             ]
+	///         }
+	///     ]
+	/// };
+	/// </code>
+	/// </example>
+	public List<ConditionalFormat>? ConditionalFormats { get; set; }
+
+	/// <summary>
 	/// Validates the options configuration.
 	/// </summary>
 	/// <param name="tableStyles">The list of custom table styles to validate against.</param>
@@ -61,6 +135,14 @@ public class AddSheetOptions
 		if (IncludeProperties != null && ExcludeProperties != null)
 		{
 			throw new ValidationException($"Cannot set both {nameof(IncludeProperties)} and {nameof(ExcludeProperties)}");
+		}
+
+		if (ConditionalFormats is not null)
+		{
+			foreach (var conditionalFormat in ConditionalFormats)
+			{
+				conditionalFormat.Validate();
+			}
 		}
 
 		TableOptions?.Validate(tableStyles);
@@ -99,6 +181,34 @@ public class AddSheetOptions
 					ShowTotalsRow = TableOptions.ShowTotalsRow,
 					XlsxTableStyle = TableOptions.XlsxTableStyle
 				},
-			ThrowExceptionOnEmptyList = ThrowExceptionOnEmptyList
+			ThrowExceptionOnEmptyList = ThrowExceptionOnEmptyList,
+			ConditionalFormats = ConditionalFormats?.Select(cf => new ConditionalFormat
+			{
+				ColumnNames = cf.ColumnNames is null ? null : [.. cf.ColumnNames],
+				Rules = [.. cf.Rules.Select(r => new ConditionalFormatRule
+				{
+					RuleType = r.RuleType,
+					Operator = r.Operator,
+					Formula = r.Formula,
+					Formula2 = r.Formula2,
+					Text = r.Text,
+					Rank = r.Rank,
+					Bottom = r.Bottom,
+					Percent = r.Percent,
+					AboveAverage = r.AboveAverage,
+					EqualAverage = r.EqualAverage,
+					StopIfTrue = r.StopIfTrue,
+					Style = new ConditionalFormatStyle
+					{
+						FontColor = r.Style.FontColor,
+						FontWeight = r.Style.FontWeight,
+						Italic = r.Style.Italic,
+						Strikethrough = r.Style.Strikethrough,
+						BackgroundColor = r.Style.BackgroundColor,
+						BorderColor = r.Style.BorderColor,
+						NumberFormat = r.Style.NumberFormat
+					}
+				})]
+			}).ToList()
 		};
 }

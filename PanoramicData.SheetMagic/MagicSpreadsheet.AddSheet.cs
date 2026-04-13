@@ -62,6 +62,8 @@ public partial class MagicSpreadsheet
 		var (propertyList, columnConfigurations, keyList, totalColumnCount) =
 			PopulateSheetData(items, addSheetOptions, type, isExtended, isJObject, sheetData);
 
+		ApplyConditionalFormatting(addSheetOptions, worksheetPart, propertyList, keyList, items.Count);
+
 		ApplyTableStyleIfRequested(items, addSheetOptions, worksheetPart, propertyList, columnConfigurations, keyList, totalColumnCount);
 	}
 

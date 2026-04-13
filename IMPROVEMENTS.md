@@ -1,8 +1,18 @@
 # PanoramicData.SheetMagic - Improvement Plan
 
 **Generated:** December 2024  
-**Last Updated:** December 2024  
+**Last Updated:** April 2026  
 **Based on:** Code Coverage Analysis, Static Analysis, Code Quality Review
+
+---
+
+## April 2026 - Conditional Formatting
+
+- Added `AddSheetOptions.ConditionalFormats` to configure Excel-style conditional formatting when writing sheets.
+- Added public conditional formatting model types: `ConditionalFormat`, `ConditionalFormatRule`, `ConditionalFormatStyle`, `ConditionalFormatRuleType`, and `ConditionalFormatOperator`.
+- Implemented OpenXML worksheet generation that writes one conditional-formatting block per target column so Excel-relative formulas evaluate correctly.
+- Added `ConditionalFormattingTests.cs` covering multi-rule, multi-column, and all-column scenarios.
+- Added README guidance and XML documentation examples for the new API.
 
 ---
 
@@ -98,7 +108,7 @@ The `MagicSpreadsheet` class is split across multiple partial class files:
 ## Current Test Results
 
 ```
-Test summary: total: 124, failed: 0, succeeded: 123, skipped: 1
+Test summary: total: 127, failed: 0, succeeded: 126, skipped: 1
 ```
 
 ### Coverage by Class

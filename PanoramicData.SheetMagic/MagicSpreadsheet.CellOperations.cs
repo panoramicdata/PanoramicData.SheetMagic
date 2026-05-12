@@ -149,13 +149,15 @@ public partial class MagicSpreadsheet
 
 	private static object? GetCellValueByDataType(Cell cell, SharedStringTablePart? stringTable, string? cellValueText)
 	{
-		var dataType = (CellValues)cell.DataType!;
-		if (dataType == CellValues.SharedString) return GetSharedStringValue(stringTable, cellValueText);
-		if (dataType == CellValues.Boolean) return ParseBooleanValue(cellValueText);
-		if (dataType == CellValues.Number) return ParseNumberValue(cellValueText);
-		if (dataType == CellValues.Date) return DateTime.Parse(cellValueText!);
-		if (dataType == CellValues.Error || dataType == CellValues.String || dataType == CellValues.InlineString) return GetStringOrInfinityValue(cellValueText, cell);
-		throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}");
+		return (CellValues)cell.DataType! switch
+		{
+			CellValues.SharedString => GetSharedStringValue(stringTable, cellValueText),
+			CellValues.Boolean => ParseBooleanValue(cellValueText),
+			CellValues.Number => ParseNumberValue(cellValueText),
+			CellValues.Date => DateTime.Parse(cellValueText!),
+			CellValues.Error or CellValues.String or CellValues.InlineString => GetStringOrInfinityValue(cellValueText, cell),
+			_ => throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}"),
+		};
 	}
 
 	private static string GetSharedStringValue(SharedStringTablePart? stringTable, string? cellValueText)
@@ -298,18 +300,16 @@ public partial class MagicSpreadsheet
 
 	private static object? GetCellValueWithDataType<T>(Cell cell, SharedStringTablePart? stringTable, string? cellValueText)
 	{
-		if (cell.DataType is null)
+		return (cell.DataType is null ? null : (CellValues?)cell.DataType) switch
 		{
-			return null;
-		}
-
-		var dataType = (CellValues)cell.DataType;
-		if (dataType == CellValues.SharedString) return GetSharedStringValueTyped<T>(stringTable, cellValueText);
-		if (dataType == CellValues.Boolean) return ParseBooleanValueTyped(cellValueText);
-		if (dataType == CellValues.Number) return ParseNumberTyped(cellValueText);
-		if (dataType == CellValues.Date) return ParseDateTyped(cellValueText);
-		if (dataType == CellValues.Error || dataType == CellValues.String || dataType == CellValues.InlineString) return ParseStringOrInfinityTyped<T>(cellValueText, cell);
-		throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}");
+			null => null,
+			CellValues.SharedString => GetSharedStringValueTyped<T>(stringTable, cellValueText),
+			CellValues.Boolean => ParseBooleanValueTyped(cellValueText),
+			CellValues.Number => ParseNumberTyped(cellValueText),
+			CellValues.Date => ParseDateTyped(cellValueText),
+			CellValues.Error or CellValues.String or CellValues.InlineString => ParseStringOrInfinityTyped<T>(cellValueText, cell),
+			_ => throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}"),
+		};
 	}
 
 	private static object? GetSharedStringValueTyped<T>(SharedStringTablePart? stringTable, string? cellValueText)

@@ -7,7 +7,7 @@
     <PackageVersion Include="AwesomeAssertions.Analyzers" Version="9.0.8" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="coverlet.collector" Version="8.0.1" />
-    <PackageVersion Include="DocumentFormat.OpenXml" Version="[2.20.0,4.0.0)" />
+    <PackageVersion Include="DocumentFormat.OpenXml" Version="[2.20.0,3.0.0)" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />

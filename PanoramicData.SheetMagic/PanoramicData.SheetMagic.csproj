@@ -16,8 +16,11 @@
     <Nullable>enable</Nullable>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes>
-			Enhanced logic to handle missing text cells (this can happen with empty strings, if they have no formatting, and is a normal Excel optimization) in the Excel file's XML. These cell values are now returned as empty strings for consistency.
-		</PackageReleaseNotes>
+		fix: support DocumentFormat.OpenXml 3.x by replacing CellValues switch expressions with if/else chains
+		CellValues is no longer a const enum in OpenXml 3.x, causing InvalidProgramException
+		at runtime when switch expressions using it are JIT-compiled. Widened the package
+		version constraint from [2.20.0,3.0.0) to [2.20.0,4.0.0) to allow 3.x compatibility.
+	</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>

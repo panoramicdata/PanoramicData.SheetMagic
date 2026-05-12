@@ -15,11 +15,11 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>
-		fix: support DocumentFormat.OpenXml 3.x by replacing CellValues switch expressions with if/else chains
-		CellValues is no longer a const enum in OpenXml 3.x, causing InvalidProgramException
-		at runtime when switch expressions using it are JIT-compiled. Widened the package
-		version constraint from [2.20.0,3.0.0) to [2.20.0,4.0.0) to allow 3.x compatibility.
+	<PackageReleaseNotes>
+		fix: compile against DocumentFormat.OpenXml 3.3.0 to prevent InvalidProgramException at runtime
+		when loaded alongside OpenXml 3.x (e.g. via PanoramicData.Render). The previous release
+		fixed CellValues switch expressions but was still compiled against 2.x; this release
+		compiles against 3.3.0 directly, ensuring full binary compatibility.
 	</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

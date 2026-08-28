@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -28,10 +29,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <PrivateAssets>all</PrivateAssets>
@@ -42,7 +39,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
+  <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" PrivateAssets="all" /></ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PanoramicData.SheetMagic\PanoramicData.SheetMagic.csproj" />
   </ItemGroup>

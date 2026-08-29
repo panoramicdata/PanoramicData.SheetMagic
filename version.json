@@ -1,5 +1,6 @@
 ﻿{
   "version": "3.1",
+  "versionHeightOffset": 136,
   "publicReleaseRefSpec": [
     "^refs/heads/main",
     "^refs/heads/main$",

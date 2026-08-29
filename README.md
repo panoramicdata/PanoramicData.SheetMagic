@@ -18,10 +18,15 @@ Easily save/load data to/from Excel (XLSX) documents using strongly-typed C# cla
 ### Versioning
 
 The `major.minor` prefix comes from `version.json` and the patch number is the
-Nerdbank.GitVersioning commit height, so it restarts whenever the prefix changes. The
-prefix sat at `3.0` from 2020 to 2026 across 53 releases and is not used to signal API
-breaks - check the package dependencies and release notes rather than inferring
-compatibility from the version alone.
+Nerdbank.GitVersioning commit height. The prefix sat at `3.0` from 2020 to 2026 across 53
+releases and is not used to signal API breaks - check the package dependencies and release
+notes rather than inferring compatibility from the version alone.
+
+The height restarts from zero whenever the prefix changes, which would have dropped the
+patch number from 136 to 1 when the prefix moved to `3.1`. `versionHeightOffset` in
+`version.json` compensates for that, so numbering continues from where the `3.0` series
+left off rather than restarting. Do not remove it: without it the next build would be
+numbered *below* releases that are already published.
 
 One such change is worth calling out, because the package metadata states it but the
 version number does not: only one DocumentFormat.OpenXml assembly can load per process,

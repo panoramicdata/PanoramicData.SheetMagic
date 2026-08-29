@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml;
+﻿using DocumentFormat.OpenXml;
 using PanoramicData.SheetMagic.Extensions;
 using Table = DocumentFormat.OpenXml.Spreadsheet.Table;
 
@@ -180,7 +180,7 @@ public partial class MagicSpreadsheet
 
 	private void ValidateSheetNameUniqueness(string sheetName)
 	{
-		var sheetExists = _document!.WorkbookPart!.Workbook.Sheets?
+		var sheetExists = _document!.WorkbookPart!.Workbook!.Sheets?
 			.Any(existingSheet => string.Equals(((Sheet)existingSheet).Name!.Value, sheetName, StringComparison.InvariantCultureIgnoreCase)) ?? false;
 
 		if (sheetExists)
@@ -190,7 +190,7 @@ public partial class MagicSpreadsheet
 	}
 
 	private static SheetData GetSheetData(WorksheetPart worksheetPart)
-		=> worksheetPart.Worksheet.GetFirstChild<SheetData>()
+		=> worksheetPart.Worksheet!.GetFirstChild<SheetData>()
 			?? throw new InvalidOperationException("No SheetData in Worksheet.");
 
 	private (List<PropertyInfo> propertyList, Columns columnConfigurations, List<string> keyList, uint totalColumnCount)
@@ -287,7 +287,7 @@ public partial class MagicSpreadsheet
 		var tableDefinitionPart = worksheetPart.AddNewPart<TableDefinitionPart>();
 		tableDefinitionPart.Table = new Table
 		{
-			Id = (uint)(_document!.WorkbookPart!.Workbook.Sheets?.Count() ?? 0),
+			Id = (uint)(_document!.WorkbookPart!.Workbook!.Sheets?.Count() ?? 0),
 			Name = addSheetOptions.TableOptions!.Name,
 			DisplayName = addSheetOptions.TableOptions.DisplayName,
 			Reference = reference,
@@ -311,7 +311,7 @@ public partial class MagicSpreadsheet
 	{
 		var tableParts = new TableParts { Count = 1U };
 		tableParts.Append(new TablePart { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
-		worksheetPart.Worksheet.Append(tableParts);
+		worksheetPart.Worksheet!.Append(tableParts);
 	}
 
 	private void AddJObjectItems<T>(
@@ -334,8 +334,8 @@ public partial class MagicSpreadsheet
 			SheetId = (uint)document.WorkbookPart.WorksheetParts.Count() + 1,
 			Name = sheetName
 		};
-		document.WorkbookPart.Workbook.Sheets ??= new Sheets();
-		_ = document.WorkbookPart.Workbook.Sheets.AppendChild(sheet);
+		document.WorkbookPart.Workbook!.Sheets ??= new Sheets();
+		_ = document.WorkbookPart.Workbook!.Sheets.AppendChild(sheet);
 
 		worksheetPart.Worksheet = worksheet;
 		return worksheetPart;

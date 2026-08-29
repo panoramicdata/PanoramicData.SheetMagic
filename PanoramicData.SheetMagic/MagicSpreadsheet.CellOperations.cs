@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace PanoramicData.SheetMagic;
 
@@ -123,7 +123,7 @@ public partial class MagicSpreadsheet
 
 		if (cell.DataType != null && (CellValues)cell.DataType == CellValues.SharedString)
 		{
-			if (stringTable == null || cellValueText == null)
+			if (stringTable?.SharedStringTable is null || cellValueText == null)
 			{
 				return string.Empty;
 			}
@@ -149,20 +149,41 @@ public partial class MagicSpreadsheet
 
 	private static object? GetCellValueByDataType(Cell cell, SharedStringTablePart? stringTable, string? cellValueText)
 	{
-		return (CellValues)cell.DataType! switch
+		// DocumentFormat.OpenXml 3.x turned CellValues from an enum into a struct, so its
+		// members are no longer compile-time constants and cannot be used as switch patterns.
+		var dataType = (CellValues)cell.DataType!;
+
+		if (dataType == CellValues.SharedString)
 		{
-			CellValues.SharedString => GetSharedStringValue(stringTable, cellValueText),
-			CellValues.Boolean => ParseBooleanValue(cellValueText),
-			CellValues.Number => ParseNumberValue(cellValueText),
-			CellValues.Date => DateTime.Parse(cellValueText!),
-			CellValues.Error or CellValues.String or CellValues.InlineString => GetStringOrInfinityValue(cellValueText, cell),
-			_ => throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}"),
-		};
+			return GetSharedStringValue(stringTable, cellValueText);
+		}
+
+		if (dataType == CellValues.Boolean)
+		{
+			return ParseBooleanValue(cellValueText);
+		}
+
+		if (dataType == CellValues.Number)
+		{
+			return ParseNumberValue(cellValueText);
+		}
+
+		if (dataType == CellValues.Date)
+		{
+			return DateTime.Parse(cellValueText!);
+		}
+
+		if (dataType == CellValues.Error || dataType == CellValues.String || dataType == CellValues.InlineString)
+		{
+			return GetStringOrInfinityValue(cellValueText, cell);
+		}
+
+		throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}");
 	}
 
 	private static string GetSharedStringValue(SharedStringTablePart? stringTable, string? cellValueText)
 	{
-		if (stringTable == null || cellValueText == null)
+		if (stringTable?.SharedStringTable is null || cellValueText == null)
 		{
 			return string.Empty;
 		}
@@ -300,21 +321,45 @@ public partial class MagicSpreadsheet
 
 	private static object? GetCellValueWithDataType<T>(Cell cell, SharedStringTablePart? stringTable, string? cellValueText)
 	{
-		return (cell.DataType is null ? null : (CellValues?)cell.DataType) switch
+		// See GetCellValueByDataType: CellValues is a struct in OpenXml 3.x, not an enum.
+		if (cell.DataType is null)
 		{
-			null => null,
-			CellValues.SharedString => GetSharedStringValueTyped<T>(stringTable, cellValueText),
-			CellValues.Boolean => ParseBooleanValueTyped(cellValueText),
-			CellValues.Number => ParseNumberTyped(cellValueText),
-			CellValues.Date => ParseDateTyped(cellValueText),
-			CellValues.Error or CellValues.String or CellValues.InlineString => ParseStringOrInfinityTyped<T>(cellValueText, cell),
-			_ => throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}"),
-		};
+			return null;
+		}
+
+		var dataType = (CellValues)cell.DataType;
+
+		if (dataType == CellValues.SharedString)
+		{
+			return GetSharedStringValueTyped<T>(stringTable, cellValueText);
+		}
+
+		if (dataType == CellValues.Boolean)
+		{
+			return ParseBooleanValueTyped(cellValueText);
+		}
+
+		if (dataType == CellValues.Number)
+		{
+			return ParseNumberTyped(cellValueText);
+		}
+
+		if (dataType == CellValues.Date)
+		{
+			return ParseDateTyped(cellValueText);
+		}
+
+		if (dataType == CellValues.Error || dataType == CellValues.String || dataType == CellValues.InlineString)
+		{
+			return ParseStringOrInfinityTyped<T>(cellValueText, cell);
+		}
+
+		throw new NotSupportedException($"Unsupported data type {cell.DataType?.Value.ToString() ?? "None"}");
 	}
 
 	private static object? GetSharedStringValueTyped<T>(SharedStringTablePart? stringTable, string? cellValueText)
 	{
-		if (stringTable == null || cellValueText == null)
+		if (stringTable?.SharedStringTable is null || cellValueText == null)
 		{
 			throw new FormatException("SharedStringTable or cell value text is null for SharedString type");
 		}

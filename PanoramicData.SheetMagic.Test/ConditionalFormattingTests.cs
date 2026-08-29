@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DrawingColor = System.Drawing.Color;
 
@@ -58,7 +58,7 @@ public class ConditionalFormattingTests : Test
 			}
 
 			using var document = SpreadsheetDocument.Open(fileInfo.FullName, false);
-			var worksheet = document.WorkbookPart!.WorksheetParts.Single().Worksheet;
+			var worksheet = document.WorkbookPart!.WorksheetParts.Single().Worksheet!;
 			var conditionalFormatting = Assert.Single(worksheet.Elements<ConditionalFormatting>());
 			Assert.Equal("C2:C3", GetSqRef(conditionalFormatting));
 
@@ -73,7 +73,7 @@ public class ConditionalFormattingTests : Test
 			Assert.Equal("5", rules[1].Elements<Formula>().Single().Text);
 			Assert.Equal(2, (int)rules[1].Priority!.Value);
 
-			var differentialFormats = document.WorkbookPart.WorkbookStylesPart!.Stylesheet.GetFirstChild<DifferentialFormats>();
+			var differentialFormats = document.WorkbookPart.WorkbookStylesPart!.Stylesheet!.GetFirstChild<DifferentialFormats>();
 			Assert.NotNull(differentialFormats);
 
 			var dxfs = differentialFormats!.Elements<DifferentialFormat>().ToList();
@@ -132,7 +132,7 @@ public class ConditionalFormattingTests : Test
 			var conditionalFormattings = document.WorkbookPart!
 				.WorksheetParts
 				.Single()
-				.Worksheet
+				.Worksheet!
 				.Elements<ConditionalFormatting>()
 				.OrderBy(GetSqRef)
 				.ToList();
@@ -193,7 +193,7 @@ public class ConditionalFormattingTests : Test
 			var conditionalFormattings = document.WorkbookPart!
 				.WorksheetParts
 				.Single()
-				.Worksheet
+				.Worksheet!
 				.Elements<ConditionalFormatting>()
 				.OrderBy(GetSqRef)
 				.ToList();
@@ -203,7 +203,7 @@ public class ConditionalFormattingTests : Test
 				.Select(cf => cf.Elements<ConditionalFormattingRule>().Single().Elements<Formula>().Single().Text)
 				.ToArray());
 
-			var differentialFormats = document.WorkbookPart.WorkbookStylesPart!.Stylesheet.GetFirstChild<DifferentialFormats>();
+			var differentialFormats = document.WorkbookPart.WorkbookStylesPart!.Stylesheet!.GetFirstChild<DifferentialFormats>();
 			Assert.NotNull(differentialFormats);
 			Assert.Equal(3, differentialFormats!.Elements<DifferentialFormat>().Count());
 			Assert.All(differentialFormats.Elements<DifferentialFormat>(), dxf => Assert.Single(dxf.Elements<Font>().Single().Elements<Bold>()));

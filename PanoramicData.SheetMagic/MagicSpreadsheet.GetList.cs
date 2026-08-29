@@ -1,4 +1,4 @@
-using PanoramicData.SheetMagic.Extensions;
+﻿using PanoramicData.SheetMagic.Extensions;
 
 namespace PanoramicData.SheetMagic;
 
@@ -68,7 +68,7 @@ public partial class MagicSpreadsheet
 	private Sheet FindSheet<T>(string? sheetName)
 	{
 		var sheets = (_document!.WorkbookPart ?? throw new InvalidOperationException("No WorkbookPart in document"))
-			.Workbook
+			.Workbook!
 			.Sheets
 			?.Cast<Sheet>()
 			.ToList()
@@ -107,7 +107,7 @@ public partial class MagicSpreadsheet
 		=> _document!.WorkbookPart!.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
 
 	private static SheetData GetSheetData(Sheet sheet, WorksheetPart worksheetPart)
-		=> worksheetPart.Worksheet.GetFirstChild<SheetData>()
+		=> worksheetPart.Worksheet!.GetFirstChild<SheetData>()
 			?? throw new FormatException($"No SheetData found for workSheet {sheet.Name}");
 
 	private static void ValidateTableDefinitionParts(Sheet sheet, WorksheetPart worksheetPart)
@@ -151,7 +151,7 @@ public partial class MagicSpreadsheet
 		IEnumerable<Row> sheetDataRows,
 		SharedStringTablePart? stringTable)
 	{
-		var table = tableDefinitionParts.Single().Table;
+		var table = tableDefinitionParts.Single().Table!;
 		var tableReference = table.Reference!.Value!;
 		var tableReferenceArray = tableReference.Split(':');
 

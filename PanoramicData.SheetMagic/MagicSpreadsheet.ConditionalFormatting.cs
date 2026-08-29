@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml;
+﻿using DocumentFormat.OpenXml;
 using PanoramicData.SheetMagic.Extensions;
 
 namespace PanoramicData.SheetMagic;
@@ -25,7 +25,7 @@ public partial class MagicSpreadsheet
 			.Concat(keyList)
 			.ToList();
 
-		var stylesheet = _document!.WorkbookPart!.WorkbookStylesPart!.Stylesheet;
+		var stylesheet = _document!.WorkbookPart!.WorkbookStylesPart!.Stylesheet!;
 		var differentialFormats = stylesheet.Descendants<DifferentialFormats>().FirstOrDefault();
 		if (differentialFormats is null)
 		{
@@ -60,7 +60,7 @@ public partial class MagicSpreadsheet
 					currentDxfId++;
 				}
 
-				worksheetPart.Worksheet.Append(cfElement);
+				worksheetPart.Worksheet!.Append(cfElement);
 			}
 		}
 

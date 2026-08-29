@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+﻿[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [![NuGet version](https://img.shields.io/nuget/v/PanoramicData.SheetMagic.svg)](https://www.nuget.org/packages/PanoramicData.SheetMagic/)
 
@@ -6,13 +6,22 @@
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/70d9929b4d3c4d8ab2d69c5209a29b6e)](https://www.codacy.com/gh/panoramicdata/PanoramicData.SheetMagic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=panoramicdata/PanoramicData.SheetMagic&amp;utm_campaign=Badge_Grade)
 ![Commit Activity](https://img.shields.io/github/commit-activity/m/panoramicdata/PanoramicData.SheetMagic)
-![.NET Version](https://img.shields.io/badge/.NET-9.0-512BD4)
+![.NET Version](https://img.shields.io/badge/.NET-10.0-512BD4)
 
 Easily save/load data to/from Excel (XLSX) documents using strongly-typed C# classes.
 
 ## Requirements
 
-- **.NET 9.0** - This library targets .NET 9.0 only
+- **.NET 10.0** - This library targets .NET 10.0 only
+- **DocumentFormat.OpenXml 3.x** - required from SheetMagic 4.0 onwards
+
+### Versioning
+
+SheetMagic follows semantic versioning. Version **4.0** moved the library from
+DocumentFormat.OpenXml 2.x to 3.x. That is a breaking change for consumers, because
+only one OpenXml assembly can be loaded per process: an application that pins OpenXml
+2.x cannot use SheetMagic 4.0, and one that pins 3.x cannot use SheetMagic 3.x.
+Consumers that must stay on OpenXml 2.x should remain on SheetMagic 3.0.x.
 
 ## Installation
 

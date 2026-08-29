@@ -13,15 +13,20 @@ Easily save/load data to/from Excel (XLSX) documents using strongly-typed C# cla
 ## Requirements
 
 - **.NET 10.0** - This library targets .NET 10.0 only
-- **DocumentFormat.OpenXml 3.x** - required from SheetMagic 4.0 onwards
+- **DocumentFormat.OpenXml 3.x** - required from 3.1 onwards
 
 ### Versioning
 
-SheetMagic follows semantic versioning. Version **4.0** moved the library from
-DocumentFormat.OpenXml 2.x to 3.x. That is a breaking change for consumers, because
-only one OpenXml assembly can be loaded per process: an application that pins OpenXml
-2.x cannot use SheetMagic 4.0, and one that pins 3.x cannot use SheetMagic 3.x.
-Consumers that must stay on OpenXml 2.x should remain on SheetMagic 3.0.x.
+The `major.minor` prefix comes from `version.json` and the patch number is the
+Nerdbank.GitVersioning commit height, so it restarts whenever the prefix changes. The
+prefix sat at `3.0` from 2020 to 2026 across 53 releases and is not used to signal API
+breaks - check the package dependencies and release notes rather than inferring
+compatibility from the version alone.
+
+One such change is worth calling out, because the package metadata states it but the
+version number does not: only one DocumentFormat.OpenXml assembly can load per process,
+and from **3.1** SheetMagic requires OpenXml **3.x**. An application that must stay on
+OpenXml 2.x should remain on **3.0.136** or earlier.
 
 ## Installation
 

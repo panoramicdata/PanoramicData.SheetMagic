@@ -15,7 +15,7 @@ public class SpreadsheetTooLargeException : SheetMagicException
 	/// <summary>
 	/// The maximum number of bytes that a serialised workbook may occupy.
 	/// </summary>
-	public const long MaximumSizeBytes = int.MaxValue;
+	public static long MaximumSizeBytes { get; } = int.MaxValue;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="SpreadsheetTooLargeException"/> class.

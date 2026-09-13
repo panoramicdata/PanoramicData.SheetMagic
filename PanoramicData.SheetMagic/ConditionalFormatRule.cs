@@ -94,6 +94,17 @@ public class ConditionalFormatRule
 	/// </example>
 	public ConditionalFormatStyle Style { get; set; } = new();
 
+	/// <summary>
+	/// The rule types whose condition is the <see cref="Text"/> being matched.
+	/// </summary>
+	private static readonly ConditionalFormatRuleType[] TextRuleTypes =
+	[
+		ConditionalFormatRuleType.ContainsText,
+		ConditionalFormatRuleType.NotContainsText,
+		ConditionalFormatRuleType.BeginsWith,
+		ConditionalFormatRuleType.EndsWith
+	];
+
 	internal void Validate()
 	{
 		if (!Style.HasFormatting())
@@ -101,52 +112,62 @@ public class ConditionalFormatRule
 			throw new ValidationException($"{nameof(ConditionalFormatRule)} must define at least one style property.");
 		}
 
-		switch (RuleType)
+		ValidateRuleTypeRequirements();
+	}
+
+	/// <summary>
+	/// Checks that the properties the rule's type requires have been set.
+	/// </summary>
+	private void ValidateRuleTypeRequirements()
+	{
+		if (RuleType == ConditionalFormatRuleType.CellIs)
 		{
-			case ConditionalFormatRuleType.CellIs:
-				if (Operator is null)
-				{
-					throw new ValidationException($"{nameof(ConditionalFormatRuleType.CellIs)} rules require {nameof(Operator)}.");
-				}
+			ValidateCellIsRule();
+			return;
+		}
 
-				if (string.IsNullOrWhiteSpace(Formula))
-				{
-					throw new ValidationException($"{nameof(ConditionalFormatRuleType.CellIs)} rules require {nameof(Formula)}.");
-				}
+		if (RuleType == ConditionalFormatRuleType.Expression)
+		{
+			RequireFormula(nameof(ConditionalFormatRuleType.Expression));
+			return;
+		}
 
-				if (Operator is ConditionalFormatOperator.Between or ConditionalFormatOperator.NotBetween && string.IsNullOrWhiteSpace(Formula2))
-				{
-					throw new ValidationException($"{Operator} rules require {nameof(Formula2)}.");
-				}
+		if (Array.IndexOf(TextRuleTypes, RuleType) >= 0)
+		{
+			if (string.IsNullOrWhiteSpace(Text))
+			{
+				throw new ValidationException($"{RuleType} rules require {nameof(Text)}.");
+			}
 
-				break;
+			return;
+		}
 
-			case ConditionalFormatRuleType.Expression:
-				if (string.IsNullOrWhiteSpace(Formula))
-				{
-					throw new ValidationException($"{nameof(ConditionalFormatRuleType.Expression)} rules require {nameof(Formula)}.");
-				}
+		if (RuleType == ConditionalFormatRuleType.Top10 && Rank == 0)
+		{
+			throw new ValidationException($"{nameof(ConditionalFormatRuleType.Top10)} rules require {nameof(Rank)} to be greater than zero.");
+		}
+	}
 
-				break;
+	private void ValidateCellIsRule()
+	{
+		if (Operator is null)
+		{
+			throw new ValidationException($"{nameof(ConditionalFormatRuleType.CellIs)} rules require {nameof(Operator)}.");
+		}
 
-			case ConditionalFormatRuleType.ContainsText:
-			case ConditionalFormatRuleType.NotContainsText:
-			case ConditionalFormatRuleType.BeginsWith:
-			case ConditionalFormatRuleType.EndsWith:
-				if (string.IsNullOrWhiteSpace(Text))
-				{
-					throw new ValidationException($"{RuleType} rules require {nameof(Text)}.");
-				}
+		RequireFormula(nameof(ConditionalFormatRuleType.CellIs));
 
-				break;
+		if (Operator is ConditionalFormatOperator.Between or ConditionalFormatOperator.NotBetween && string.IsNullOrWhiteSpace(Formula2))
+		{
+			throw new ValidationException($"{Operator} rules require {nameof(Formula2)}.");
+		}
+	}
 
-			case ConditionalFormatRuleType.Top10:
-				if (Rank == 0)
-				{
-					throw new ValidationException($"{nameof(ConditionalFormatRuleType.Top10)} rules require {nameof(Rank)} to be greater than zero.");
-				}
-
-				break;
+	private void RequireFormula(string ruleTypeName)
+	{
+		if (string.IsNullOrWhiteSpace(Formula))
+		{
+			throw new ValidationException($"{ruleTypeName} rules require {nameof(Formula)}.");
 		}
 	}
 }

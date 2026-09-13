@@ -3,9 +3,9 @@ namespace PanoramicData.SheetMagic;
 /// <summary>
 /// Property reflection helper methods
 /// </summary>
-public partial class MagicSpreadsheet
+internal static class PropertyHelpers
 {
-	private static PropertyInfo GetPropertyInfo(string path, IEnumerable<PropertyInfo> props)
+	internal static PropertyInfo GetPropertyInfo(string path, IEnumerable<PropertyInfo> props)
 	{
 		if (string.IsNullOrWhiteSpace(path))
 		{
@@ -39,7 +39,7 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private static object? GetPropertyValue(string path, object? item)
+	internal static object? GetPropertyValue(string path, object? item)
 	{
 		if (item is null)
 		{
@@ -73,7 +73,7 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private static void SetItemProperty<T, T1>(T item, T1 cellValue, string propertyName)
+	internal static void SetItemProperty<T, T1>(T item, T1 cellValue, string propertyName)
 	{
 		var cellValues = new List<object?> { cellValue };
 		_ = typeof(T).InvokeMember(propertyName,
@@ -81,7 +81,7 @@ public partial class MagicSpreadsheet
 			 Type.DefaultBinder, item, [.. cellValues]);
 	}
 
-	private static void SetItemProperty<T>(T item, object? cellValue, string propertyName)
+	internal static void SetItemProperty<T>(T item, object? cellValue, string propertyName)
 	{
 		var cellValues = new List<object?> { cellValue };
 		_ = typeof(T).InvokeMember(propertyName,

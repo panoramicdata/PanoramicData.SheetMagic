@@ -51,7 +51,7 @@ public partial class MagicSpreadsheet
 
 		ValidateAndPrepareTableOptions(addSheetOptions);
 
-		var (type, isExtended, isJObject, typeName) = AnalyzeTypeInfo<T>();
+		var (type, isExtended, isJsonObject, typeName) = AnalyzeTypeInfo<T>();
 
 		EnsureDocumentExists();
 		sheetName = DetermineAndValidateSheetName(sheetName, typeName);
@@ -59,12 +59,11 @@ public partial class MagicSpreadsheet
 		var worksheetPart = CreateWorksheetPart(_document!, sheetName);
 		var sheetData = GetSheetData(worksheetPart);
 
-		var (propertyList, columnConfigurations, keyList, totalColumnCount) =
-			PopulateSheetData(items, addSheetOptions, type, isExtended, isJObject, sheetData);
+		var layout = PopulateSheetData(items, addSheetOptions, type, isExtended, isJsonObject, sheetData);
 
-		ApplyConditionalFormatting(addSheetOptions, worksheetPart, propertyList, keyList, items.Count);
+		ApplyConditionalFormatting(addSheetOptions, worksheetPart, layout.PropertyList, layout.KeyList, items.Count);
 
-		ApplyTableStyleIfRequested(items, addSheetOptions, worksheetPart, propertyList, columnConfigurations, keyList, totalColumnCount);
+		ApplyTableStyleIfRequested(items, addSheetOptions, worksheetPart, layout);
 	}
 
 	private static bool ValidateAndHandleEmptyItems<T>(List<T> items, AddSheetOptions addSheetOptions)
@@ -105,13 +104,15 @@ public partial class MagicSpreadsheet
 		}
 	}
 
-	private static (Type type, bool isExtended, bool isJObject, string typeName) AnalyzeTypeInfo<T>()
+	private static (Type type, bool isExtended, bool isJsonObject, string typeName) AnalyzeTypeInfo<T>()
 	{
 		var type = typeof(T);
 		var isExtended = type.IsGenericType && type.GetGenericTypeDefinition().UnderlyingSystemType.FullName == "PanoramicData.SheetMagic.Extended`1";
-		var isJObject = type.FullName == "Newtonsoft.Json.Linq.JObject";
+
+		// Matched by name so that neither JSON library becomes a dependency of this one.
+		var isJsonObject = type.FullName is "System.Text.Json.Nodes.JsonObject" or "Newtonsoft.Json.Linq.JObject";
 		var typeName = isExtended ? type.GenericTypeArguments[0].Name : type.Name;
-		return (type, isExtended, isJObject, typeName);
+		return (type, isExtended, isJsonObject, typeName);
 	}
 
 	private void EnsureDocumentExists()
@@ -193,78 +194,43 @@ public partial class MagicSpreadsheet
 		=> worksheetPart.Worksheet!.GetFirstChild<SheetData>()
 			?? throw new InvalidOperationException("No SheetData in Worksheet.");
 
-	private (List<PropertyInfo> propertyList, Columns columnConfigurations, List<string> keyList, uint totalColumnCount)
-		PopulateSheetData<T>(
-			List<T> items,
-			AddSheetOptions addSheetOptions,
-			Type type,
-			bool isExtended,
-			bool isJObject,
-			SheetData sheetData)
-	{
-		if (!isJObject)
-		{
-			AddItems(
-				items,
-				addSheetOptions,
-				type,
-				isExtended,
-				sheetData,
-				out var propertyList,
-				out var columnConfigurations,
-				out var keyList,
-				out var totalColumnCount
-			);
-			return (propertyList, columnConfigurations, keyList, totalColumnCount);
-		}
-		else
-		{
-			AddJObjectItems(
-				items,
-				addSheetOptions,
-				sheetData,
-				out var propertyList,
-				out var columnConfigurations,
-				out var keyList,
-				out var totalColumnCount
-			);
-			return (propertyList, columnConfigurations, keyList, totalColumnCount);
-		}
-	}
+	private SheetLayout PopulateSheetData<T>(
+		List<T> items,
+		AddSheetOptions addSheetOptions,
+		Type type,
+		bool isExtended,
+		bool isJsonObject,
+		SheetData sheetData)
+		=> isJsonObject
+			? throw new NotImplementedException("JSON objects are not yet supported.  Use Extended<T> instead.")
+			: AddItems(items, addSheetOptions, type, isExtended, sheetData);
 
 	private void ApplyTableStyleIfRequested<T>(
 		List<T> items,
 		AddSheetOptions addSheetOptions,
 		WorksheetPart worksheetPart,
-		List<PropertyInfo> propertyList,
-		Columns columnConfigurations,
-		List<string> keyList,
-		uint totalColumnCount)
+		SheetLayout layout)
 	{
 		if (addSheetOptions?.TableOptions == null)
 		{
 			return;
 		}
 
-		var tableColumns = CreateTableColumns(propertyList, keyList, totalColumnCount, columnConfigurations);
-		var tableDefinitionPart = CreateTableDefinition(items, addSheetOptions, worksheetPart, columnConfigurations, tableColumns);
+		var tableColumns = CreateTableColumns(layout);
+		var tableDefinitionPart = CreateTableDefinition(items, addSheetOptions, worksheetPart, layout.ColumnConfigurations, tableColumns);
 		AttachTableToWorksheet(worksheetPart, tableDefinitionPart);
 	}
 
-	private static TableColumns CreateTableColumns(
-		List<PropertyInfo> propertyList,
-		List<string> keyList,
-		uint totalColumnCount,
-		Columns columnConfigurations)
+	private static TableColumns CreateTableColumns(SheetLayout layout)
 	{
-		var tableColumns = new TableColumns { Count = totalColumnCount };
+		var tableColumns = new TableColumns { Count = layout.TotalColumnCount };
 		var columnIndex = 0;
-		var combinedList = propertyList
+		var combinedList = layout.PropertyList
 			.Select(p => p.GetPropertyDescription() ?? p.Name)
-			.Concat(keyList)
+			.Concat(layout.KeyList)
 			.ToList();
 
-		foreach (var columnConfiguration in columnConfigurations)
+		foreach (var columnConfiguration in layout.ColumnConfigurations)
 		{
 			tableColumns.Append(new TableColumn
 			{
@@ -313,16 +279,6 @@ public partial class MagicSpreadsheet
 		tableParts.Append(new TablePart { Id = worksheetPart.GetIdOfPart(tableDefinitionPart) });
 		worksheetPart.Worksheet!.Append(tableParts);
 	}
-
-	private void AddJObjectItems<T>(
-		List<T> items,
-		AddSheetOptions addSheetOptions,
-		SheetData sheetData,
-		out List<PropertyInfo> propertyList,
-		out Columns columnConfigurations,
-		out List<string> keyList,
-		out uint totalColumnCount)
-		=> throw new NotImplementedException("JObjects not yet supported.  Use Extended<JObject> instead.");
 
 	private static WorksheetPart CreateWorksheetPart(SpreadsheetDocument document, string? sheetName)
 	{

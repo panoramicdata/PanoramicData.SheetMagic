@@ -9,5 +9,5 @@ public class StringTests : Test
 	[InlineData("1abc", "abc")]
 	[InlineData("abc2", "abc2")]
 	public void TweakStrings(string input, string expectedOutput)
-		=> MagicSpreadsheet.TweakString(input).Should().Be(expectedOutput);
+		=> SpreadsheetUtilities.TweakString(input).Should().Be(expectedOutput);
 }

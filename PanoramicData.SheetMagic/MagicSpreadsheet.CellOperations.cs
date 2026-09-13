@@ -279,8 +279,11 @@ public partial class MagicSpreadsheet
 	private static double? ParseDouble(string? cellValueText, Cell cell)
 	{
 		// Handle special Infinity values
-		if (cellValueText == "Infinity") return double.PositiveInfinity;
-		if (cellValueText == "-Infinity") return double.NegativeInfinity;
+		var infinity = TryParseInfinity(cellValueText);
+		if (infinity is not null)
+		{
+			return infinity;
+		}
 
 		if (int.TryParse(cellValueText, out var doubleValue))
 		{
@@ -293,8 +296,11 @@ public partial class MagicSpreadsheet
 	private static float? ParseFloat(string? cellValueText, Cell cell)
 	{
 		// Handle special Infinity values
-		if (cellValueText == "Infinity") return float.PositiveInfinity;
-		if (cellValueText == "-Infinity") return float.NegativeInfinity;
+		var infinity = TryParseInfinity(cellValueText);
+		if (infinity is not null)
+		{
+			return (float)infinity.Value;
+		}
 
 		if (float.TryParse(cellValueText, out var floatValue))
 		{
@@ -303,6 +309,19 @@ public partial class MagicSpreadsheet
 
 		throw new FormatException($"Could not convert cell {cell.CellReference} to a float.");
 	}
+
+	/// <summary>
+	/// Recognises the text that <see cref="CreateNumericOrSpecialCell"/> writes for infinite values,
+	/// which Excel itself has no numeric representation for.
+	/// </summary>
+	/// <returns>The infinity the text denotes, or null if it denotes no infinity.</returns>
+	private static double? TryParseInfinity(string? text)
+		=> text switch
+		{
+			"Infinity" => double.PositiveInfinity,
+			"-Infinity" => double.NegativeInfinity,
+			_ => null
+		};
 
 	private static bool? ParseNullableBool(string? cellValueText)
 	{
@@ -344,6 +363,11 @@ public partial class MagicSpreadsheet
 			return ParseNumberTyped(cellValueText);
 		}
 
+		return GetTextualCellValueWithDataType<T>(cell, dataType, cellValueText);
+	}
+
+	private static object? GetTextualCellValueWithDataType<T>(Cell cell, CellValues dataType, string? cellValueText)
+	{
 		if (dataType == CellValues.Date)
 		{
 			return ParseDateTyped(cellValueText);
@@ -369,14 +393,17 @@ public partial class MagicSpreadsheet
 		var sharedStringValue = sharedStringElement.InnerText;
 
 		// Handle special Infinity values for object-typed cells
-		if (typeof(T).Name == "Object")
-		{
-			if (sharedStringValue == "Infinity") return double.PositiveInfinity;
-			if (sharedStringValue == "-Infinity") return double.NegativeInfinity;
-		}
-
-		return sharedStringValue;
+		return TryParseInfinityForObject<T>(sharedStringValue) ?? (object)sharedStringValue;
 	}
+
+	/// <summary>
+	/// Infinities are written as text, so they only read back as numbers where the target type is
+	/// permissive enough to take one.
+	/// </summary>
+	private static double? TryParseInfinityForObject<T>(string? text)
+		=> typeof(T).Name == "Object"
+			? TryParseInfinity(text)
+			: null;
 
 	private static bool? ParseBooleanValueTyped(string? cellValueText)
 		=> cellValueText switch
@@ -408,22 +435,13 @@ public partial class MagicSpreadsheet
 
 	private static object? ParseStringOrInfinityTyped<T>(string? cellValueText, Cell cell)
 	{
-		// For InlineString cells, get the actual text value
-		var textValue = cellValueText;
-		if (textValue == null && cell.DataType != null && cell.DataType == CellValues.InlineString)
-		{
-			// Extract text from InlineString element
-			var inlineString = cell.Elements<InlineString>().FirstOrDefault();
-			textValue = inlineString?.Text?.Text;
-		}
-
-		textValue ??= cell.InnerText;
+		var textValue = GetCellText(cellValueText, cell);
 
 		// Handle special Infinity values for object type
-		if (typeof(T).Name == "Object")
+		var infinity = TryParseInfinityForObject<T>(textValue);
+		if (infinity is not null)
 		{
-			if (textValue == "Infinity") return double.PositiveInfinity;
-			if (textValue == "-Infinity") return double.NegativeInfinity;
+			return infinity;
 		}
 
 		try
@@ -434,5 +452,26 @@ public partial class MagicSpreadsheet
 		{
 			return null;
 		}
+	}
+
+	private static string GetCellText(string? cellValueText, Cell cell)
+	{
+		if (cellValueText is not null)
+		{
+			return cellValueText;
+		}
+
+		// For InlineString cells, get the actual text value
+		if (cell.DataType is not null && cell.DataType == CellValues.InlineString)
+		{
+			// Extract text from InlineString element
+			var inlineText = cell.Elements<InlineString>().FirstOrDefault()?.Text?.Text;
+			if (inlineText is not null)
+			{
+				return inlineText;
+			}
+		}
+
+		return cell.InnerText;
 	}
 }

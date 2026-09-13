@@ -151,13 +151,7 @@ public class AddSheetOptions
 	internal AddSheetOptions Clone()
 		=> new()
 		{
-			EnumerableCellOptions = EnumerableCellOptions == null
-				? null
-				: new EnumerableCellOptions
-				{
-					CellDelimiter = EnumerableCellOptions.CellDelimiter,
-					Expand = EnumerableCellOptions.Expand,
-				},
+			EnumerableCellOptions = CloneEnumerableCellOptions(EnumerableCellOptions),
 			ExcludeProperties = ExcludeProperties == null
 				? null
 				: [.. ExcludeProperties],
@@ -167,48 +161,69 @@ public class AddSheetOptions
 			PropertyOrder = PropertyOrder,
 			PropertyHeaders = PropertyHeaders,
 			SortExtendedProperties = SortExtendedProperties,
-			TableOptions = TableOptions == null
-				? null
-				: new TableOptions
-				{
-					CustomTableStyle = TableOptions.CustomTableStyle,
-					DisplayName = TableOptions.DisplayName,
-					Name = TableOptions.Name,
-					ShowColumnStripes = TableOptions.ShowColumnStripes,
-					ShowFirstColumn = TableOptions.ShowFirstColumn,
-					ShowLastColumn = TableOptions.ShowLastColumn,
-					ShowRowStripes = TableOptions.ShowRowStripes,
-					ShowTotalsRow = TableOptions.ShowTotalsRow,
-					XlsxTableStyle = TableOptions.XlsxTableStyle
-				},
+			TableOptions = CloneTableOptions(TableOptions),
 			ThrowExceptionOnEmptyList = ThrowExceptionOnEmptyList,
-			ConditionalFormats = ConditionalFormats?.Select(cf => new ConditionalFormat
+			ConditionalFormats = ConditionalFormats?.Select(CloneConditionalFormat).ToList()
+		};
+
+	private static EnumerableCellOptions? CloneEnumerableCellOptions(EnumerableCellOptions? enumerableCellOptions)
+		=> enumerableCellOptions is null
+			? null
+			: new EnumerableCellOptions
 			{
-				ColumnNames = cf.ColumnNames is null ? null : [.. cf.ColumnNames],
-				Rules = [.. cf.Rules.Select(r => new ConditionalFormatRule
-				{
-					RuleType = r.RuleType,
-					Operator = r.Operator,
-					Formula = r.Formula,
-					Formula2 = r.Formula2,
-					Text = r.Text,
-					Rank = r.Rank,
-					Bottom = r.Bottom,
-					Percent = r.Percent,
-					AboveAverage = r.AboveAverage,
-					EqualAverage = r.EqualAverage,
-					StopIfTrue = r.StopIfTrue,
-					Style = new ConditionalFormatStyle
-					{
-						FontColor = r.Style.FontColor,
-						FontWeight = r.Style.FontWeight,
-						Italic = r.Style.Italic,
-						Strikethrough = r.Style.Strikethrough,
-						BackgroundColor = r.Style.BackgroundColor,
-						BorderColor = r.Style.BorderColor,
-						NumberFormat = r.Style.NumberFormat
-					}
-				})]
-			}).ToList()
+				CellDelimiter = enumerableCellOptions.CellDelimiter,
+				Expand = enumerableCellOptions.Expand,
+			};
+
+	private static TableOptions? CloneTableOptions(TableOptions? tableOptions)
+		=> tableOptions is null
+			? null
+			: new TableOptions
+			{
+				CustomTableStyle = tableOptions.CustomTableStyle,
+				DisplayName = tableOptions.DisplayName,
+				Name = tableOptions.Name,
+				ShowColumnStripes = tableOptions.ShowColumnStripes,
+				ShowFirstColumn = tableOptions.ShowFirstColumn,
+				ShowLastColumn = tableOptions.ShowLastColumn,
+				ShowRowStripes = tableOptions.ShowRowStripes,
+				ShowTotalsRow = tableOptions.ShowTotalsRow,
+				XlsxTableStyle = tableOptions.XlsxTableStyle
+			};
+
+	private static ConditionalFormat CloneConditionalFormat(ConditionalFormat conditionalFormat)
+		=> new()
+		{
+			ColumnNames = conditionalFormat.ColumnNames is null ? null : [.. conditionalFormat.ColumnNames],
+			Rules = [.. conditionalFormat.Rules.Select(CloneConditionalFormatRule)]
+		};
+
+	private static ConditionalFormatRule CloneConditionalFormatRule(ConditionalFormatRule rule)
+		=> new()
+		{
+			RuleType = rule.RuleType,
+			Operator = rule.Operator,
+			Formula = rule.Formula,
+			Formula2 = rule.Formula2,
+			Text = rule.Text,
+			Rank = rule.Rank,
+			Bottom = rule.Bottom,
+			Percent = rule.Percent,
+			AboveAverage = rule.AboveAverage,
+			EqualAverage = rule.EqualAverage,
+			StopIfTrue = rule.StopIfTrue,
+			Style = CloneConditionalFormatStyle(rule.Style)
+		};
+
+	private static ConditionalFormatStyle CloneConditionalFormatStyle(ConditionalFormatStyle style)
+		=> new()
+		{
+			FontColor = style.FontColor,
+			FontWeight = style.FontWeight,
+			Italic = style.Italic,
+			Strikethrough = style.Strikethrough,
+			BackgroundColor = style.BackgroundColor,
+			BorderColor = style.BorderColor,
+			NumberFormat = style.NumberFormat
 		};
 }

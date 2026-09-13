@@ -274,7 +274,7 @@ public partial class MagicSpreadsheet
 			rowIndex++;
 			var cells = row.Descendants<Cell>().ToList();
 
-			if (ShouldSkipEmptyRow(cells, rowIndex, stringTable))
+			if (ShouldSkipEmptyRow(cells, stringTable))
 			{
 				if (_options.StopProcessingOnFirstEmptyRow)
 				{
@@ -297,7 +297,7 @@ public partial class MagicSpreadsheet
 		return list;
 	}
 
-	private bool ShouldSkipEmptyRow(List<Cell> cells, int rowIndex, SharedStringTablePart? stringTable)
+	private bool ShouldSkipEmptyRow(List<Cell> cells, SharedStringTablePart? stringTable)
 		=> cells.All(cell => (GetCellValueDirect(cell, stringTable)?.ToString() ?? string.Empty)?.Length == 0);
 
 	private (T item, Dictionary<string, object?> eiProperties) ProcessRow<T>(

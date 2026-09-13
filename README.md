@@ -359,7 +359,7 @@ using var workbook = new MagicSpreadsheet(fileInfo, options);
 
 ## Known Limitations
 
-- **JObject Support**: Direct `JObject` serialization is not yet supported. Use `Extended<object>` instead.
+- **JSON object support**: Direct `JsonObject` serialization is not yet supported. Use `Extended<object>` instead.
 - **Nested Complex Objects**: Properties of type `List<ComplexType>` cannot be loaded from Excel (though they can be saved as delimited strings).
 - **Large Integer Precision**: Excel stores all numbers as doubles, so very large `Int64`/`UInt64` values (near `MaxValue`) may lose precision.
 - **Special Values**: `double.NaN` and `null` nullable types are stored as empty strings in Excel.

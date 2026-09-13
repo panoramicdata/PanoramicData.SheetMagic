@@ -3,11 +3,19 @@ using System.Text;
 namespace PanoramicData.SheetMagic;
 
 /// <summary>
-/// Utility methods
+/// Utility methods for translating between Excel cell references and indices, and for
+/// normalising text when matching sheet, column and property names.
 /// </summary>
-public partial class MagicSpreadsheet
+internal static class SpreadsheetUtilities
 {
-	private static string ColumnLetter(int intCol)
+	private const string Letters = "abcdefghijklmnopqrstuvwxyz";
+	private const string Numbers = "0123456789";
+
+	// A plain Regex rather than a [GeneratedRegex] partial method: this type is deliberately not
+	// partial, so that it reads as the single, self-contained helper class that it is.
+	private static readonly Regex CellReferenceRegex = new(@"(?<col>([A-Z]|[a-z])+)(?<row>(\d)+)", RegexOptions.Compiled);
+
+	internal static string ColumnLetter(int intCol)
 	{
 		var intFirstLetter = (intCol / 676) + 64;
 		var intSecondLetter = (intCol % 676 / 26) + 64;
@@ -25,7 +33,7 @@ public partial class MagicSpreadsheet
 			 thirdLetter).Trim();
 	}
 
-	private static bool StringsMatch(string string1, string string2) => TweakString(string1) == TweakString(string2);
+	internal static bool StringsMatch(string string1, string string2) => TweakString(string1) == TweakString(string2);
 
 	internal static string TweakString(string text)
 	{
@@ -55,7 +63,7 @@ public partial class MagicSpreadsheet
 			 : tweakString;
 	}
 
-	private static (int columnIndex, int rowIndex) GetReference(string cellReference)
+	internal static (int columnIndex, int rowIndex) GetReference(string cellReference)
 	{
 		var match = CellReferenceRegex.Match(cellReference)
 			?? throw new ArgumentException($"Invalid cell reference {cellReference}", nameof(cellReference));

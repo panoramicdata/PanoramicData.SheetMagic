@@ -187,7 +187,22 @@ public class SaveSheetTests : Test
 	{
 		var fileInfo = GetXlsxTempFileInfo();
 
-		var dealerships = new List<CarDealershipWithCars>
+		var dealerships = CreateDealershipsWithCars();
+
+		try
+		{
+			using var s = new MagicSpreadsheet(fileInfo);
+			s.AddSheet(dealerships);
+			s.Save();
+		}
+		finally
+		{
+			fileInfo.Delete();
+		}
+	}
+
+	private static List<CarDealershipWithCars> CreateDealershipsWithCars()
+		=> new()
 		{
 			new() {
 				Name = "Slough",
@@ -232,18 +247,6 @@ public class SaveSheetTests : Test
 				EmployeeCount = 20,
 			}
 		};
-
-		try
-		{
-			using var s = new MagicSpreadsheet(fileInfo);
-			s.AddSheet(dealerships);
-			s.Save();
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
 
 	[Fact]
 	public void TypesWithoutLists_Succeeds()

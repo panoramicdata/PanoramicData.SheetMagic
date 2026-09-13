@@ -201,32 +201,7 @@ public class AddSheetOptionsTests : Test
 		{
 			using var s = new MagicSpreadsheet(fileInfo, new Options
 			{
-				TableStyles =
-				[
-					new CustomTableStyle
-					{
-						Name = "My Table Style",
-						HeaderRowStyle = new TableRowStyle
-						{
-							BackgroundColor = Color.FromArgb(112, 48, 160),
-							FontColor = Color.White,
-							FontWeight = FontWeight.Bold
-						},
-						OddRowStyle = new TableRowStyle
-						{
-							BackgroundColor = Color.FromArgb(225, 204, 240),
-						},
-						EvenRowStyle = new TableRowStyle
-						{
-							BackgroundColor = Color.LightYellow,
-						},
-						WholeTableStyle = new TableRowStyle
-						{
-							InnerBorderColor = Color.Red,
-							OuterBorderColor = Color.Blue
-						},
-					}
-				]
+				TableStyles = [CreateCustomTableStyle(CustomTableStyleName)]
 			});
 
 			var sheetOptions = new AddSheetOptions
@@ -234,34 +209,11 @@ public class AddSheetOptionsTests : Test
 				SortExtendedProperties = false,
 				TableOptions = new TableOptions
 				{
-					CustomTableStyle = "My Table Style"
+					CustomTableStyle = CustomTableStyleName
 				}
 			};
 
-			var scruffy = new Dictionary<string, object?> {
-					  { "Type", "Hamster" },
-					  { "Name", "Scruffy" }
-				 };
-			var wuffy = new Dictionary<string, object?> {
-					  { "Type", "Dog" },
-					  { "Name", "Wuffy" }
-				 };
-			var puffy = new Dictionary<string, object?> {
-					  { "Type", "Fish" },
-					  { "Name", "Puffy" }
-				 };
-			var gruffy = new Dictionary<string, object?> {
-					  { "Type", "Goat" },
-					  { "Name", "Gruffy" }
-				 };
-
-			s.AddSheet(new List<Extended<object>>
-				 {
-					  new(new object(), scruffy),
-					  new(new object(), wuffy),
-					  new(new object(), puffy),
-					  new(new object(), gruffy)
-				 }, "Animals", sheetOptions);
+			s.AddSheet(CreateAnimals(), "Animals", sheetOptions);
 			s.Save();
 		}
 		finally
@@ -269,4 +221,47 @@ public class AddSheetOptionsTests : Test
 			fileInfo.Delete();
 		}
 	}
+
+	private const string CustomTableStyleName = "My Table Style";
+
+	private static CustomTableStyle CreateCustomTableStyle(string name)
+		=> new()
+		{
+			Name = name,
+			HeaderRowStyle = new TableRowStyle
+			{
+				BackgroundColor = Color.FromArgb(112, 48, 160),
+				FontColor = Color.White,
+				FontWeight = FontWeight.Bold
+			},
+			OddRowStyle = new TableRowStyle
+			{
+				BackgroundColor = Color.FromArgb(225, 204, 240),
+			},
+			EvenRowStyle = new TableRowStyle
+			{
+				BackgroundColor = Color.LightYellow,
+			},
+			WholeTableStyle = new TableRowStyle
+			{
+				InnerBorderColor = Color.Red,
+				OuterBorderColor = Color.Blue
+			},
+		};
+
+	private static List<Extended<object>> CreateAnimals()
+		=>
+		[
+			CreateAnimal("Hamster", "Scruffy"),
+			CreateAnimal("Dog", "Wuffy"),
+			CreateAnimal("Fish", "Puffy"),
+			CreateAnimal("Goat", "Gruffy")
+		];
+
+	private static Extended<object> CreateAnimal(string type, string name)
+		=> new(new object(), new Dictionary<string, object?>
+		{
+			{ "Type", type },
+			{ "Name", name }
+		});
 }

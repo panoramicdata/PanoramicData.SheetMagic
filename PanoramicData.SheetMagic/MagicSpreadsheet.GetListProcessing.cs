@@ -11,7 +11,7 @@ public partial class MagicSpreadsheet
 			 ? $"{property.PropertyType.GetGenericTypeDefinition().Name}<{string.Join(", ", property.PropertyType.GenericTypeArguments.Select(t => t.Name))}>"
 			 : property.PropertyType.Name;
 
-		if (TryProcessSimpleType(item, cell, property, propertyName, propertyTypeName, stringTable, _options))
+		if (TryProcessSimpleType(item, cell, propertyName, propertyTypeName, stringTable, _options))
 		{
 			return;
 		}
@@ -28,7 +28,6 @@ public partial class MagicSpreadsheet
 	private static bool TryProcessSimpleType<T>(
 		T item,
 		Cell cell,
-		System.Reflection.PropertyInfo property,
 		string propertyName,
 		string propertyTypeName,
 		SharedStringTablePart? stringTable,

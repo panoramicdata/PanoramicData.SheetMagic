@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace PanoramicData.SheetMagic.Test;
 
@@ -25,24 +26,20 @@ public class AddSheetTests : Test
 	}
 
 	[Fact]
-	public void AddSheet_JObjects_WithExtendedObject_Succeeds()
+	public void AddSheet_JsonObjects_WithExtendedObject_Succeeds()
 	{
 		var fileInfo = GetXlsxTempFileInfo();
 
 		try
 		{
 			using var s = new MagicSpreadsheet(fileInfo);
-			var jObjectList = new List<JObject>
-				{
-					JObject.FromObject(new SimpleAnimal { Id = 1, Name = "alligator" }),
-					JObject.FromObject(new SimpleAnimal { Id = 2, Name = "bee" })
-				};
+			var jsonObjectList = CreateAnimalJsonObjects();
 
-			// Convert JObjects to Extended<object>
+			// Convert JsonObjects to Extended<object>
 			var extendedList = new List<Extended<object>>();
-			foreach (var jObject in jObjectList)
+			foreach (var jsonObject in jsonObjectList)
 			{
-				var extended = new Extended<object>(new(), jObject.ToObject<Dictionary<string, object?>>() ?? throw new ArgumentException("Could not convert JObject to dictionary"));
+				var extended = new Extended<object>(new(), jsonObject.Deserialize<Dictionary<string, object?>>() ?? throw new ArgumentException("Could not convert JsonObject to dictionary"));
 				extendedList.Add(extended);
 			}
 
@@ -58,22 +55,18 @@ public class AddSheetTests : Test
 		}
 	}
 
-	[Fact(Skip = "JObject support is not yet implemented. Use Extended<JObject> instead.")]
-	public void AddSheet_JObjects_Succeeds()
+	[Fact(Skip = "JsonObject support is not yet implemented. Use Extended<JsonObject> instead.")]
+	public void AddSheet_JsonObjects_Succeeds()
 	{
 		var fileInfo = GetXlsxTempFileInfo();
 
 		try
 		{
 			using var s = new MagicSpreadsheet(fileInfo);
-			var jObjectList = new List<JObject>
-				{
-					JObject.FromObject(new SimpleAnimal { Id = 1, Name = "alligator" }),
-					JObject.FromObject(new SimpleAnimal { Id = 2, Name = "bee" })
-				};
+			var jsonObjectList = CreateAnimalJsonObjects();
 
 			s.AddSheet(
-				jObjectList
+				jsonObjectList
 			);
 
 			s.Save();
@@ -83,6 +76,16 @@ public class AddSheetTests : Test
 			fileInfo.Delete();
 		}
 	}
+
+	private static List<JsonObject> CreateAnimalJsonObjects() =>
+		[
+			ToJsonObject(new SimpleAnimal { Id = 1, Name = "alligator" }),
+			ToJsonObject(new SimpleAnimal { Id = 2, Name = "bee" })
+		];
+
+	private static JsonObject ToJsonObject(SimpleAnimal animal)
+		=> JsonSerializer.SerializeToNode(animal)?.AsObject()
+			?? throw new ArgumentException("Could not convert the animal to a JsonObject", nameof(animal));
 
 	[Fact]
 	public void AddSheet_SheetNameAlreadyExists_Fails()
@@ -226,47 +229,10 @@ public class AddSheetTests : Test
 		{
 			using var s = new MagicSpreadsheet(fileInfo);
 
-			var funkyAnimals = new List<FunkyAnimal>
-			{
-				new() {
-					Id = 0,
-					Name = "Old Woman",
-					WeightKg = 60,
-					Leg_Count = 2,
-					Nicknames = ["Woo", "Yay"],
-					Friends = [
-						new() { Id = 10, Name="Houpla" },
-						new() { Id = 11, Name = "Bedoink" }
-					]
-				},
-				new() { Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4, Nicknames = ["Bert", "Ernie"]},
-				new() { Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
-				new() { Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
-				new() { Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
-				new() { Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
-				new() { Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
-				new() { Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
-			};
+			var funkyAnimals = CreateFunkyAnimals();
 
-			var sheetOptions = new AddSheetOptions
-			{
-				EnumerableCellOptions = new()
-				{
-					Expand = true,
-					CellDelimiter = ", "
-				}
-			};
-			s.AddSheet(funkyAnimals, "Animals", sheetOptions);
-			sheetOptions = new AddSheetOptions
-			{
-				TableOptions = new TableOptions
-				{
-					Name = "Table 2",
-					DisplayName = "Table2",
-					XlsxTableStyle = XlsxTableStyle.TableStyleDark2
-				}
-			};
-			s.AddSheet(funkyAnimals, "Animals 2", sheetOptions);
+			s.AddSheet(funkyAnimals, "Animals", CreateExpandedEnumerableSheetOptions());
+			s.AddSheet(funkyAnimals, "Animals 2", CreateSecondTableSheetOptions());
 			s.Save();
 		}
 		finally
@@ -283,57 +249,10 @@ public class AddSheetTests : Test
 		try
 		{
 			using var s = new MagicSpreadsheet(fileInfo);
-			var emptyDictionary = new Dictionary<string, object?>();
-			var funkyAnimals = new List<Extended<FunkyAnimal>>
-			{
-				new(new FunkyAnimal{
-					Id = 0,
-					Name = "Old Woman",
-					WeightKg = 60,
-					Leg_Count = 2,
-					Nicknames = ["Woo", "Yay"],
-					Friends = [
-						new() { Id = 10, Name="Houpla" },
-						new() { Id = 11, Name = "Bedoink" }
-					],
-				}, new Dictionary<string, object?> { { "Extended", "Extended" } }),
-				new (
-					new FunkyAnimal
-					{
-						Id = 1,
-						Name = "Horse",
-						WeightKg = 200,
-						Leg_Count = 4,
-						Nicknames = ["Bert", "Ernie"]
-					},
-					[]),
-				new (new FunkyAnimal{ Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4}, emptyDictionary),
-				new (new FunkyAnimal{ Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4}, emptyDictionary),
-				new (new FunkyAnimal{ Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4}, emptyDictionary),
-				new (new FunkyAnimal{ Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4}, emptyDictionary),
-				new (new FunkyAnimal{ Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8}, emptyDictionary),
-				new(new FunkyAnimal { Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6 }, emptyDictionary)
-			};
+			var funkyAnimals = CreateExtendedFunkyAnimals();
 
-			var sheetOptions = new AddSheetOptions
-			{
-				EnumerableCellOptions = new()
-				{
-					Expand = true,
-					CellDelimiter = ", "
-				}
-			};
-			s.AddSheet(funkyAnimals, "Animals", sheetOptions);
-			sheetOptions = new AddSheetOptions
-			{
-				TableOptions = new TableOptions
-				{
-					Name = "Table 2",
-					DisplayName = "Table2",
-					XlsxTableStyle = XlsxTableStyle.TableStyleDark2
-				}
-			};
-			s.AddSheet(funkyAnimals, "Animals 2", sheetOptions);
+			s.AddSheet(funkyAnimals, "Animals", CreateExpandedEnumerableSheetOptions());
+			s.AddSheet(funkyAnimals, "Animals 2", CreateSecondTableSheetOptions());
 			s.Save();
 		}
 		finally
@@ -341,4 +260,64 @@ public class AddSheetTests : Test
 			fileInfo.Delete();
 		}
 	}
+
+	private static List<FunkyAnimal> CreateFunkyAnimals()
+		=>
+		[
+			new() {
+				Id = 0,
+				Name = "Old Woman",
+				WeightKg = 60,
+				Leg_Count = 2,
+				Nicknames = ["Woo", "Yay"],
+				Friends = [
+					new() { Id = 10, Name="Houpla" },
+					new() { Id = 11, Name = "Bedoink" }
+				]
+			},
+			new() { Id = 1, Name = "Horse", WeightKg = 200, Leg_Count = 4, Nicknames = ["Bert", "Ernie"]},
+			new() { Id = 2, Name = "Cow", WeightKg = 100, Leg_Count = 4},
+			new() { Id = 3, Name = "Dog", WeightKg = 50, Leg_Count = 4},
+			new() { Id = 4, Name = "Cat", WeightKg = 25, Leg_Count = 4},
+			new() { Id = 5, Name = "Mouse", WeightKg = 0.1, Leg_Count = 4},
+			new() { Id = 7, Name = "Spider", WeightKg = 0.01, Leg_Count = 8},
+			new() { Id = 8, Name = "Fly", WeightKg = 0.001, Leg_Count = 6}
+		];
+
+	/// <summary>
+	/// The same animals as <see cref="CreateFunkyAnimals"/>, where only the first carries an
+	/// extended property, so that a sheet mixing the two is exercised.
+	/// </summary>
+	private static List<Extended<FunkyAnimal>> CreateExtendedFunkyAnimals()
+	{
+		var animals = CreateFunkyAnimals();
+		var emptyDictionary = new Dictionary<string, object?>();
+
+		return
+		[
+			new(animals[0], new Dictionary<string, object?> { { "Extended", "Extended" } }),
+			.. animals.Skip(1).Select(animal => new Extended<FunkyAnimal>(animal, emptyDictionary))
+		];
+	}
+
+	private static AddSheetOptions CreateExpandedEnumerableSheetOptions()
+		=> new()
+		{
+			EnumerableCellOptions = new()
+			{
+				Expand = true,
+				CellDelimiter = ", "
+			}
+		};
+
+	private static AddSheetOptions CreateSecondTableSheetOptions()
+		=> new()
+		{
+			TableOptions = new TableOptions
+			{
+				Name = "Table 2",
+				DisplayName = "Table2",
+				XlsxTableStyle = XlsxTableStyle.TableStyleDark2
+			}
+		};
 }

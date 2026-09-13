@@ -107,10 +107,12 @@ public partial class MagicSpreadsheet
 
 	private (CellFormats? cellFormats, NumberingFormats? numberingFormats) GetFormattingParts()
 	{
-		var cellFormats = _document?.WorkbookPart?.WorkbookStylesPart?.Stylesheet?.CellFormats;
-		var numberingFormats = _document?.WorkbookPart?.WorkbookStylesPart?.Stylesheet?.NumberingFormats;
-		return (cellFormats, numberingFormats);
+		var stylesheet = GetStylesheet();
+		return (stylesheet?.CellFormats, stylesheet?.NumberingFormats);
 	}
+
+	private Stylesheet? GetStylesheet()
+		=> _document?.WorkbookPart?.WorkbookStylesPart?.Stylesheet;
 
 	private static string? GetFormatString(uint numberFormatId, NumberingFormats? numberingFormats)
 	{

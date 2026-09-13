@@ -8,10 +8,6 @@ namespace PanoramicData.SheetMagic;
 /// </summary>
 public partial class MagicSpreadsheet : IDisposable
 {
-	private const string Letters = "abcdefghijklmnopqrstuvwxyz";
-	private const string Numbers = "0123456789";
-	private static readonly Regex CellReferenceRegex = GetCellReferenceRegex();
-
 	private readonly FileInfo? _fileInfo;
 	private readonly Stream? _stream;
 	private readonly Options _options;
@@ -96,19 +92,19 @@ public partial class MagicSpreadsheet : IDisposable
 
 		_isSaved = true;
 
-		// Ensure that at least one sheet has been added
-		if (_document?.WorkbookPart?.Workbook?.Sheets == null || !_document.WorkbookPart.Workbook.Sheets.Any())
+		if (!HasAnySheet())
 		{
+			// Ensure that at least one sheet has been added.
 			// This has to contain some data to prevent file corruption.
 			AddSheet(new[] { new { Error = "No data was output." } }.ToList(), "Sheet1");
 		}
 
-		if (_document?.WorkbookPart?.Workbook is null)
+		if (!HasWorkbook())
 		{
 			throw new InvalidOperationException("Document incorrectly created.");
 		}
 
-		var document = _document;
+		var document = _document!;
 
 		// Once a save has been attempted the document is no longer usable, whether or not the
 		// attempt succeeded.  Drop the reference before doing the work so that a subsequent
@@ -117,7 +113,7 @@ public partial class MagicSpreadsheet : IDisposable
 
 		try
 		{
-			document.WorkbookPart.Workbook.Save();
+			document.WorkbookPart!.Workbook!.Save();
 
 			// Disposing the package is what commits the remaining parts and closes the file.
 			// It is done here, rather than in Dispose(), so that any failure surfaces from the
@@ -129,13 +125,28 @@ public partial class MagicSpreadsheet : IDisposable
 			throw new SpreadsheetTooLargeException(e);
 		}
 
-		// Do we have a stream?
-		if (_stream is not null)
+		RewindStream();
+	}
+
+	private bool HasAnySheet()
+		=> _document?.WorkbookPart?.Workbook?.Sheets?.Any() == true;
+
+	private bool HasWorkbook()
+		=> _document?.WorkbookPart?.Workbook is not null;
+
+	/// <summary>
+	/// If writing to a stream, ensures it is flushed and seeks back to the beginning so that the
+	/// caller can consume what was written.
+	/// </summary>
+	private void RewindStream()
+	{
+		if (_stream is null)
 		{
-			// YES - Ensure it's flushed and seek back to the beginning for consumption
-			_stream.Flush();
-			_ = _stream.Seek(0, SeekOrigin.Begin);
+			return;
 		}
+
+		_stream.Flush();
+		_ = _stream.Seek(0, SeekOrigin.Begin);
 	}
 
 	/// <summary>
@@ -167,7 +178,4 @@ public partial class MagicSpreadsheet : IDisposable
 		_document = null;
 		document?.Dispose();
 	}
-
-	[GeneratedRegex(@"(?<col>([A-Z]|[a-z])+)(?<row>(\d)+)")]
-	private static partial Regex GetCellReferenceRegex();
 }

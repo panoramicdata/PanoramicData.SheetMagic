@@ -109,55 +109,22 @@ public partial class MagicSpreadsheet
 	{
 		var dxf = new DifferentialFormat();
 
-		// Font
-		if (style.FontColor.HasValue || style.FontWeight.HasValue || style.Italic.HasValue || style.Strikethrough.HasValue)
+		var font = CreateDifferentialFont(style);
+		if (font is not null)
 		{
-			var font = new Font();
-			if (style.FontWeight == FontWeight.Bold)
-			{
-				font.Append(new Bold());
-			}
-
-			if (style.Italic == true)
-			{
-				font.Append(new Italic());
-			}
-
-			if (style.Strikethrough == true)
-			{
-				font.Append(new Strike());
-			}
-
-			if (style.FontColor.HasValue)
-			{
-				font.Append(GetColor(style.FontColor.Value));
-			}
-
 			dxf.Append(font);
 		}
 
-		// Fill
 		if (style.BackgroundColor.HasValue)
 		{
-			var fill = new Fill();
-			var patternFill = new PatternFill { PatternType = PatternValues.Solid };
-			patternFill.Append(new ForegroundColor { Rgb = GetHexBinaryValue(style.BackgroundColor.Value) });
-			fill.Append(patternFill);
-			dxf.Append(fill);
+			dxf.Append(CreateSolidFill(style.BackgroundColor.Value));
 		}
 
-		// Border
 		if (style.BorderColor.HasValue)
 		{
-			var border = new Border();
-			border.Append(new LeftBorder { Color = GetColor(style.BorderColor.Value), Style = BorderStyleValues.Thin });
-			border.Append(new RightBorder { Color = GetColor(style.BorderColor.Value), Style = BorderStyleValues.Thin });
-			border.Append(new TopBorder { Color = GetColor(style.BorderColor.Value), Style = BorderStyleValues.Thin });
-			border.Append(new BottomBorder { Color = GetColor(style.BorderColor.Value), Style = BorderStyleValues.Thin });
-			dxf.Append(border);
+			dxf.Append(CreateThinBorder(style.BorderColor.Value));
 		}
 
-		// Number format
 		if (style.NumberFormat is not null)
 		{
 			dxf.Append(new NumberingFormat
@@ -168,6 +135,62 @@ public partial class MagicSpreadsheet
 		}
 
 		return dxf;
+	}
+
+	private static Font? CreateDifferentialFont(ConditionalFormatStyle style)
+	{
+		if (!HasFontStyling(style))
+		{
+			return null;
+		}
+
+		var font = new Font();
+		if (style.FontWeight == FontWeight.Bold)
+		{
+			font.Append(new Bold());
+		}
+
+		if (style.Italic == true)
+		{
+			font.Append(new Italic());
+		}
+
+		if (style.Strikethrough == true)
+		{
+			font.Append(new Strike());
+		}
+
+		if (style.FontColor.HasValue)
+		{
+			font.Append(GetColor(style.FontColor.Value));
+		}
+
+		return font;
+	}
+
+	private static bool HasFontStyling(ConditionalFormatStyle style)
+		=> style.FontColor.HasValue
+			|| style.FontWeight.HasValue
+			|| style.Italic.HasValue
+			|| style.Strikethrough.HasValue;
+
+	private static Fill CreateSolidFill(System.Drawing.Color color)
+	{
+		var fill = new Fill();
+		var patternFill = new PatternFill { PatternType = PatternValues.Solid };
+		patternFill.Append(new ForegroundColor { Rgb = GetHexBinaryValue(color) });
+		fill.Append(patternFill);
+		return fill;
+	}
+
+	private static Border CreateThinBorder(System.Drawing.Color color)
+	{
+		var border = new Border();
+		border.Append(new LeftBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
+		border.Append(new RightBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
+		border.Append(new TopBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
+		border.Append(new BottomBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
+		return border;
 	}
 
 	private static ConditionalFormattingRule BuildConditionalFormattingRule(
@@ -190,68 +213,125 @@ public partial class MagicSpreadsheet
 			cfRule.StopIfTrue = true;
 		}
 
+		ConfigureConditionalFormattingRule(cfRule, rule, firstCellRef);
+
+		return cfRule;
+	}
+
+	/// <summary>
+	/// Applies the parts of the rule that differ by rule type: the comparison operator, the text
+	/// being matched and the formula Excel evaluates for each cell.
+	/// </summary>
+	private static void ConfigureConditionalFormattingRule(
+		ConditionalFormattingRule cfRule,
+		ConditionalFormatRule rule,
+		string firstCellRef)
+	{
+		if (TryConfigureCellIsRule(cfRule, rule))
+		{
+			return;
+		}
+
+		if (TryConfigureFormulaRule(cfRule, rule, firstCellRef))
+		{
+			return;
+		}
+
+		if (TryConfigureTextRule(cfRule, rule, firstCellRef))
+		{
+			return;
+		}
+
+		ConfigureRankingRule(cfRule, rule);
+	}
+
+	private static bool TryConfigureCellIsRule(ConditionalFormattingRule cfRule, ConditionalFormatRule rule)
+	{
+		if (rule.RuleType != ConditionalFormatRuleType.CellIs)
+		{
+			return false;
+		}
+
+		cfRule.Operator = MapConditionalFormatOperator(rule.Operator ?? throw new ValidationException($"{nameof(ConditionalFormatRuleType.CellIs)} rules require {nameof(rule.Operator)}."));
+		cfRule.Append(new Formula(rule.Formula!));
+
+		if (rule.Formula2 is not null)
+		{
+			cfRule.Append(new Formula(rule.Formula2));
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Configures the rule types whose whole configuration is a single formula.
+	/// </summary>
+	private static bool TryConfigureFormulaRule(
+		ConditionalFormattingRule cfRule,
+		ConditionalFormatRule rule,
+		string firstCellRef)
+	{
+		var formula = rule.RuleType switch
+		{
+			ConditionalFormatRuleType.Expression => rule.Formula!,
+			ConditionalFormatRuleType.ContainsBlanks => $"LEN(TRIM({firstCellRef}))=0",
+			ConditionalFormatRuleType.NotContainsBlanks => $"LEN(TRIM({firstCellRef}))>0",
+			ConditionalFormatRuleType.ContainsErrors => $"ISERROR({firstCellRef})",
+			ConditionalFormatRuleType.NotContainsErrors => $"NOT(ISERROR({firstCellRef}))",
+			_ => null
+		};
+
+		if (formula is null)
+		{
+			return false;
+		}
+
+		cfRule.Append(new Formula(formula));
+		return true;
+	}
+
+	/// <summary>
+	/// Configures the rule types that match against <see cref="ConditionalFormatRule.Text"/>.
+	/// </summary>
+	private static bool TryConfigureTextRule(
+		ConditionalFormattingRule cfRule,
+		ConditionalFormatRule rule,
+		string firstCellRef)
+	{
+		var text = rule.Text;
+		var escapedText = text is null ? null : EscapeFormulaText(text);
+
+		(ConditionalFormattingOperatorValues Operator, string? Formula) configuration = rule.RuleType switch
+		{
+			ConditionalFormatRuleType.ContainsText =>
+				(ConditionalFormattingOperatorValues.ContainsText, $"NOT(ISERROR(SEARCH(\"{escapedText}\",{firstCellRef})))"),
+			ConditionalFormatRuleType.NotContainsText =>
+				(ConditionalFormattingOperatorValues.NotContains, $"ISERROR(SEARCH(\"{escapedText}\",{firstCellRef}))"),
+			ConditionalFormatRuleType.BeginsWith =>
+				(ConditionalFormattingOperatorValues.BeginsWith, $"LEFT({firstCellRef},{text!.Length})=\"{escapedText}\""),
+			ConditionalFormatRuleType.EndsWith =>
+				(ConditionalFormattingOperatorValues.EndsWith, $"RIGHT({firstCellRef},{text!.Length})=\"{escapedText}\""),
+			_ => (default, null)
+		};
+
+		if (configuration.Formula is null)
+		{
+			return false;
+		}
+
+		cfRule.Operator = configuration.Operator;
+		cfRule.Text = text;
+		cfRule.Append(new Formula(configuration.Formula));
+		return true;
+	}
+
+	/// <summary>
+	/// Configures the rule types that rank values against the other values in the column.
+	/// </summary>
+	private static void ConfigureRankingRule(ConditionalFormattingRule cfRule, ConditionalFormatRule rule)
+	{
 		switch (rule.RuleType)
 		{
-			case ConditionalFormatRuleType.CellIs:
-					cfRule.Operator = MapConditionalFormatOperator(rule.Operator ?? throw new ValidationException($"{nameof(ConditionalFormatRuleType.CellIs)} rules require {nameof(rule.Operator)}."));
-				cfRule.Append(new Formula(rule.Formula!));
-
-				if (rule.Formula2 is not null)
-				{
-					cfRule.Append(new Formula(rule.Formula2));
-				}
-
-				break;
-
-			case ConditionalFormatRuleType.Expression:
-				cfRule.Append(new Formula(rule.Formula!));
-
-				break;
-
-			case ConditionalFormatRuleType.ContainsBlanks:
-				cfRule.Append(new Formula($"LEN(TRIM({firstCellRef}))=0"));
-				break;
-
-			case ConditionalFormatRuleType.NotContainsBlanks:
-				cfRule.Append(new Formula($"LEN(TRIM({firstCellRef}))>0"));
-				break;
-
-			case ConditionalFormatRuleType.ContainsErrors:
-				cfRule.Append(new Formula($"ISERROR({firstCellRef})"));
-				break;
-
-			case ConditionalFormatRuleType.NotContainsErrors:
-				cfRule.Append(new Formula($"NOT(ISERROR({firstCellRef}))"));
-				break;
-
-			case ConditionalFormatRuleType.ContainsText:
-				var containsText = EscapeFormulaText(rule.Text!);
-				cfRule.Operator = ConditionalFormattingOperatorValues.ContainsText;
-				cfRule.Text = rule.Text;
-				cfRule.Append(new Formula($"NOT(ISERROR(SEARCH(\"{containsText}\",{firstCellRef})))"));
-				break;
-
-			case ConditionalFormatRuleType.NotContainsText:
-				var notContainsText = EscapeFormulaText(rule.Text!);
-				cfRule.Operator = ConditionalFormattingOperatorValues.NotContains;
-				cfRule.Text = rule.Text;
-				cfRule.Append(new Formula($"ISERROR(SEARCH(\"{notContainsText}\",{firstCellRef}))"));
-				break;
-
-			case ConditionalFormatRuleType.BeginsWith:
-				var beginsWithText = EscapeFormulaText(rule.Text!);
-				cfRule.Operator = ConditionalFormattingOperatorValues.BeginsWith;
-				cfRule.Text = rule.Text;
-				cfRule.Append(new Formula($"LEFT({firstCellRef},{rule.Text!.Length})=\"{beginsWithText}\""));
-				break;
-
-			case ConditionalFormatRuleType.EndsWith:
-				var endsWithText = EscapeFormulaText(rule.Text!);
-				cfRule.Operator = ConditionalFormattingOperatorValues.EndsWith;
-				cfRule.Text = rule.Text;
-				cfRule.Append(new Formula($"RIGHT({firstCellRef},{rule.Text!.Length})=\"{endsWithText}\""));
-				break;
-
 			case ConditionalFormatRuleType.Top10:
 				cfRule.Rank = rule.Rank ?? 10;
 				cfRule.Bottom = rule.Bottom;
@@ -271,13 +351,10 @@ public partial class MagicSpreadsheet
 
 				break;
 
-			case ConditionalFormatRuleType.DuplicateValues:
-			case ConditionalFormatRuleType.UniqueValues:
-				// No additional configuration needed for these rule types
+			default:
+				// DuplicateValues and UniqueValues need no further configuration
 				break;
 		}
-
-		return cfRule;
 	}
 
 	private static ConditionalFormatValues MapConditionalFormatRuleType(ConditionalFormatRuleType ruleType)

@@ -9,27 +9,25 @@ namespace PanoramicData.SheetMagic;
 /// </summary>
 public partial class MagicSpreadsheet
 {
-	private void AddItems<T>(
+	private SheetLayout AddItems<T>(
 		List<T> items,
 		AddSheetOptions addSheetOptions,
 		Type type,
 		bool isExtended,
-		SheetData sheetData,
-		out List<PropertyInfo> propertyList,
-		out Columns columnConfigurations,
-		out List<string> keyList,
-		out uint totalColumnCount)
+		SheetData sheetData)
 	{
 		var (basicType, keyHashSet) = DetermineTypeAndCollectKeys(items, addSheetOptions, type, isExtended);
 
-		propertyList = GetFilteredAndOrderedProperties(basicType, addSheetOptions);
-		keyList = SortKeyList(keyHashSet, addSheetOptions);
+		var propertyList = GetFilteredAndOrderedProperties(basicType, addSheetOptions);
+		var keyList = SortKeyList(keyHashSet, addSheetOptions);
 
-		totalColumnCount = (uint)(propertyList.Count + keyList.Count);
-		columnConfigurations = CreateColumns(totalColumnCount);
+		var totalColumnCount = (uint)(propertyList.Count + keyList.Count);
+		var columnConfigurations = CreateColumns(totalColumnCount);
 
 		AddHeaderRow(sheetData, propertyList, keyList, addSheetOptions);
 		AddDataRows(items, addSheetOptions, type, isExtended, sheetData, propertyList, keyList);
+
+		return new SheetLayout(propertyList, columnConfigurations, keyList, totalColumnCount);
 	}
 
 	private static (Type basicType, HashSet<string> keyHashSet) DetermineTypeAndCollectKeys<T>(
@@ -166,14 +164,14 @@ public partial class MagicSpreadsheet
 		List<string> keyList,
 		AddSheetOptions addSheetOptions)
 	{
-		uint rowIndex = 0;
-		var row = new Row { RowIndex = ++rowIndex };
+		uint rowIndex = 1;
+		var row = new Row { RowIndex = rowIndex };
 		_ = sheetData.AppendChild(row);
-		var cellIndex = 0;
+		var writer = new RowWriter(row, rowIndex);
 
 		var headers = GetHeaders(propertyList, addSheetOptions);
-		AddHeaderCells(row, headers, ref cellIndex, rowIndex);
-		AddHeaderCells(row, keyList, ref cellIndex, rowIndex);
+		AddHeaderCells(writer, headers);
+		AddHeaderCells(writer, keyList);
 	}
 
 	private static string[] GetHeaders(List<PropertyInfo> propertyList, AddSheetOptions addSheetOptions)
@@ -181,14 +179,11 @@ public partial class MagicSpreadsheet
 			? addSheetOptions.PropertyHeaders
 			: [.. propertyList.Select(p => p.GetPropertyDescription() ?? p.Name)];
 
-	private static void AddHeaderCells(Row row, IEnumerable<string> headers, ref int cellIndex, uint rowIndex)
+	private static void AddHeaderCells(RowWriter writer, IEnumerable<string> headers)
 	{
 		foreach (var header in headers)
 		{
-			_ = row.AppendChild(CreateCell(
-				ColumnLetter(cellIndex++),
-				rowIndex,
-				header ?? string.Empty));
+			writer.AppendValue(header ?? string.Empty);
 		}
 	}
 
@@ -208,13 +203,13 @@ public partial class MagicSpreadsheet
 		{
 			var row = new Row { RowIndex = ++rowIndex };
 			_ = sheetData.AppendChild(row);
-			var cellIndex = 0;
+			var writer = new RowWriter(row, rowIndex);
 
-			AddItemCells(item, addSheetOptions!, type, isExtended, propertyList, enumerableCellOptions, row, ref cellIndex, rowIndex);
+			AddItemCells(item, addSheetOptions!, type, isExtended, propertyList, enumerableCellOptions, writer);
 
 			if (isExtended)
 			{
-				AddExtendedPropertyCells(item, type, keyList, row, ref cellIndex, rowIndex);
+				AddExtendedPropertyCells(item, type, keyList, writer);
 			}
 		}
 	}
@@ -226,17 +221,15 @@ public partial class MagicSpreadsheet
 		bool isExtended,
 		List<PropertyInfo> propertyList,
 		EnumerableCellOptions enumerableCellOptions,
-		Row row,
-		ref int cellIndex,
-		uint rowIndex)
+		RowWriter writer)
 	{
 		if (addSheetOptions?.PropertyOrder?.Length > 0)
 		{
-			AddOrderedPropertyCells(item, addSheetOptions, enumerableCellOptions, row, ref cellIndex, rowIndex);
+			AddOrderedPropertyCells(item, addSheetOptions, enumerableCellOptions, writer);
 		}
 		else
 		{
-			AddStandardPropertyCells(item, type, isExtended, propertyList, enumerableCellOptions, row, ref cellIndex, rowIndex);
+			AddStandardPropertyCells(item, type, isExtended, propertyList, enumerableCellOptions, writer);
 		}
 	}
 
@@ -244,24 +237,11 @@ public partial class MagicSpreadsheet
 		T item,
 		AddSheetOptions addSheetOptions,
 		EnumerableCellOptions enumerableCellOptions,
-		Row row,
-		ref int cellIndex,
-		uint rowIndex)
+		RowWriter writer)
 	{
 		foreach (var prop in addSheetOptions!.PropertyOrder!)
 		{
-			var cell = GetCell(
-				enumerableCellOptions,
-				GetPropertyValue(prop, item),
-				cellIndex,
-				rowIndex);
-
-			if (cell is not null)
-			{
-				_ = row.AppendChild(cell);
-			}
-
-			cellIndex++;
+			writer.AppendValue(ConvertValueForCell(enumerableCellOptions, GetPropertyValue(prop, item)));
 		}
 	}
 
@@ -271,21 +251,12 @@ public partial class MagicSpreadsheet
 		bool isExtended,
 		List<PropertyInfo> propertyList,
 		EnumerableCellOptions enumerableCellOptions,
-		Row row,
-		ref int cellIndex,
-		uint rowIndex)
+		RowWriter writer)
 	{
 		foreach (var property in propertyList)
 		{
 			var propertyValue = GetPropertyValueForCell(item, type, isExtended, property);
-			var cell = GetCell(enumerableCellOptions, propertyValue, cellIndex, rowIndex);
-
-			if (cell is not null)
-			{
-				_ = row.AppendChild(cell);
-			}
-
-			cellIndex++;
+			writer.AppendValue(ConvertValueForCell(enumerableCellOptions, propertyValue));
 		}
 	}
 
@@ -306,9 +277,7 @@ public partial class MagicSpreadsheet
 		T item,
 		Type type,
 		List<string> keyList,
-		Row row,
-		ref int cellIndex,
-		uint rowIndex)
+		RowWriter writer)
 	{
 		var propertyInfo = type.GetProperties().Single(p => p.Name == nameof(Extended<object>.Properties));
 		var dictionary = (Dictionary<string, object>?)propertyInfo.GetValue(item);
@@ -326,24 +295,36 @@ public partial class MagicSpreadsheet
 			}
 
 			// Don't add cells for null objects
-			if (@object is not null)
+			if (@object is null)
 			{
-				var cell = CreateCell(ColumnLetter(cellIndex), rowIndex, @object);
-				_ = row.AppendChild(cell);
+				writer.SkipCell();
+				continue;
 			}
 
-			cellIndex++;
+			writer.AppendValue(@object);
 		}
 	}
 
-	private static Cell? GetCell<T>(
-		EnumerableCellOptions enumerableCellOptions,
-		T? v,
-		int cellIndex,
-		uint rowIndex)
+	/// <summary>
+	/// Writes cells left to right into a single row, keeping track of the column each one lands in.
+	/// </summary>
+	private sealed class RowWriter(Row row, uint rowIndex)
 	{
-		var value = ConvertValueForCell(enumerableCellOptions, v);
-		return CreateCell(ColumnLetter(cellIndex), rowIndex, value);
+		private int _cellIndex;
+
+		/// <summary>
+		/// Writes <paramref name="value"/> into the next column.
+		/// </summary>
+		internal void AppendValue(object? value)
+		{
+			_ = row.AppendChild(CreateCell(ColumnLetter(_cellIndex), rowIndex, value));
+			_cellIndex++;
+		}
+
+		/// <summary>
+		/// Leaves the next column empty.
+		/// </summary>
+		internal void SkipCell() => _cellIndex++;
 	}
 
 	private static object? ConvertValueForCell<T>(EnumerableCellOptions enumerableCellOptions, T? v)

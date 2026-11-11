@@ -79,7 +79,7 @@ jobs:
     # comparable across the estate.
     - name: Run tests with coverage
       run: >-
-        ./PanoramicData.SheetMagic.Test/bin/Debug/net10.0/PanoramicData.SheetMagic.Test
+        ./PanoramicData.SheetMagic.Test/bin/Debug/net11.0/PanoramicData.SheetMagic.Test
         --coverage
         --coverage-settings ${{ github.workspace }}/coverage.config
         --coverage-output-format cobertura
@@ -93,7 +93,7 @@ jobs:
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: PanoramicData.SheetMagic.Test/bin/Debug/net10.0/TestResults/coverage.cobertura.xml
+        coverage-reports: PanoramicData.SheetMagic.Test/bin/Debug/net11.0/TestResults/coverage.cobertura.xml
 
     - name: Upload coverage artifact
       if: always()
@@ -101,7 +101,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: coverage
-        path: PanoramicData.SheetMagic.Test/bin/Debug/net10.0/TestResults/coverage.cobertura.xml
+        path: PanoramicData.SheetMagic.Test/bin/Debug/net11.0/TestResults/coverage.cobertura.xml
         retention-days: 7
 
   publish:

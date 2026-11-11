@@ -123,11 +123,7 @@ public partial class MagicSpreadsheet
 
 		if (cell.DataType != null && (CellValues)cell.DataType == CellValues.SharedString)
 		{
-			if (stringTable?.SharedStringTable is null || cellValueText == null)
-			{
-				return string.Empty;
-			}
-			return stringTable.SharedStringTable.ElementAt(int.Parse(cellValueText)).InnerText;
+			return GetSharedStringValue(stringTable, cellValueText);
 		}
 
 		return cellValueText ?? cell.InnerText;
@@ -390,10 +386,8 @@ public partial class MagicSpreadsheet
 
 		var stringTableIndex = int.Parse(cellValueText);
 		var sharedStringElement = stringTable.SharedStringTable.ElementAt(stringTableIndex);
-		var sharedStringValue = sharedStringElement.InnerText;
-
 		// Handle special Infinity values for object-typed cells
-		return TryParseInfinityForObject<T>(sharedStringValue) ?? (object)sharedStringValue;
+		return TryParseInfinityForObject<T>(sharedStringElement.InnerText) ?? (object)sharedStringElement.InnerText;
 	}
 
 	/// <summary>
@@ -406,12 +400,7 @@ public partial class MagicSpreadsheet
 			: null;
 
 	private static bool? ParseBooleanValueTyped(string? cellValueText)
-		=> cellValueText switch
-		{
-			"1" or "true" => true,
-			"0" or "false" => false,
-			_ => null,
-		};
+		=> ParseBooleanValue(cellValueText);
 
 	private static double ParseNumberTyped(string? cellValueText)
 	{

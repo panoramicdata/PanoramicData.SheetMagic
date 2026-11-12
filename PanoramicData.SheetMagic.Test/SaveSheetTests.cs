@@ -351,21 +351,13 @@ public class SaveSheetTests : Test
 		}
 	}
 
-	private static void Check<T>(T theValue)
+	private static Dictionary<string, object?> RoundTripProperties(Dictionary<string, object?> properties)
 	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", theValue },
-				{ "b", "randomString" }
-			}
-		);
+		var a = new Extended<object>(new object(), properties);
 		var fileInfo = GetXlsxTempFileInfo();
 
 		try
 		{
-			// Save
 			using (var s1 = new MagicSpreadsheet(fileInfo))
 			{
 				s1.AddSheet([a]);
@@ -376,129 +368,47 @@ public class SaveSheetTests : Test
 			s2.Load();
 			var b = s2.GetExtendedList<object>();
 			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(theValue);
+			_ = b[0].Properties.Keys.Should().Contain("a");
+			return b[0].Properties;
 		}
 		finally
 		{
 			fileInfo.Delete();
 		}
 	}
+
+	private static object? RoundTripValue<T>(T value, bool includeRandomString = true)
+	{
+		var properties = new Dictionary<string, object?> { { "a", value } };
+		if (includeRandomString)
+		{
+			properties.Add("b", "randomString");
+		}
+
+		return RoundTripProperties(properties)["a"];
+	}
+
+	private static void Check<T>(T theValue)
+		=> _ = RoundTripValue(theValue).Should().Be(theValue);
 
 	//When creating cells with DateTimeOffset we use the .UtcDateTime
 	//which creates a DateTime object so we need to compare that
 	private static void CheckDateTimeOffset(DateTimeOffset? inputDate, DateTime expectedDate)
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", inputDate }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet([a]);
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(expectedDate);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
+		=> _ = RoundTripValue(inputDate, includeRandomString: false).Should().Be(expectedDate);
 
 	private static void CheckNullValue<T>(T inputValue, object expectedValue)
-	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", inputValue },
-				{ "b", "randomString" }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
-
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet([a]);
-				s1.Save();
-			}
-
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-			_ = firstItem.Properties["a"].Should().Be(expectedValue);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
-	}
+		=> _ = RoundTripValue(inputValue).Should().Be(expectedValue);
 
 	private static void CheckWithDoublePrecision<T>(T theValue) where T : struct
 	{
-		var a = new Extended<object>(
-			new object(),
-			new Dictionary<string, object?>
-			{
-				{ "a", theValue },
-				{ "b", "randomString" }
-			}
-		);
-		var fileInfo = GetXlsxTempFileInfo();
+		var retrievedValue = RoundTripValue(theValue);
 
-		try
-		{
-			// Save
-			using (var s1 = new MagicSpreadsheet(fileInfo))
-			{
-				s1.AddSheet([a]);
-				s1.Save();
-			}
+		// Excel stores all numbers as doubles, so large integers lose precision
+		_ = retrievedValue.Should().NotBeNull();
+		_ = retrievedValue.Should().BeOfType<double>();
 
-			using var s2 = new MagicSpreadsheet(fileInfo);
-			s2.Load();
-			var b = s2.GetExtendedList<object>();
-			_ = b.Should().NotBeNullOrEmpty();
-			var firstItem = b[0];
-			_ = firstItem.Properties.Keys.Should().Contain("a");
-
-			// Excel stores all numbers as doubles, so large integers lose precision
-			// Verify that the value is stored as a double (scientific notation)
-			var retrievedValue = firstItem.Properties["a"];
-			_ = retrievedValue.Should().NotBeNull();
-			_ = retrievedValue.Should().BeOfType<double>();
-
-			// The double representation should be close to the original value
-			var doubleValue = (double)retrievedValue!;
-			var expectedDouble = Convert.ToDouble(theValue);
-			_ = Math.Abs(doubleValue - expectedDouble).Should().BeLessThan(expectedDouble * 1e-10);
-		}
-		finally
-		{
-			fileInfo.Delete();
-		}
+		var doubleValue = (double)retrievedValue!;
+		var expectedDouble = Convert.ToDouble(theValue);
+		_ = Math.Abs(doubleValue - expectedDouble).Should().BeLessThan(expectedDouble * 1e-10);
 	}
 }

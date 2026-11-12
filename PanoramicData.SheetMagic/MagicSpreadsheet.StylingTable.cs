@@ -135,12 +135,12 @@ public partial class MagicSpreadsheet
 		return border;
 	}
 
-	private static Color GetColor(System.Drawing.Color color)
+	internal static Color GetColor(System.Drawing.Color color)
 		=> Equals(color, System.Drawing.Color.White)
 			? new Color { Theme = 0U }
 			: new Color { Rgb = GetHexBinaryValue(color) };
 
-	private static HexBinaryValue GetHexBinaryValue(System.Drawing.Color color) => new()
+	internal static HexBinaryValue GetHexBinaryValue(System.Drawing.Color color) => new()
 	{
 		Value = $"FF{color.R:X2}{color.G:X2}{color.B:X2}"
 	};

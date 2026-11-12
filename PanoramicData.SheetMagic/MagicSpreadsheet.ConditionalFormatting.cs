@@ -52,10 +52,10 @@ public partial class MagicSpreadsheet
 
 				foreach (var rule in conditionalFormat.Rules)
 				{
-					var dxf = CreateDifferentialFormatFromStyle(rule.Style, ref nextNumberFormatId);
+					var dxf = DifferentialFormatBuilder.CreateDifferentialFormatFromStyle(rule.Style, ref nextNumberFormatId);
 					differentialFormats.Append(dxf);
 
-					var cfRule = BuildConditionalFormattingRule(rule, currentDxfId, priority++, firstCellRef);
+					var cfRule = ConditionalFormatRuleBuilder.BuildConditionalFormattingRule(rule, currentDxfId, priority++, firstCellRef);
 					cfElement.Append(cfRule);
 					currentDxfId++;
 				}
@@ -105,94 +105,6 @@ public partial class MagicSpreadsheet
 		return $"{firstColLetter}2";
 	}
 
-	private static DifferentialFormat CreateDifferentialFormatFromStyle(ConditionalFormatStyle style, ref uint nextNumberFormatId)
-	{
-		var dxf = new DifferentialFormat();
-
-		var font = CreateDifferentialFont(style);
-		if (font is not null)
-		{
-			dxf.Append(font);
-		}
-
-		if (style.BackgroundColor.HasValue)
-		{
-			dxf.Append(CreateSolidFill(style.BackgroundColor.Value));
-		}
-
-		if (style.BorderColor.HasValue)
-		{
-			dxf.Append(CreateThinBorder(style.BorderColor.Value));
-		}
-
-		if (style.NumberFormat is not null)
-		{
-			dxf.Append(new NumberingFormat
-			{
-				NumberFormatId = nextNumberFormatId++,
-				FormatCode = style.NumberFormat
-			});
-		}
-
-		return dxf;
-	}
-
-	private static Font? CreateDifferentialFont(ConditionalFormatStyle style)
-	{
-		if (!HasFontStyling(style))
-		{
-			return null;
-		}
-
-		var font = new Font();
-		if (style.FontWeight == FontWeight.Bold)
-		{
-			font.Append(new Bold());
-		}
-
-		if (style.Italic == true)
-		{
-			font.Append(new Italic());
-		}
-
-		if (style.Strikethrough == true)
-		{
-			font.Append(new Strike());
-		}
-
-		if (style.FontColor.HasValue)
-		{
-			font.Append(GetColor(style.FontColor.Value));
-		}
-
-		return font;
-	}
-
-	private static bool HasFontStyling(ConditionalFormatStyle style)
-		=> style.FontColor.HasValue
-			|| style.FontWeight.HasValue
-			|| style.Italic.HasValue
-			|| style.Strikethrough.HasValue;
-
-	private static Fill CreateSolidFill(System.Drawing.Color color)
-	{
-		var fill = new Fill();
-		var patternFill = new PatternFill { PatternType = PatternValues.Solid };
-		patternFill.Append(new ForegroundColor { Rgb = GetHexBinaryValue(color) });
-		fill.Append(patternFill);
-		return fill;
-	}
-
-	private static Border CreateThinBorder(System.Drawing.Color color)
-	{
-		var border = new Border();
-		border.Append(new LeftBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
-		border.Append(new RightBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
-		border.Append(new TopBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
-		border.Append(new BottomBorder { Color = GetColor(color), Style = BorderStyleValues.Thin });
-		return border;
-	}
-
 	private static uint GetNextConditionalNumberFormatId(Stylesheet stylesheet)
 	{
 		var nextNumberFormatId = stylesheet
@@ -203,7 +115,4 @@ public partial class MagicSpreadsheet
 
 		return Math.Max(nextNumberFormatId, 165U);
 	}
-
-	private static string EscapeFormulaText(string text)
-		=> text.Replace("\"", "\"\"");
 }

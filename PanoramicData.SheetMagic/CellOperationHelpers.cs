@@ -3,11 +3,11 @@
 namespace PanoramicData.SheetMagic;
 
 /// <summary>
-/// Cell creation and manipulation methods
+/// Cell creation methods
 /// </summary>
-public partial class MagicSpreadsheet
+internal static class CellOperationHelpers
 {
-	private static Cell CreateCell(string header, uint index, object? @object)
+	internal static Cell CreateCell(string header, uint index, object? @object)
 	{
 		if (@object == null)
 		{
@@ -41,7 +41,7 @@ public partial class MagicSpreadsheet
 		};
 	}
 
-	private static Cell CreateNumericOrSpecialCell(string header, uint index, object @object)
+	internal static Cell CreateNumericOrSpecialCell(string header, uint index, object @object)
 	{
 		var doubleValue = Convert.ToDouble(@object);
 
@@ -63,7 +63,7 @@ public partial class MagicSpreadsheet
 		return CreateNumericCell(header, index, doubleValue);
 	}
 
-	private static Cell CreateNullableTypeCell(string header, uint index, object @object)
+	internal static Cell CreateNullableTypeCell(string header, uint index, object @object)
 	{
 		var objectTypeName = @object.GetType().Name;
 
@@ -88,14 +88,14 @@ public partial class MagicSpreadsheet
 		};
 	}
 
-	private static Cell CreateNumericCell(string header, uint index, double number) =>
+	internal static Cell CreateNumericCell(string header, uint index, double number) =>
 		new(new CellValue(number.ToString(CultureInfo.InvariantCulture)))
 		{
 			DataType = CellValues.Number,
 			CellReference = header + index
 		};
 
-	private static Cell CreateDateCell(string header, uint index, DateTime date) =>
+	internal static Cell CreateDateCell(string header, uint index, DateTime date) =>
 		new(new CellValue(date))
 		{
 			DataType = CellValues.Date,
@@ -103,14 +103,14 @@ public partial class MagicSpreadsheet
 			StyleIndex = 1
 		};
 
-	private static Cell CreateTextCell(string header, uint index, string text) =>
+	internal static Cell CreateTextCell(string header, uint index, string text) =>
 		 new(new InlineString(new Text { Text = text }))
 		 {
 			 DataType = CellValues.InlineString,
 			 CellReference = header + index
 		 };
 
-	private static Cell CreateBooleanCell(string header, uint index, bool booleanValue) =>
+	internal static Cell CreateBooleanCell(string header, uint index, bool booleanValue) =>
 		new(new CellValue(booleanValue))
 		{
 			DataType = CellValues.Boolean,

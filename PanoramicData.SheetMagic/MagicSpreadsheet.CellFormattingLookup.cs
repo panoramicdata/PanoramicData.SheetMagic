@@ -68,4 +68,18 @@ public partial class MagicSpreadsheet
 		=> IsFormatStringADate(formatString)
 			? FormatCellAsDateTime(cell, formatString)
 			: FormatCellAsNumber(cell, formatString);
+
+	private object? GetCellValueDirect(Cell cell, SharedStringTablePart? stringTable)
+	{
+		var cellValueText = cell.CellValue?.Text;
+		if (cell.DataType == null)
+		{
+			// Check whether there is a built-in style set
+			return GetCellFormatFromStyle(cell) is string text
+				? text
+				: (object?)cellValueText;
+		}
+
+		return GetCellValueByDataType(cell, stringTable, cellValueText);
+	}
 }

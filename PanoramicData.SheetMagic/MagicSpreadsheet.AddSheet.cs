@@ -9,8 +9,6 @@ namespace PanoramicData.SheetMagic;
 /// </summary>
 public partial class MagicSpreadsheet
 {
-	private const int SheetNameCharacterLimit = 31;
-
 	/// <summary>
 	/// Adds a sheet with the specified items using default options.
 	/// </summary>
@@ -142,52 +140,6 @@ public partial class MagicSpreadsheet
 		// Add any custom table styles
 		var workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>("rId3");
 		GenerateWorkbookStylesPart1Content(workbookStylesPart);
-	}
-
-	private string DetermineAndValidateSheetName(string? sheetName, string typeName)
-	{
-		sheetName = DetermineSheetName(sheetName, typeName);
-		ValidateSheetNameLength(sheetName);
-		ValidateSheetNameUniqueness(sheetName);
-		return sheetName;
-	}
-
-	private static string DetermineSheetName(string? sheetName, string typeName)
-	{
-		if (!string.IsNullOrWhiteSpace(sheetName))
-		{
-			return sheetName!;
-		}
-
-		try
-		{
-			// Get the length and leave space for an "s" on the end
-			var length = Math.Min(typeName.Length, SheetNameCharacterLimit - 1);
-			return $"{typeName[..length]}s";
-		}
-		catch (Exception)
-		{
-			return "Sheet";
-		}
-	}
-
-	private static void ValidateSheetNameLength(string sheetName)
-	{
-		if (sheetName.Length > SheetNameCharacterLimit)
-		{
-			throw new ArgumentException($"Sheet name cannot be more than {SheetNameCharacterLimit} characters", nameof(sheetName));
-		}
-	}
-
-	private void ValidateSheetNameUniqueness(string sheetName)
-	{
-		var sheetExists = _document!.WorkbookPart!.Workbook!.Sheets?
-			.Any(existingSheet => string.Equals(((Sheet)existingSheet).Name!.Value, sheetName, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-
-		if (sheetExists)
-		{
-			throw new ArgumentException($"Sheet name {sheetName} already exists. Sheet names must be unique per Workbook", nameof(sheetName));
-		}
 	}
 
 	private static SheetData GetSheetData(WorksheetPart worksheetPart)

@@ -3,9 +3,9 @@
 /// <summary>
 /// Conditional formatting rule construction and enum mapping
 /// </summary>
-public partial class MagicSpreadsheet
+internal static class ConditionalFormatRuleBuilder
 {
-	private static ConditionalFormattingRule BuildConditionalFormattingRule(
+	internal static ConditionalFormattingRule BuildConditionalFormattingRule(
 		ConditionalFormatRule rule,
 		uint dxfId,
 		int priority,
@@ -202,4 +202,7 @@ public partial class MagicSpreadsheet
 			ConditionalFormatOperator.NotBetween => ConditionalFormattingOperatorValues.NotBetween,
 			_ => throw new ArgumentOutOfRangeException(nameof(op), op, "Unsupported conditional format operator.")
 		};
+
+	private static string EscapeFormulaText(string text)
+		=> text.Replace("\"", "\"\"");
 }

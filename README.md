@@ -6,13 +6,15 @@
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/70d9929b4d3c4d8ab2d69c5209a29b6e)](https://www.codacy.com/gh/panoramicdata/PanoramicData.SheetMagic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=panoramicdata/PanoramicData.SheetMagic&amp;utm_campaign=Badge_Grade)
 ![Commit Activity](https://img.shields.io/github/commit-activity/m/panoramicdata/PanoramicData.SheetMagic)
-![.NET Version](https://img.shields.io/badge/.NET-10.0-512BD4)
+![.NET Version](https://img.shields.io/badge/.NET-11.0-512BD4)
 
 Easily save/load data to/from Excel (XLSX) documents using strongly-typed C# classes.
 
+Supports .NET 11.0.
+
 ## Requirements
 
-- **.NET 10.0** - This library targets .NET 10.0 only
+- **.NET 11.0** - This library targets .NET 11.0 only
 - **DocumentFormat.OpenXml 3.x** - required from 3.1 onwards
 
 ### Versioning

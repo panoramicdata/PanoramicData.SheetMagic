@@ -1,4 +1,4 @@
-﻿[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [![NuGet version](https://img.shields.io/nuget/v/PanoramicData.SheetMagic.svg)](https://www.nuget.org/packages/PanoramicData.SheetMagic/)
 
@@ -7,6 +7,8 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/70d9929b4d3c4d8ab2d69c5209a29b6e)](https://www.codacy.com/gh/panoramicdata/PanoramicData.SheetMagic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=panoramicdata/PanoramicData.SheetMagic&amp;utm_campaign=Badge_Grade)
 ![Commit Activity](https://img.shields.io/github/commit-activity/m/panoramicdata/PanoramicData.SheetMagic)
 ![.NET Version](https://img.shields.io/badge/.NET-11.0-512BD4)
+
+> **Need help with APIs or .NET?** Panoramic Data are experts in APIs and .NET, and we can help with your development. [Contact us](https://www.panoramicdata.com/contact-us) or see our [software services](https://www.panoramicdata.com/services/software).
 
 Easily save/load data to/from Excel (XLSX) documents using strongly-typed C# classes.
 
